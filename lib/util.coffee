@@ -52,15 +52,18 @@ util =
 	
 	# Resolve file path
 	# next(err,fileFullPath,fileRelativePath)
-	resolvePath: (fileFullPath,parentPath,next) ->
-		fs.realpath fileFullPath, (err,fileFullPath) ->
-			# Error
-			if fileFullPath[0...parentPath.length] isnt parentPath
+	resolvePath: (srcPath,parentPath,next) ->
+		fs.realpath srcPath, (err,fileFullPath) ->
+			# Error 
+			if err
+				return next err, srcPath
+			# Check
+			else if fileFullPath.substring(0,parentPath.length) isnt parentPath
 				err = new Error 'Hacker! Tried to create a file outside our working directory: '+fileFullPath
 				return next err, fileFullPath, false
 			# Success
 			else
-				fileRelativePath = fileFullPath[parentPath.length..]
+				fileRelativePath = fileFullPath.substring parentPath.length
 				return next false, fileFullPath, fileRelativePath
 	
 

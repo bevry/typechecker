@@ -13,22 +13,21 @@ This project contains several utility functions used and maintained by Benjamin 
 
 1. [Install Node.js](https://github.com/balupton/node/wiki/Installing-Node.js)
 
-2. Install NowPad
+2. Install it
 
 		npm install bal-util
 
 
 ## Using
 
-- With Node.js and JavaScript
+- With Node.js in JavaScript
 
 	``` javascript
-	// Include Balupton Utility Functions
 	require('coffee-script');
 	util = require('bal-util');
 	```
 
-- With Node.js and CoffeeScript
+- With Node.js in CoffeeScript
 	
 	``` coffeescript
 	util = require 'bal-util'
