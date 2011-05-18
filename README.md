@@ -31,7 +31,7 @@ This project contains several utility functions used and maintained by Benjamin 
 	
 	``` coffeescript
 	util = require 'bal-util'
-
+	```
 
 ## History
 
