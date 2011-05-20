@@ -1,4 +1,3 @@
-var vows = require('vows');
 var assert = require('assert');
 var coffee = require('coffee-script');
 var util = require(__dirname+'/../lib/util.coffee');
@@ -7,6 +6,7 @@ var path = require('path');
 // Test Data
 var srcPath = __dirname+'/src',
 	outPath = __dirname+'/out',
+	nonPath = __dirname+'/asd',
 	writetree = {
 		'index.html': '<html>',
 		'blog': {
@@ -40,101 +40,95 @@ var srcPath = __dirname+'/src',
 		}
 	};
 
-vows.describe('bal-util/util').addBatch({
-	'writetree': {
-		topic: function(){
-			util.writetree(
-				// Path
-				srcPath,
-				// Tree
-				writetree,
-				// Complete
-				this.callback
-			);
-		},
-		'did not error': function(err){
-			assert.equal(err,false);
-		},
-		'scandir': {
-			topic: function() {
-				callback = this.callback;
-				util.scandir(srcPath,false,false,function(err,list,tree){
-					callback(null,err,list,tree);
-				});
-			},
-			'did not error': function(z,err,list,tree){
-				assert.equal(err,false);
-			},
-			'files were written': function(z,err,list,tree){
-				assert.deepEqual(tree,scantree);
-			},
-			'cpdir': {
-				topic: function(){
-					callback = this.callback;
-					util.cpdir(srcPath,outPath,function(err){
-						callback(null,err);
-					});
-				},
-				'did not error': function(z,err,list,tree){
-					assert.equal(err,false);
-				},
-				'scandir': {
-					topic: function() {
-						callback = this.callback;
-						util.scandir(srcPath,false,false,function(err,list,tree){
-							callback(null,err,list,tree);
-						});
-					},
-					'did not error': function(z,err,list,tree){
-						assert.equal(err,false);
-					},
-					'files were copied': function(z,err,list,tree){
-						assert.deepEqual(tree,scantree);
-					},
-					'rmdir-src': {
-						topic: function(){
-							callback = this.callback;
-							util.rmdir(srcPath,function(err){
-								console.log('Ignore the error about to happen, as seeing this proves the callback did fire');
-								callback(null,err);
-							});
-						},
-						'did not error': function(z,err){
-							assert.equal(err||false,false);
-						},
-						'path.exists': function(){
+// Tests
+var tests = {
+	'writetree': function(beforeExit){
+		var nTests = 6, nTestsCompleted = 0;
+
+		// writetree
+		util.writetree(srcPath,writetree,function(err){
+			++nTestsCompleted;
+
+			// no error
+			assert.equal(err||false,false, 'writetree: no error');
+
+			// scandir
+			util.scandir(srcPath,false,false,function(err,list,tree){
+				++nTestsCompleted;
+			
+				// no error
+				assert.equal(err||false,false, 'writetree: scandir: no error');
+
+				// files were written
+				assert.deepEqual(tree,scantree, 'writetree: scandir: files were written');
+
+				// cpdir
+				util.cpdir(srcPath,outPath,function(err){
+					++nTestsCompleted;
+
+					// no error
+					assert.equal(err||false,false, 'writree: scandir: cpdir: no error');
+							
+					// scandir
+					util.scandir(srcPath,false,false,function(err,list,tree){
+						++nTestsCompleted;
+
+						// no error
+						assert.equal(err||false,false, 'writree: scandir: cpdir: scandir: no error');
+
+						// files were copied
+						assert.deepEqual(tree,scantree, 'writree: scandir: cpdir: scandir: files were copied');
+
+						// rmdir
+						util.rmdir(srcPath,function(err){
+							++nTestsCompleted;
+
+							// no error
+							assert.equal(err||false,false, 'writree: scandir: cpdir: scandir: rmdir: no error');
+
+							// dir was deleted
 							var exists = path.existsSync(srcPath);
-							assert.equal(exists,false);
-						}
-					},
-					'rmdir-out': {
-						topic: function(){
-							callback = this.callback;
-							util.rmdir(outPath,function(err){
-								callback(null,err);
-							});
-						},
-						'did not error': function(z,err){
-							assert.equal(err||false,false);
-						},
-						'path.exists': function(){
+							assert.equal(exists,false, 'writree: scandir: cpdir: scandir: rmdir: delete successful');
+						});
+
+						// rmdir
+						util.rmdir(outPath,function(err){
+							++nTestsCompleted;
+
+							// no error
+							assert.equal(err||false,false, 'writree: scandir: cpdir: scandir: rmdir: no error');
+
+							// dir was deleted
 							var exists = path.existsSync(outPath);
-							assert.equal(exists,false);
-						}
-					}
-				}
-			}
-		}
+							assert.equal(exists,false, 'writree: scandir: cpdir: scandir: rmdir: delete successful');
+						});
+					});
+				});
+			});
+		});
+
+		// async
+		beforeExit(function(){
+			assert.equal(nTests, nTestsCompleted, 'all writetree tests ran');
+		});
+	},
+	'rmdir-non': function(beforeExit){
+		var nTests = 1, nTestsCompleted = 0;
+
+		// rmdir
+		util.rmdir(nonPath,function(err){
+			++nTestsCompleted;
+
+			// no error
+			assert.equal(err||false,false, 'rmdir-non: no error');
+		});
+
+		// async
+		beforeExit(function(){
+			assert.equal(nTests, nTestsCompleted, 'all rmdir tests ran');
+		});
 	}
-}).export(module);
+};
 
-function assertError(assertion, value, fail) {
-	try {
-		assertion(value);
-		fail = true;
-	} catch (e) {/* Success */}
-
-	fail && assert.fail(value, assert.AssertionError, 
-							   'expected an AssertionError for {actual}',
-							   'assertError', assertError);
-}
+// Export
+module.exports = tests;
