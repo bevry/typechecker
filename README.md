@@ -36,7 +36,7 @@ This project contains several utility functions used and maintained by Benjamin 
 ## History
 
 - v0.2 May 20, 2011
-	- Added some tests with Vows
+	- Added some tests with expresso
 	- util.scandir now returns err,list,tree
 	- Added util.writetree
 
