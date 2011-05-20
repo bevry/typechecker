@@ -110,10 +110,7 @@ util =
 		exit = (err=false) ->
 			if exited is false
 				exited = true
-				#console.log 'bal-util.scandir: args:', [err, list, tree]
 				next err, list, tree
-		
-		#console.log 'bal-util.scandir: called on:', parentPath
 		
 		# Cycle
 		fs.readdir parentPath, (err,files) ->
@@ -138,7 +135,6 @@ util =
 				fileRelativePath = (if relativePath then relativePath+'/' else '')+file
 
 				# IsDirectory
-				#console.log 'bal-util.scandir: calling isDirectory on:', fileFullPath
 				util.isDirectory fileFullPath, (err,isDirectory) ->
 					# Check
 					if exited
@@ -226,7 +222,7 @@ util =
 	
 	# Remove a directory
 	# next(err)
-	rmdir: (parentPath,next,debug=true) ->
+	rmdir: (parentPath,next) ->
 		path.exists parentPath, (exists) ->
 			# Skip
 			if not exists then return next false
@@ -240,8 +236,6 @@ util =
 						# Forward
 						if err
 							console.log 'bal-util.rmdir: failed to remove the child file:', fileFullPath
-						else if debug
-							console.log 'bal-util.rmdir: removed the child file:', fileFullPath
 						return next err
 				# Dir
 				(fileFullPath,fileRelativePath,next) ->
@@ -249,8 +243,6 @@ util =
 						# Forward
 						if err
 							console.log 'bal-util.rmdir: failed to remove the child directory:', fileFullPath
-						else if debug
-							console.log 'bal-util.rmdir: removed the child directory:', fileFullPath
 						return next err
 				# Completed
 				(err,list,tree) ->
@@ -262,8 +254,6 @@ util =
 						# Forward
 						if err
 							console.log 'bal-util.rmdir: failed to remove the parent directory:', parentPath
-						else if debug
-							console.log 'bal-util.rmdir: removed the parent directory:', parentPath
 						return next err, list, tree
 			)
 	
