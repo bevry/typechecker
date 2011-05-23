@@ -48,6 +48,13 @@ util =
 						# Success
 						return next false
 	
+	# Prefix path
+	prefixPathSync: (path,parentPath) ->
+		path = path.replace /[\/\\]$/, ''
+		if /^([a-zA-Z]\:|\/)/.test(path) is false
+			path = parentPath + '/' + path
+		return path
+	
 	# Is it a directory?
 	# next(err,isDirectory)
 	isDirectory: (fileFullPath,next) ->
