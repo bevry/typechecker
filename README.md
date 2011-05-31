@@ -33,7 +33,11 @@ This project contains several utility functions used and maintained by Benjamin 
 	util = require 'bal-util'
 	```
 
+
 ## History
+
+- v0.3 June 1, 2011
+	- Added util.Group class for your async needs :)
 
 - v0.2 May 20, 2011
 	- Added some tests with expresso

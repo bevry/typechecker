@@ -4,6 +4,75 @@ path = require 'path'
 
 # Util
 util =
+
+	# Group
+	# Easily provide a completion event for a group of async functions
+	#
+	# Usage:
+	#
+	#	# Create tasks list with a completion callback
+	#	tasks = new util.Group (err) -> next err
+	#	
+	#	# Specify we have a new task to wait for
+	#   ++tasks.total
+	#
+	#	# Add our new task
+	#	tasks.push someAsyncFunction arg1, arg2, (err) ->
+	#		tasks.complete err
+	#
+	#   # Or add our new task this way
+	#   tasks.push someAsyncFunction arg1, arg2, tasks.completer()
+	#
+	#	# Or add our new task this way
+	#	tasks.push (complete) ->
+	#		utsomeAsyncFunction arg1, arg2, complete
+	#
+	Group: class
+		
+		# How many tasks do we have
+		total: 0
+
+		# How many tasks have completed?
+		completed: 0
+
+		# Have we already exited?
+		exited: false
+
+		# What to do next?
+		next: ->
+			throw new Error 'Groups require a completion callback'
+		
+		# Construct our group
+		constructor: (@next) ->
+
+		# A task has completed
+		complete: (err=false) ->
+			if @exited is false
+				if err
+					return @exit err
+				else
+					++@completed
+					if @completed is @total
+						return @exit false
+		
+		# Alias for complete
+		completer: ->
+			return (err) => @complete err
+		
+		# The group has finished
+		exit: (err=false) ->
+			if @exited is false
+				@exited = true
+				@next err
+			else
+				@next new Error 'Group has already exited'
+		
+		# Push a new task to the group
+		push: (task) ->
+			task (err) =>
+				@complete err
+
+
 	# Copy a file
 	# next(err)
 	cp: (src,dst,next) ->
@@ -102,55 +171,42 @@ util =
 		list = {}
 		tree = {}
 
-		# Async
-		completed = 0
-		total = 0
-		exited = false
-		complete = (err=false) ->
-			if exited is false
-				if err
-					return exit err
-				else
-					++completed
-					if completed is total
-						return exit false
-		exit = (err=false) ->
-			if exited is false
-				exited = true
-				next err, list, tree
+		# Group
+		tasks = new @Group (err) ->
+			next err, list, tree
 		
 		# Cycle
 		fs.readdir parentPath, (err,files) ->
 			# Check
-			if exited
+			if tasks.exited
 				return
 
 			# Error
 			else if err
 				console.log 'bal-util.scandir: readdir has failed on:', parentPath
-				return exit err
+				return tasks.exit err
 			
 			# Empty?
 			else if !files.length
-				return exit false
+				return tasks.exit false
 			
 			# Cycle
 			else files.forEach (file) ->
 				# Prepare
-				++total
+				++tasks.total
 				fileFullPath = parentPath+'/'+file
 				fileRelativePath = (if relativePath then relativePath+'/' else '')+file
 
 				# IsDirectory
 				util.isDirectory fileFullPath, (err,isDirectory) ->
 					# Check
-					if exited
+					if tasks.exited
 						return
 					
 					# Error
 					else if err
 						console.log 'bal-util.scandir: isDirectory has failed on:', fileFullPath
-						return exit err
+						return tasks.exit err
 					
 					# Directory
 					else if isDirectory
@@ -172,18 +228,18 @@ util =
 								tree[file] = _tree
 
 								# Check
-								if exited
+								if tasks.exited
 									return
 								# Error
 								else if err
 									console.log 'bal-util.scandir: has failed on:', fileFullPath
-									return exit err
+									return tasks.exit err
 								# Action
 								else if dirAction
-									return dirAction fileFullPath, fileRelativePath, complete
+									return dirAction fileFullPath, fileRelativePath, tasks.completer()
 								# Complete
 								else
-									return complete()
+									return tasks.complete false
 							# Relative Path
 							fileRelativePath
 						)
@@ -196,10 +252,10 @@ util =
 						
 						# Action
 						if fileAction
-							return fileAction fileFullPath, fileRelativePath, complete
+							return fileAction fileFullPath, fileRelativePath, tasks.completer()
 						# Complete
 						else
-							return complete()
+							return tasks.complete false
 	
 	# Copy a directory
 	# next(err)
@@ -267,45 +323,32 @@ util =
 	# Write tree
 	# next(err)
 	writetree: (dstPath,tree,next) ->
-		# Async
-		completed = 0
-		total = 0
-		exited = false
-		complete = (err=false) ->
-			if exited is false
-				if err
-					return exit err
-				else
-					++completed
-					if completed is total
-						return exit false
-		exit = (err=false) ->
-			if exited is false
-				exited = true
-				next err
+		# Group
+		tasks = new @Group (err) ->
+			next err
 		
 		# Ensure Destination
 		util.ensurePath dstPath, (err) ->
 			# Checks
 			if err
-				return exit err
+				return tasks.exit err
 			
 			# Cycle
 			for own fileRelativePath, value of tree
-				++total
+				++tasks.total
 				fileFullPath = dstPath+'/'+fileRelativePath.replace(/^\/+/,'')
 				#console.log 'bal-util.writetree: handling:', fileFullPath, typeof value
 				if typeof value is 'object'
-					util.writetree fileFullPath, value, complete
+					util.writetree fileFullPath, value, tasks.completer()
 				else
 					fs.writeFile fileFullPath, value, (err) ->
 						if err
 							console.log 'bal-util.writetree: writeFile failed on:',fileFullPath
-						return complete err
+						return tasks.complete err
 			
 			# Empty?
-			if total is 0
-				complete()
+			if tasks.total is 0
+				tasks.exit false
 
 			# Return
 			return
