@@ -36,6 +36,10 @@ This project contains several utility functions used and maintained by Benjamin 
 
 ## History
 
+- v0.4 June 2, 2011
+	- Added util.type for testing the type of a variable
+	- Added util.expandPath and util.expandPaths
+
 - v0.3 June 1, 2011
 	- Added util.Group class for your async needs :)
 

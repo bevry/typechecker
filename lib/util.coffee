@@ -2,6 +2,64 @@
 fs = require 'fs'
 path = require 'path'
 
+# Typing
+type =
+	# Get the type
+	get: (value) ->
+		# Prepare
+		result = 'object'
+
+		# Cycle
+		for type in ['array','regex','function','boolean','number','string','null','undefined']
+			if @[type] value
+				result = type
+				break
+		
+		# Return
+		return result
+
+	# Checks to see if a value is an object
+	object: (value) ->
+		return @get(value) is 'object'
+		
+	# Checks to see if a value is a function
+	function: (value) ->
+		return value instanceof Function
+
+	# Checks to see if a value is an regex
+	regex: (value) ->
+		return value instanceof RegExp
+
+	# Checks to see if a value is an array
+	array: (value) ->
+		return value instanceof Array
+
+	# Checks to see if a valule is a boolean
+	boolean: (value) ->
+		return typeof value is 'boolean'
+		#return value.toString() in ['false','true']
+
+	# Checks to see if a valule is a number
+	number: (value) ->
+		return value? and typeof value.toPrecision isnt 'undefined'
+
+	# Checks to see if a value is a string
+	string: (value) ->
+		return value? and typeof value.charAt isnt 'undefined'
+
+	# Checks to see if a value is null
+	'null': (value) ->
+		return value is null
+
+	# Checks to see if a value is undefined
+	'undefined': (value) ->
+		return typeof value is 'undefined'
+	
+	# Checks to see if a value is empty
+	empty: (value) ->
+		return value?
+
+
 # Util
 util =
 
@@ -71,7 +129,9 @@ util =
 		push: (task) ->
 			task (err) =>
 				@complete err
-
+	
+	# Type
+	type: type
 
 	# Copy a file
 	# next(err)
@@ -162,6 +222,58 @@ util =
 		# Return
 		return result
 
+	# Recursively scan a directory, file, or series of files
+	scan: (files,fileAction,dirAction,next) ->
+		# Actions
+		actions =
+			directory: =>
+				@scandir(
+					# Directory
+					files
+					# File Action
+					fileAction
+					# Dir Action
+					dirAction
+					# Complete Action
+					next
+				)
+			
+			files: =>
+				# Queue
+				tasks = new util.Group (err) -> next err
+				tasks.total += files.length
+			
+				# Array
+				for file in files
+					@scan fileFullPath, fileAction, dirAction, tasks.completer()
+				
+				# Done
+				return true
+		
+		# String
+		if typeof files.charAt isnt 'undefined'
+			util.isDirectory (err,isDirectory) ->
+				# Error
+				if err
+					return next err
+				
+				# Directory
+				else if isDirectory
+					actions.directory()
+				
+				# File
+				else
+					files = [file]
+					actions.files()
+		
+		# Array
+		else if files instanceof Array
+			actions.files()
+		
+		# Unsupported
+		else
+			next new Error 'bal-util.scandir: unsupported files type:', typeof files, files
+
 	# Recursively scan a directory
 	# fileAction(fileFullPath,fileRelativePath,next(err)) or false
 	# dirAction(fileFullPath,fileRelativePath,next(err)) or false
@@ -223,9 +335,11 @@ util =
 							# Dir
 							dirAction
 							# Completed
-							(err,list,_tree) ->
-								# Append
+							(err,_list,_tree) ->
+								# Merge
 								tree[file] = _tree
+								for own filePath, fileType of _list
+									list[filePath] = fileType
 
 								# Check
 								if tasks.exited
@@ -355,6 +469,87 @@ util =
 		
 		# Return
 		return
+	
+	# Expand a path
+	# next(err,expandedPath)
+	expandPath: (path,dir,{cwd,realpath},next) ->
+		# Prepare
+		cwd ?= false
+		realpath ?= false
+		expandedPath = null
+		cwdPath = false
+		if cwd
+			if type.string cwd
+				cwdPath = cwd
+			else
+				cwdPath = process.cwd()
+
+		# Check
+		unless type.string path
+			return next new Error 'bal-util.expandPath: path needs to be a string'
+		unless type.string dir
+			return next new Error 'bal-util.expandPath: dir needs to be a string'
+	
+		# Absolute path
+		if /^\/|\:/.test path
+			# Use it
+			expandedPath = path
+		
+		# Relative Path
+		else
+			# CWD Path
+			if cwd and /^\./.test path
+				expandedPath = cwdPath + '/' + path
+			# Relative Path
+			else # /^[a-zA-Z]/
+				expandedPath = dir + '/' + path
+		
+		# Realpath?
+		if realpath
+			fs.realpath expandedPath, (err,fileFullPath) ->
+				# Error 
+				if err
+					console.log 'bal-util.expandPath: realpath failed on:',expandedPath
+					return next err, expandedPath
 			
+				# Success
+				return next false, fileFullPath
+		
+		# Done
+		else
+			return next false, expandedPath
+		
+		# Done
+		return
+	
+	# Expand a series of paths
+	# next(err,expandedPaths)
+	expandPaths: (paths,dir,options,next) ->
+		# Prepare
+		options or= {}
+		expandedPaths = []
+		tasks = new @Group (err) ->
+			next err, expandedPaths
+		tasks.total += paths.length
+
+		# Cycle
+		for path in paths
+			# Expand
+			@expandPath path, dir, options, (err,expandedPath) ->
+				# Error
+				if err
+					return tasks.exit err
+				
+				# Store
+				expandedPaths.push expandedPath
+				tasks.complete err
+
+		# Empty?
+		unless paths.length
+			tasks.exit false
+		
+		# Done
+		return
+
 # Export
 module.exports = util
