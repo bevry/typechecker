@@ -75,6 +75,55 @@ expandedpathsresult2 = [
 # Tests
 tests =
 
+	'group': (beforeExit) ->
+		# prepare
+		nTests = 3
+		nTestsCompleted = 0
+		
+		# expandPaths
+		util.parallel \
+			# Tasks
+			[
+				(next) ->
+					++nTestsCompleted
+					next false
+				(next) ->
+					++nTestsCompleted
+					next false
+			],
+			# Completed
+			(err) ->
+				assert.equal(2, nTestsCompleted, 'group: both tasks ran')
+				++nTestsCompleted
+
+		# async
+		beforeExit ->
+			assert.equal(nTests, nTestsCompleted, 'group: all tasks ran')
+
+
+	'group-negative': (beforeExit) ->
+		# prepare
+		nTests = 1
+		nTestsCompleted = 0
+		err = new Error('deliberate fail')
+		
+		# expandPaths
+		util.parallel \
+			# Tasks
+			[
+				(next) ->
+					next err
+				(next) ->
+					next err
+			],
+			# Completed
+			(err) ->
+				++nTestsCompleted
+
+		# async
+		beforeExit ->
+			assert.equal(nTests, nTestsCompleted, 'group-negative: exited correctly')
+
 	'expandpaths': (beforeExit) ->
 		# prepare
 		nTests = 2

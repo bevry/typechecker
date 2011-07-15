@@ -130,6 +130,17 @@ util =
 			task (err) =>
 				@complete err
 	
+	# Parallel
+	parallel: (tasks,next) ->
+		# Create group
+		group = new @Group (err) ->
+			next err
+		group.total = tasks.length
+		
+		# Run tasks
+		for task in tasks
+			task group.completer()
+	
 	# Type
 	type: type
 
