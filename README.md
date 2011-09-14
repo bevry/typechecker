@@ -36,6 +36,9 @@ This project contains several utility functions used and maintained by Benjamin 
 
 ## History
 
+- v0.6 September 14, 2011
+	- Updated `util.Group` to support `async` and `sync` grouping
+
 - v0.4 June 2, 2011
 	- Added util.type for testing the type of a variable
 	- Added util.expandPath and util.expandPaths

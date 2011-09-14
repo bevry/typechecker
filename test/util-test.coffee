@@ -80,28 +80,134 @@ tests =
 		nTests = 3
 		nTestsCompleted = 0
 		
+		# Group
+		tasks = new util.Group ->
+			++nTestsCompleted
+		tasks.total = 2
+		
+		# Push
+		setTimeout(
+			->
+				assert.equal(1, nTestsCompleted, 'group: tasks have run in the correct order 2')
+				++nTestsCompleted
+				tasks.complete()
+			1000
+		)
+
+		# Push
+		setTimeout(
+			->
+				assert.equal(0, nTestsCompleted, 'group: tasks have run in the correct order 1')
+				++nTestsCompleted
+				tasks.complete()
+			500
+		)
+		
+		# Check
+		assert.equal(0, nTestsCompleted, 'group: all tasks haven\'t run yet')
+
+		# Async
+		beforeExit ->
+			assert.equal(nTests, nTestsCompleted, 'group: all tasks ran')
+
+
+	'group-async': (beforeExit) ->
+		# prepare
+		nTests = 3
+		nTestsCompleted = 0
+		
+		# Group
+		tasks = new util.Group ->
+			++nTestsCompleted
+		
+		# Push
+		tasks.push ->
+			setTimeout(
+				->
+					assert.equal(1, nTestsCompleted, 'group-async: tasks have run in the correct order 2')
+					++nTestsCompleted
+					tasks.complete()
+				1000
+			)
+
+		# Push
+		tasks.push ->
+			assert.equal(0, nTestsCompleted, 'group-async: tasks have run in the correct order 1')
+			++nTestsCompleted
+			tasks.complete()
+		
+		# Check
+		assert.equal(0, nTestsCompleted, 'group-async: all tasks haven\'t run yet')
+
+		# Run
+		tasks.async()
+
+		# Async
+		beforeExit ->
+			assert.equal(nTests, nTestsCompleted, 'group-async: all tasks ran')
+
+
+	'group-sync': (beforeExit) ->
+		# prepare
+		nTests = 3
+		nTestsCompleted = 0
+		
+		# Group
+		tasks = new util.Group ->
+			++nTestsCompleted
+		
+		# Push
+		tasks.push ->
+			setTimeout(
+				->
+					assert.equal(0, nTestsCompleted, 'group-sync: tasks have run in the correct order 1')
+					++nTestsCompleted
+					tasks.complete()
+				500
+			)
+
+		# Push
+		tasks.push ->
+			assert.equal(1, nTestsCompleted, 'group-sync: tasks have run in the correct order 2')
+			++nTestsCompleted
+			tasks.complete()
+		
+		# Check
+		assert.equal(0, nTestsCompleted, 'group-sync: all tasks haven\'t run yet')
+
+		# Run
+		tasks.sync()
+
+		# Async
+		beforeExit ->
+			assert.equal(nTests, nTestsCompleted, 'group-sync: all tasks ran')
+
+	'parallel': (beforeExit) ->
+		# prepare
+		nTests = 3
+		nTestsCompleted = 0
+		
 		# expandPaths
 		util.parallel \
 			# Tasks
 			[
 				(next) ->
 					++nTestsCompleted
-					next false
+					next()
 				(next) ->
 					++nTestsCompleted
-					next false
+					next()
 			],
 			# Completed
 			(err) ->
-				assert.equal(2, nTestsCompleted, 'group: both tasks ran')
+				assert.equal(2, nTestsCompleted, 'parallel: both tasks ran')
 				++nTestsCompleted
 
 		# async
 		beforeExit ->
-			assert.equal(nTests, nTestsCompleted, 'group: all tasks ran')
+			assert.equal(nTests, nTestsCompleted, 'parallel: all tasks ran')
 
-
-	'group-negative': (beforeExit) ->
+	'parallel-negative': (beforeExit) ->
 		# prepare
 		nTests = 1
 		nTestsCompleted = 0
@@ -122,7 +228,7 @@ tests =
 
 		# async
 		beforeExit ->
-			assert.equal(nTests, nTestsCompleted, 'group-negative: exited correctly')
+			assert.equal(nTests, nTestsCompleted, 'parallel-negative: exited correctly')
 
 	'expandpaths': (beforeExit) ->
 		# prepare

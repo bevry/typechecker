@@ -2,7 +2,8 @@
 fs = require 'fs'
 path = require 'path'
 
-# Typing
+# Types
+# A higher level typeof
 type =
 	# Get the type
 	get: (value) ->
@@ -60,76 +61,121 @@ type =
 		return value?
 
 
+# Group
+# Easily group together asynchronmous functions and run them synchronously or asynchronously
+#
+# Usage:
+#
+#	# Fire tasks as we go
+#	tasks = new util.Group (err) -> next err
+#   tasks.total = 2
+#   someAsyncFunction arg1, arg2, tasks.completer()
+#   anotherAsyncFunction arg1, arg2, (err) ->
+#		tasks.complete err
+#
+#	# Add tasks to a queue then fire them together asynchronously
+#	tasks = new util.Group (err) -> next err
+#   tasks.push ((arg1,arg2) -> someAsyncFunction arg1, arg2, tasks.completer())(arg1,arg2)
+#   tasks.push ((arg1,arg2) -> anotherAsyncFunction arg1, arg2, tasks.completer())(arg1,arg2)
+#   tasks.run()
+#
+#	# Add tasks to a queue then fire them together synchronously
+#	tasks = new util.Group (err) -> next err
+#   tasks.push ((arg1,arg2) -> someAsyncFunction arg1, arg2, tasks.completer())(arg1,arg2)
+#   tasks.push ((arg1,arg2) -> anotherAsyncFunction arg1, arg2, tasks.completer())(arg1,arg2)
+#   tasks.run()
+#
+class Group
+	# How many tasks do we have
+	total: 0
+
+	# How many tasks have completed?
+	completed: 0
+
+	# Have we already exited?
+	exited: false
+
+	# Queue
+	queue: []
+	queueIndex: 0
+
+	# Mode
+	mode: 'async'
+
+	# What to do next?
+	next: ->
+		throw new Error 'Groups require a completion callback'
+	
+	# Construct our group
+	constructor: (@next,mode) ->
+		@queue = []
+		@mode = mode  if mode
+	
+	# Next task
+	nextTask: ->
+		++@queueIndex
+		if @queue[@queueIndex]?
+			task = @queue[@queueIndex]
+			task()
+		
+	# A task has completed
+	complete: (err=false) ->
+		if @exited is false
+			if err
+				return @exit err
+			else
+				++@completed
+				if @completed is @total
+					return @exit()
+				else if @mode is 'sync'
+					@nextTask()
+	
+	# Alias for complete
+	completer: ->
+		return (err) => @complete err
+	
+	# The group has finished
+	exit: (err=false) ->
+		if @exited is false
+			@exited = true
+			@next err
+		else
+			@next new Error 'Group has already exited'
+	
+	# Push a new task to the group
+	push: (task) ->
+		++@total
+		@queue.push task
+	
+	# Run the tasks
+	run: ->
+		if @mode is 'sync'
+			@queueIndex = 0
+			if @queue[@queueIndex]?
+				task = @queue[@queueIndex]
+				task()
+		else
+			for task in @queue
+				task()
+	
+	# Async
+	async: ->
+		@mode = 'async'
+		@run()
+	
+	# Sync
+	sync: ->
+		@mode = 'sync'
+		@run()
+
+
 # Util
+# A series of utility functions to help speed up node.js development
 util =
 
 	# Group
-	# Easily provide a completion event for a group of async functions
-	#
-	# Usage:
-	#
-	#	# Create tasks list with a completion callback
-	#	tasks = new util.Group (err) -> next err
-	#	
-	#	# Specify we have a new task to wait for
-	#   ++tasks.total
-	#
-	#	# Add our new task
-	#	tasks.push someAsyncFunction arg1, arg2, (err) ->
-	#		tasks.complete err
-	#
-	#   # Or add our new task this way
-	#   tasks.push someAsyncFunction arg1, arg2, tasks.completer()
-	#
-	#	# Or add our new task this way
-	#	tasks.push (complete) ->
-	#		utsomeAsyncFunction arg1, arg2, complete
-	#
-	Group: class
-		
-		# How many tasks do we have
-		total: 0
+	Group: Group
 
-		# How many tasks have completed?
-		completed: 0
-
-		# Have we already exited?
-		exited: false
-
-		# What to do next?
-		next: ->
-			throw new Error 'Groups require a completion callback'
-		
-		# Construct our group
-		constructor: (@next) ->
-
-		# A task has completed
-		complete: (err=false) ->
-			if @exited is false
-				if err
-					return @exit err
-				else
-					++@completed
-					if @completed is @total
-						return @exit false
-		
-		# Alias for complete
-		completer: ->
-			return (err) => @complete err
-		
-		# The group has finished
-		exit: (err=false) ->
-			if @exited is false
-				@exited = true
-				@next err
-			else
-				@next new Error 'Group has already exited'
-		
-		# Push a new task to the group
-		push: (task) ->
-			task (err) =>
-				@complete err
-	
 	# Parallel
 	parallel: (tasks,next) ->
 		# Create group
@@ -170,7 +216,7 @@ util =
 		p = p.replace /[\/\\]$/, ''
 		path.exists p, (exists) ->
 			# Error 
-			if exists then return next false
+			if exists then return next()
 			# Success
 			parentPath = util.getParentPathSync p
 			util.ensurePath parentPath, (err) ->
@@ -186,7 +232,7 @@ util =
 							console.log 'bal-util.ensurePath: failed to create the directory:',p
 							return next new Error 'Failed to create the directory '+p
 						# Success
-						return next false
+						return next()
 	
 	# Prefix path
 	prefixPathSync: (path,parentPath) ->
@@ -205,7 +251,7 @@ util =
 				console.log 'bal-util.isDirectory: stat failed on:',fileFullPath
 				return next err
 			# Success
-			return next false, fileStat.isDirectory()
+			return next null, fileStat.isDirectory()
 	
 	# Resolve file path
 	# next(err,fileFullPath,fileRelativePath)
@@ -222,7 +268,7 @@ util =
 			# Success
 			else
 				fileRelativePath = fileFullPath.substring parentPath.length
-				return next false, fileFullPath, fileRelativePath
+				return next null, fileFullPath, fileRelativePath
 	
 
 	# Generate a slug for a file
@@ -311,7 +357,7 @@ util =
 			
 			# Empty?
 			else if !files.length
-				return tasks.exit false
+				return tasks.exit()
 			
 			# Cycle
 			else files.forEach (file) ->
@@ -364,7 +410,7 @@ util =
 									return dirAction fileFullPath, fileRelativePath, tasks.completer()
 								# Complete
 								else
-									return tasks.complete false
+									return tasks.complete()
 							# Relative Path
 							fileRelativePath
 						)
@@ -380,7 +426,7 @@ util =
 							return fileAction fileFullPath, fileRelativePath, tasks.completer()
 						# Complete
 						else
-							return tasks.complete false
+							return tasks.complete()
 	
 	# Copy a directory
 	# next(err)
@@ -413,7 +459,7 @@ util =
 	rmdir: (parentPath,next) ->
 		path.exists parentPath, (exists) ->
 			# Skip
-			if not exists then return next false
+			if not exists then return next()
 			# Remove
 			util.scandir(
 				# Path
@@ -473,7 +519,7 @@ util =
 			
 			# Empty?
 			if tasks.total is 0
-				tasks.exit false
+				tasks.exit()
 
 			# Return
 			return
@@ -524,11 +570,11 @@ util =
 					return next err, expandedPath
 			
 				# Success
-				return next false, fileFullPath
+				return next null, fileFullPath
 		
 		# Done
 		else
-			return next false, expandedPath
+			return next null, expandedPath
 		
 		# Done
 		return
@@ -557,7 +603,7 @@ util =
 
 		# Empty?
 		unless paths.length
-			tasks.exit false
+			tasks.exit()
 		
 		# Done
 		return
