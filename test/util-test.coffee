@@ -344,7 +344,45 @@ tests =
 		# async
 		beforeExit ->
 			assert.equal(nTests, nTestsCompleted, 'rmdir-non: all tests ran')
-		
+	
+
+	'versionCompare': (beforeExit) ->
+		tests = [
+			['1.1.0', '<', '1.2.0', true]
+			['1.2.0', '>', '1.1.0', true]
+			['1.2.0', '<=', '1.2.0', true]
+			['1.2.0', '>=', '1.2.0', true]
+			['1.2.0', '<', '1.2.1', true]
+			['1.2.0', '<', '1.3.0', true]
+		]
+
+		for test in tests
+			v1 = test[0]
+			operator = test[1]
+			v2 = test[2]
+			expected = test[3]
+
+			actual = util.versionCompare v1, operator, v2
+
+			assert.equal actual, expected, "versionCompare: comparison of #{v1} #{operator} #{v2} failed"
+	
+	"comparePackages": (beforeExit) ->
+		compareHappened = false
+
+		util.packageCompare(
+			local: "#{__dirname}/../package.json"
+			remote: 'https://raw.github.com/balupton/bal-util.npm/master/package.json'
+			newVersionCallback: (details) ->
+				compareHappened = true
+			oldVersionCallback: (details) ->
+				compareHappened = true
+			errorCallback: (err) ->
+				console.log err
+				assert.ok false, 'an error occured during comparePackages'
+		)
+
+		beforeExit = ->
+			assert.equal compareHappened, true, 'compare actually happened'
 
 # Export
 module.exports = tests

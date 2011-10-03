@@ -36,6 +36,10 @@ This project contains several utility functions used and maintained by Benjamin 
 
 ## History
 
+- v0.7 October 3, 2011
+	- Added `versionCompare` and `packageCompare` functions
+		- Added `request` dependency
+
 - v0.6 September 14, 2011
 	- Updated `util.Group` to support `async` and `sync` grouping
 
