@@ -333,8 +333,8 @@ util =
 			next new Error 'bal-util.scandir: unsupported files type:', typeof files, files
 
 	# Recursively scan a directory
-	# fileAction(fileFullPath,fileRelativePath,next(err)) or false
-	# dirAction(fileFullPath,fileRelativePath,next(err)) or false
+	# fileAction(fileFullPath,fileRelativePath,next(err,skip)) or false
+	# dirAction(fileFullPath,fileRelativePath,next(err,skip)) or false
 	# next(err)
 	scandir: (parentPath,fileAction,dirAction,next,relativePath) ->
 		# Return
@@ -354,7 +354,7 @@ util =
 			# Error
 			else if err
 				console.log 'bal-util.scandir: readdir has failed on:', parentPath
-				return tasks.exit err
+				return tasks.exit(err)
 			
 			# Empty?
 			else if !files.length
@@ -376,58 +376,99 @@ util =
 					# Error
 					else if err
 						console.log 'bal-util.scandir: isDirectory has failed on:', fileFullPath
-						return tasks.exit err
+						return tasks.exit(err)
 					
 					# Directory
 					else if isDirectory
-						# Append
-						list[fileRelativePath] = 'dir'
-						tree[file] = {}
+						# Prepare
+						complete = (err,skip,subtreeCallback) ->
+							#console.log 'dir0', tasks.total, tasks.completed
+							# Error
+							return tasks.exit(err)  if err
+				
+							# Exited
+							return tasks.exit()  if tasks.exited
 
-						# Recurse
-						util.scandir(
-							# Path
-							fileFullPath
-							# File
-							fileAction
-							# Dir
-							dirAction
-							# Completed
-							(err,_list,_tree) ->
-								# Merge
-								tree[file] = _tree
-								for own filePath, fileType of _list
-									list[filePath] = fileType
+							# Handle
+							if skip isnt true
+								# Append
+								list[fileRelativePath] = 'dir'
+								tree[file] = {}
 
-								# Check
-								if tasks.exited
-									return
-								# Error
-								else if err
-									console.log 'bal-util.scandir: has failed on:', fileFullPath
-									return tasks.exit err
-								# Action
-								else if dirAction
-									return dirAction fileFullPath, fileRelativePath, tasks.completer()
-								# Complete
-								else
-									return tasks.complete()
-							# Relative Path
-							fileRelativePath
-						)
+								# Recurse
+								return util.scandir(
+									# Path
+									fileFullPath
+									# File
+									fileAction
+									# Dir
+									dirAction
+									# Completed
+									(err,_list,_tree) ->
+										# Merge in children of the parent directory
+										tree[file] = _tree
+										for own filePath, fileType of _list
+											list[filePath] = fileType
+
+										# Exited
+										if tasks.exited
+											return tasks.exit()
+										# Error
+										else if err
+											console.log 'bal-util.scandir: has failed on:', fileFullPath
+											return tasks.exit(err)
+										# Subtree
+										else if subtreeCallback
+											return subtreeCallback tasks.completer()
+										# Complete
+										else
+											#console.log 'dir1', tasks.total, tasks.completed
+											return tasks.complete()
+									# Relative Path
+									fileRelativePath
+								)
+							
+							else
+								# Done
+								#console.log 'dir2', tasks.total, tasks.completed
+								return tasks.complete()
+						
+						# Action
+						if dirAction
+							return dirAction fileFullPath, fileRelativePath, complete
+						else if dirAction is false
+							return complete(err,true)
+						else
+							return complete(err,false)
 					
 					# File
 					else
-						# Append
-						list[fileRelativePath] = 'file'
-						tree[file] = true
+						# Prepare
+						complete = (err,skip) ->
+							#console.log 'file0', tasks.total, tasks.completed
+							# Error
+							return tasks.exit(err)  if err
+							
+							# Exited
+							return tasks.exit()  if tasks.exited
+
+							# Handle
+							unless skip
+								# Append
+								list[fileRelativePath] = 'file'
+								tree[file] = true
+							
+							# Done
+							#console.log 'file1', tasks.total, tasks.completed
+							return tasks.complete()
 						
 						# Action
 						if fileAction
-							return fileAction fileFullPath, fileRelativePath, tasks.completer()
-						# Complete
+							return fileAction fileFullPath, fileRelativePath, complete
+						else if fileAction is false
+							return complete(err,true)
 						else
-							return tasks.complete()
+							return complete(err,false)
 	
 	# Copy a directory
 	# next(err)
@@ -450,7 +491,7 @@ util =
 							console.log 'bal-util.cpdir: failed to copy the child file:',fileSrcPath
 						return next err
 			# Dir
-			false
+			null
 			# Completed
 			next
 		)
@@ -465,6 +506,7 @@ util =
 			util.scandir(
 				# Path
 				parentPath
+				
 				# File
 				(fileFullPath,fileRelativePath,next) ->
 					fs.unlink fileFullPath, (err) ->
@@ -472,13 +514,16 @@ util =
 						if err
 							console.log 'bal-util.rmdir: failed to remove the child file:', fileFullPath
 						return next err
+				
 				# Dir
 				(fileFullPath,fileRelativePath,next) ->
-					fs.rmdir fileFullPath, (err) ->
-						# Forward
-						if err
-							console.log 'bal-util.rmdir: failed to remove the child directory:', fileFullPath
-						return next err
+					next null, false, (next) ->
+						fs.rmdir fileFullPath, (err) ->
+							# Forward
+							if err
+								console.log 'bal-util.rmdir: failed to remove the child directory:', fileFullPath
+							return next err
+				
 				# Completed
 				(err,list,tree) ->
 					# Error
