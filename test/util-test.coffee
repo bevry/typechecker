@@ -278,7 +278,7 @@ tests =
 			assert.equal(err||false,false, 'writetree: no error')
 			
 			# scandir
-			util.scandir srcPath, false, false, (err,list,tree) ->
+			util.scandir srcPath, null, null, (err,list,tree) ->
 				++nTestsCompleted
 				
 				# no error
@@ -295,7 +295,7 @@ tests =
 					assert.equal(err||false,false, 'writree: scandir: cpdir: no error')
 						
 					# scandir
-					util.scandir outPath, false, false, (err,list,tree) ->
+					util.scandir outPath, null, null, (err,list,tree) ->
 						++nTestsCompleted
 						
 						# no error

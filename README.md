@@ -36,6 +36,12 @@ This project contains several utility functions used and maintained by Benjamin 
 
 ## History
 
+- v0.8 November 2, 2011
+	- Considerable improvements to `scandir`, `cpdir` and `rmdir`
+		- Note, passing `false` as the file or dir actions will now skip all of that type. Pass `null` if you do not want that.
+		- `dirAction` is now fired before we read the directories children, if you want it to fire after then in the next callback, pass a callback in the 3rd argument. See `rmdir` for an example of this.
+	- Fixed npm web to url warnings
+
 - v0.7 October 3, 2011
 	- Added `versionCompare` and `packageCompare` functions
 		- Added `request` dependency
