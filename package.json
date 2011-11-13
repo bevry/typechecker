@@ -1,6 +1,6 @@
 {
 	"name": "bal-util",
-	"version": "0.8.0",
+	"version": "0.8.1",
 	"description": "Common utility functions for Node.js used and maintained by Benjamin Lupton",
 	"homepage": "https://github.com/balupton/bal-util.npm",
 	"keywords": [
@@ -43,7 +43,7 @@
 		"url": "http://github.com/balupton/bal-util.npm.git"
 	},
 	"dependencies": {
-		"request": "2.1.x"
+		"request": "2.2.x"
 	},
 	"engines": {
 		"node": ">=0.4.0"
