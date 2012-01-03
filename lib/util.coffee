@@ -1,10 +1,16 @@
+# Util
+# A series of utility functions to help speed up node.js development
+
 # Requirements
 fs = require 'fs'
 path = require 'path'
+EventEmitter = require('events').EventEmitter
 request = null
 
+# =====================================
+
 # Types
-# A higher level typeof
+# Provides higher level typeof functionality
 type =
 	# Get the type
 	get: (value) ->
@@ -61,6 +67,253 @@ type =
 	empty: (value) ->
 		return value?
 
+
+# =====================================
+# Event & EventSystem
+# Extends the standard EventEmitter with support for:
+# - blocking events
+# - start and finish events
+# - cycling synchronous events
+
+# Event
+class Event
+	# The name of the event
+	name: null
+	# Is the event currently locked?
+	locked: false
+	# Has the event finished running?
+	finished: false
+	# Apply our name on construction
+	constructor: ({@name}) ->
+
+# EventSystem
+class EventSystem extends EventEmitter
+	# Event store
+	# initialised in our event function to prevent javascript reference problems
+	events: null
+	
+	# Fetch the event object for the event
+	event: (eventName) ->
+		# Prepare
+		@events or= {}
+		# Return the fetched event, create it if it doesn't exist already
+		@events[eventName] or= new Event(eventName)
+	
+	# Lock the event
+	# next(err)
+	lock: (eventName, next) ->
+		# Grab the event
+		event = @event eventName
+		# Grab a lock on the event
+		if event.locked is false
+			# Place the lock
+			event.locked = true
+			# Trigger our event
+			# then fire our callback
+			try
+				@emit eventName+':locked'
+			catch err
+				@next?(err)
+				return @
+			finally
+				next?()
+		else
+			# Wait until the current task has finished
+			@onceUnlocked eventName, (err) =>
+				return next?(err)  if err
+				# Then try again
+				@lock eventName, next
+		
+		# Chain
+		@
+	
+	# Unlock the event
+	# next(err)
+	unlock: (eventName, next) ->
+		# Grab the event
+		event = @event eventName
+		# Release the lock
+		event.locked = false
+		# Trigger our event
+		# then fire our callback
+		try
+			@emit eventName+':unlocked'
+		catch err
+			next?(err)
+			return @
+		finally
+			next?()
+		# Chain
+		@
+	
+	# Start our event
+	# 1. Performs a lock
+	# 2. Sets event's finished flag to false
+	# 3. Fires callback
+	# next(err)
+	start: (eventName, next) ->
+		# Grab a locak
+		@lock eventName, (err) =>
+			# Error?
+			return next?(err)  if err
+			# Grab the event
+			event = @event eventName
+			# Set as started
+			event.finished = false
+			# Trigger our event
+			# then fire our callback
+			try
+				@emit eventName+':started'
+			catch err
+				next?(err)
+				return @
+			finally
+				next?()
+		# Chain
+		@
+	
+	# Finish, alias for finished
+	finish: (args...) ->
+		@finished.apply(@,args)
+	
+	# Finished our event
+	# 1. Sets event's finished flag to true
+	# 2. Unlocks the event
+	# 3. Fires callback
+	# next(err)
+	finished: (eventName, next) ->
+		# Grab the event
+		event = @event eventName
+		# Set as finished
+		event.finished = true
+		# Unlock
+		@unlock eventName, (err) =>
+			# Error?
+			return next?(err)  if err
+			# Trigger our event
+			# then fire our callback
+			try
+				@emit eventName+':finished'
+			catch err
+				next?(err)
+				return @
+			finally
+				next?()
+		# Chain
+		@
+	
+	# Run one time once an event has unlocked
+	# next(err)
+	onceUnlocked: (eventName, next) ->
+		# Grab the event
+		event = @event eventName
+		# Check lock status
+		if event.locked
+			# Wait until our event has unlocked to fire the callback
+			@once eventName+':unlocked', next
+		else
+			# Fire our callback now
+			next?()
+		# Chain
+		@
+	
+	# Run one time once an event has finished
+	# next(err)
+	onceFinished: (eventName, next) ->
+		console.log "onceFinished:#{eventName}"
+		# Grab the event
+		event = @event eventName
+		# Check finish status
+		if event.finished
+			# Fire our callback now
+			next?()
+		else
+			# Wait until our event has finished to fire the callback
+			@once eventName+':finished', next
+		# Chain
+		@
+	
+	# Run every time an event has finished
+	# next(err)
+	whenFinished: (eventName, next) ->
+		console.log "whenFinished:#{eventName}"
+		# Grab the event
+		event = @event eventName
+		# Check finish status
+		if event.finished
+			# Fire our callback now
+			next?()
+		# Everytime our even has finished, fire the callback
+		@on eventName+':finished', next
+		# Chain
+		@
+
+
+	# Block an event from running
+	# next(err)
+	block: (eventNames, next) ->
+		# Ensure array
+		if (eventNames instanceof Array) is false
+			if typeof eventNames is 'string'
+				eventNames = eventNames.split /[,\s]+/g
+			else
+				return next? new Error 'Unknown eventNames type'
+		total = eventNames.length
+		done = 0
+		# Block these events
+		for eventName in eventNames
+			@lock eventName, (err) ->
+				# Error?
+				if err
+					done = total
+					return next?(err)
+				# Increment
+				done++
+				if done is total
+					next?()
+		# Chain
+		@
+
+	# Unblock an event from running
+	# next(err)
+	unblock: (eventNames, next) ->
+		# Ensure array
+		if (eventNames instanceof Array) is false
+			if typeof eventNames is 'string'
+				eventNames = eventNames.split /[,\s]+/g
+			else
+				return next? new Error 'Unknown eventNames type'
+		total = eventNames.length
+		done = 0
+		# Block these events
+		for eventName in eventNames
+			@unlock eventName ->
+				# Error?
+				if err
+					done = total
+					return next?(err)
+				# Increment
+				done++
+				if done is total
+					next?()
+		# Chain
+		@
+	
+	cycle: (eventName, data, next) ->
+		# Get listeners
+		listeners = @listeners(eventName)
+		# Prepare tasks
+		tasks = new util.Group (err) ->
+			next?(err)
+		tasks.total = listeners.length
+		# Cycle through
+		for listener in listeners
+			listener data, tasks.completer()
+		# Chain
+		@
+
+
+# =====================================
 
 # Group
 # Easily group together asynchronmous functions and run them synchronously or asynchronously
@@ -170,9 +423,23 @@ class Group
 		@run()
 
 
-# Util
-# A series of utility functions to help speed up node.js development
+# =====================================
+# Utilility Container
+
+# Contains everything that we will export
 util =
+
+	# =================================
+	# Events
+
+	# Event
+	Event: Event
+
+	# EventSystem
+	EventSystem: EventSystem
+
+	# =================================
+	# Groups
 
 	# Group
 	Group: Group
@@ -188,8 +455,14 @@ util =
 		for task in tasks
 			task group.completer()
 	
+	# =================================
+	# Types
+
 	# Type
 	type: type
+
+	# =================================
+	# Paths
 
 	# Copy a file
 	# next(err)
@@ -217,7 +490,7 @@ util =
 		p = p.replace /[\/\\]$/, ''
 		path.exists p, (exists) ->
 			# Error 
-			if exists then return next()
+			return next?()  if exists
 			# Success
 			parentPath = util.getParentPathSync p
 			util.ensurePath parentPath, (err) ->
@@ -233,7 +506,7 @@ util =
 							console.log 'bal-util.ensurePath: failed to create the directory:',p
 							return next new Error 'Failed to create the directory '+p
 						# Success
-						return next()
+						next?()
 	
 	# Prefix path
 	prefixPathSync: (path,parentPath) ->
@@ -501,7 +774,7 @@ util =
 	rmdir: (parentPath,next) ->
 		path.exists parentPath, (exists) ->
 			# Skip
-			if not exists then return next()
+			return next?()  unless exists
 			# Remove
 			util.scandir(
 				# Path
@@ -654,6 +927,9 @@ util =
 		# Done
 		return
 	
+	# =================================
+	# Versions
+
 	# Version Compare
 	# http://phpjs.org/functions/version_compare
 	# MIT Licensed http://phpjs.org/pages/license
