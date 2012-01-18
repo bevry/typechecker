@@ -6,6 +6,7 @@ fs = require 'fs'
 path = require 'path'
 EventEmitter = require('events').EventEmitter
 request = null
+child_process = null
 
 # =====================================
 
@@ -90,14 +91,14 @@ class Event
 class EventSystem extends EventEmitter
 	# Event store
 	# initialised in our event function to prevent javascript reference problems
-	events: null
+	_eventSystemEvents: null
 	
 	# Fetch the event object for the event
 	event: (eventName) ->
 		# Prepare
-		@events or= {}
+		@_eventSystemEvents or= {}
 		# Return the fetched event, create it if it doesn't exist already
-		@events[eventName] or= new Event(eventName)
+		@_eventSystemEvents[eventName] or= new Event(eventName)
 	
 	# Lock the event
 	# next(err)
@@ -113,7 +114,7 @@ class EventSystem extends EventEmitter
 			try
 				@emit eventName+':locked'
 			catch err
-				@next?(err)
+				next?(err)
 				return @
 			finally
 				next?()
@@ -220,7 +221,6 @@ class EventSystem extends EventEmitter
 	# Run one time once an event has finished
 	# next(err)
 	onceFinished: (eventName, next) ->
-		console.log "onceFinished:#{eventName}"
 		# Grab the event
 		event = @event eventName
 		# Check finish status
@@ -236,7 +236,6 @@ class EventSystem extends EventEmitter
 	# Run every time an event has finished
 	# next(err)
 	whenFinished: (eventName, next) ->
-		console.log "whenFinished:#{eventName}"
 		# Grab the event
 		event = @event eventName
 		# Check finish status
@@ -247,7 +246,10 @@ class EventSystem extends EventEmitter
 		@on eventName+':finished', next
 		# Chain
 		@
-
+	
+	# When, alias for on
+	when: (args...) ->
+		@on.apply(@,args)
 
 	# Block an event from running
 	# next(err)
@@ -287,7 +289,7 @@ class EventSystem extends EventEmitter
 		done = 0
 		# Block these events
 		for eventName in eventNames
-			@unlock eventName ->
+			@unlock eventName, (err) ->
 				# Error?
 				if err
 					done = total
@@ -373,7 +375,7 @@ class Group
 			task()
 		
 	# A task has completed
-	complete: (err=false) ->
+	complete: (err) ->
 		if @exited is false
 			if err
 				return @exit err
@@ -386,15 +388,15 @@ class Group
 	
 	# Alias for complete
 	completer: ->
-		return (err) => @complete err
+		return (err) => @complete(err)
 	
 	# The group has finished
 	exit: (err=false) ->
 		if @exited is false
 			@exited = true
-			@next err
+			@next?(err)
 		else
-			@next new Error 'Group has already exited'
+			@next?(new Error 'Group has already exited')
 	
 	# Push a new task to the group
 	push: (task) ->
@@ -448,7 +450,7 @@ util =
 	parallel: (tasks,next) ->
 		# Create group
 		group = new @Group (err) ->
-			next err
+			next?(err)
 		group.total = tasks.length
 		
 		# Run tasks
@@ -462,6 +464,53 @@ util =
 	type: type
 
 	# =================================
+	# Exec
+
+	# Runs multiple commands at the same time
+	# And fires the callback once they have all completed
+	# callbac(err,args...) where args are the result of the exec
+	exec: (commands,options,callback) ->
+		# Requires
+		child_process = require('child_process')  unless child_process
+		
+		# Sync
+		mode = options.mode or null
+		results = []
+
+		# Make sure we send back the arguments
+		tasks = new util.Group ->
+			if mode is 'single'
+				callback.apply(callback,results[0])
+			else
+				callback.apply(callback,[results])
+		
+		# Make sure we send back the arguments
+		createHandler = (command) ->
+			return -> child_process.exec command, options, (args...) ->
+				err = args[0] or null
+				
+				# Push args to result list
+				results.push args
+
+				# Complete the task
+				tasks.complete(err)
+		
+		# Prepare tasks
+		if commands instanceof Array
+			mode or= 'multiple'
+		else
+			mode or= 'single'
+			commands = [commands]
+		
+		# Add tasks
+		for command in commands
+			tasks.push createHandler command
+
+		# Run the tasks synchronously
+		tasks.sync()
+
+
+	# =================================
 	# Paths
 
 	# Copy a file
@@ -471,13 +520,13 @@ util =
 			# Error
 			if err
 				console.log 'bal-util.cp: cp failed on:',src
-				return next err
+				return next?(err)
 			# Success
 			fs.writeFile dst, data, 'binary', (err) ->
 				# Forward
 				if err
 					console.log 'bal-util.cp: writeFile failed on:',dst
-				return next err
+				return next?(err)
 	
 	# Get the parent path
 	getParentPathSync: (p) ->
@@ -497,14 +546,14 @@ util =
 				# Error
 				if err
 					console.log 'bal-util.ensurePath: failed to ensure the path:',parentPath
-					return next err
+					return next?(err)
 				# Success
 				fs.mkdir p, 0700, (err) ->
 					path.exists p, (exists) ->
 						# Error
 						if not exists
 							console.log 'bal-util.ensurePath: failed to create the directory:',p
-							return next new Error 'Failed to create the directory '+p
+							return next?(new Error 'Failed to create the directory '+p)
 						# Success
 						next?()
 	
@@ -523,9 +572,9 @@ util =
 			# Error
 			if err
 				console.log 'bal-util.isDirectory: stat failed on:',fileFullPath
-				return next err
+				return next?(err)
 			# Success
-			return next null, fileStat.isDirectory()
+			return next?(null, fileStat.isDirectory())
 	
 	# Resolve file path
 	# next(err,fileFullPath,fileRelativePath)
@@ -534,15 +583,15 @@ util =
 			# Error 
 			if err
 				console.log 'bal-util.resolvePath: realpath failed on:',srcPath
-				return next err, srcPath
+				return next?(err, srcPath)
 			# Check
 			else if fileFullPath.substring(0,parentPath.length) isnt parentPath
 				err = new Error 'Hacker! Tried to create a file outside our working directory: '+fileFullPath
-				return next err, fileFullPath, false
+				return next?(err, fileFullPath, false)
 			# Success
 			else
 				fileRelativePath = fileFullPath.substring parentPath.length
-				return next null, fileFullPath, fileRelativePath
+				return next?(null, fileFullPath, fileRelativePath)
 	
 
 	# Generate a slug for a file
@@ -571,7 +620,7 @@ util =
 			
 			files: =>
 				# Queue
-				tasks = new util.Group (err) -> next err
+				tasks = new util.Group next
 				tasks.total += files.length
 			
 				# Array
@@ -586,7 +635,7 @@ util =
 			util.isDirectory (err,isDirectory) ->
 				# Error
 				if err
-					return next err
+					return next?(err)
 				
 				# Directory
 				else if isDirectory
@@ -603,7 +652,7 @@ util =
 		
 		# Unsupported
 		else
-			next new Error 'bal-util.scandir: unsupported files type:', typeof files, files
+			next?(new Error 'bal-util.scandir: unsupported files type:', typeof files, files)
 
 	# Recursively scan a directory
 	# fileAction(fileFullPath,fileRelativePath,next(err,skip)) or false
@@ -616,7 +665,7 @@ util =
 
 		# Group
 		tasks = new @Group (err) ->
-			next err, list, tree
+			next?(err, list, tree)
 		
 		# Cycle
 		fs.readdir parentPath, (err,files) ->
@@ -756,13 +805,13 @@ util =
 					# Error
 					if err
 						console.log 'bal-util.cpdir: failed to create the path for the file:',fileSrcPath
-						return next err
+						return next?(err)
 					# Success
 					util.cp fileSrcPath, fileOutPath, (err) ->
 						# Forward
 						if err
 							console.log 'bal-util.cpdir: failed to copy the child file:',fileSrcPath
-						return next err
+						return next?(err)
 			# Dir
 			null
 			# Completed
@@ -786,28 +835,28 @@ util =
 						# Forward
 						if err
 							console.log 'bal-util.rmdir: failed to remove the child file:', fileFullPath
-						return next err
+						return next?(err)
 				
 				# Dir
 				(fileFullPath,fileRelativePath,next) ->
-					next null, false, (next) ->
+					next? null, false, (next) ->
 						fs.rmdir fileFullPath, (err) ->
 							# Forward
 							if err
 								console.log 'bal-util.rmdir: failed to remove the child directory:', fileFullPath
-							return next err
+							return next?(err)
 				
 				# Completed
 				(err,list,tree) ->
 					# Error
 					if err
-						return next err, list, tree
+						return next?(err, list, tree)
 					# Success
 					fs.rmdir parentPath, (err) ->
 						# Forward
 						if err
 							console.log 'bal-util.rmdir: failed to remove the parent directory:', parentPath
-						return next err, list, tree
+						return next?(err, list, tree)
 			)
 	
 	# Write tree
@@ -815,7 +864,7 @@ util =
 	writetree: (dstPath,tree,next) ->
 		# Group
 		tasks = new @Group (err) ->
-			next err
+			next?(err)
 		
 		# Ensure Destination
 		util.ensurePath dstPath, (err) ->
@@ -862,9 +911,9 @@ util =
 
 		# Check
 		unless type.string path
-			return next new Error 'bal-util.expandPath: path needs to be a string'
+			return next?(new Error 'bal-util.expandPath: path needs to be a string')
 		unless type.string dir
-			return next new Error 'bal-util.expandPath: dir needs to be a string'
+			return next?(new Error 'bal-util.expandPath: dir needs to be a string')
 	
 		# Absolute path
 		if /^\/|\:/.test path
@@ -886,14 +935,14 @@ util =
 				# Error 
 				if err
 					console.log 'bal-util.expandPath: realpath failed on:',expandedPath
-					return next err, expandedPath
+					return next?(err, expandedPath)
 			
 				# Success
-				return next null, fileFullPath
+				return next?(null, fileFullPath)
 		
 		# Done
 		else
-			return next null, expandedPath
+			return next?(null, expandedPath)
 		
 		# Done
 		return
@@ -905,7 +954,7 @@ util =
 		options or= {}
 		expandedPaths = []
 		tasks = new @Group (err) ->
-			next err, expandedPaths
+			next?(err, expandedPaths)
 		tasks.total += paths.length
 
 		# Cycle
@@ -1016,6 +1065,83 @@ util =
 						oldVersionCallback(details)  if oldVersionCallback
 		catch err
 			errorCallback(err)  if errorCallback
+
+	
+	# Initialise git submodules
+	# next(err,stdout,stderr)
+	initGitSubmodules: (path,next) ->
+		# Create the child process
+		child = util.exec(
+			# Commands
+			[
+				'git submodule init'
+				'git submodule update'
+				'git submodule foreach --recursive "git init"'
+				'git submodule foreach --recursive "git checkout master"'
+				'git submodule foreach --recursive "git submodule init"'
+				'git submodule foreach --recursive "git submodule update"'
+			]
+			
+			# Options
+			{
+				cwd: path
+			}
+
+			# Next
+			next
+		)
+
+		# Return child process
+		return child
+	
+	
+	# Initialise node modules
+	# next(err,stdout,stderr)
+	initNodeModules: (path,next) ->
+		# Create the child process
+		child = util.exec(
+			# Commands
+			[
+				'npm install'
+			]
+			
+			# Options
+			{
+				cwd: path
+			}
+
+			# Next
+			next
+		)
+
+		# Return child process
+		return child
+	
+	# Git Pull
+	# next(err,stdout,stderr)
+	gitPull: (path,url,next) ->
+		# Create the child process
+		child = exec(
+			# Commands
+			[
+				"git init"
+				"git remote add skeleton #{url}"
+				"git pull skeleton master"
+			]
+			
+			# Options
+			{
+				cwd: path
+			}
+
+			# Next
+			next
+		)
+
+		# Return the child process
+		return child
+
+
 
 
 # Export
