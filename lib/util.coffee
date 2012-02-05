@@ -2,11 +2,11 @@
 # A series of utility functions to help speed up node.js development
 
 # Requirements
-fs = require 'fs'
-path = require 'path'
+fs = require('fs')
 EventEmitter = require('events').EventEmitter
 request = null
 child_process = null
+debug = false
 
 # =====================================
 
@@ -206,6 +206,8 @@ class EventSystem extends EventEmitter
 	# Run one time once an event has unlocked
 	# next(err)
 	onceUnlocked: (eventName, next) ->
+		# Log
+		console.log "onceUnlocked #{eventName}"  if debug
 		# Grab the event
 		event = @event eventName
 		# Check lock status
@@ -372,7 +374,8 @@ class Group
 		++@queueIndex
 		if @queue[@queueIndex]?
 			task = @queue[@queueIndex]
-			task()
+			task @completer()
+		@
 		
 	# A task has completed
 	complete: (err) ->
@@ -385,6 +388,7 @@ class Group
 					return @exit()
 				else if @mode is 'sync'
 					@nextTask()
+		@
 	
 	# Alias for complete
 	completer: ->
@@ -397,11 +401,19 @@ class Group
 			@next?(err)
 		else
 			@next?(new Error 'Group has already exited')
+		@
+	
+	# Push a set of tasks to the group
+	tasks: (tasks) ->
+		for task in tasks
+			@push task
+		@
 	
 	# Push a new task to the group
 	push: (task) ->
 		++@total
 		@queue.push task
+		@
 	
 	# Run the tasks
 	run: ->
@@ -409,20 +421,23 @@ class Group
 			@queueIndex = 0
 			if @queue[@queueIndex]?
 				task = @queue[@queueIndex]
-				task()
+				task @completer()
 		else
 			for task in @queue
-				task()
+				task @completer()
+		@
 	
 	# Async
 	async: ->
 		@mode = 'async'
 		@run()
+		@
 	
 	# Sync
 	sync: ->
 		@mode = 'sync'
 		@run()
+		@
 
 
 # =====================================
@@ -440,28 +455,20 @@ util =
 	# EventSystem
 	EventSystem: EventSystem
 
+
 	# =================================
 	# Groups
 
 	# Group
 	Group: Group
 
-	# Parallel
-	parallel: (tasks,next) ->
-		# Create group
-		group = new @Group (err) ->
-			next?(err)
-		group.total = tasks.length
-		
-		# Run tasks
-		for task in tasks
-			task group.completer()
-	
+
 	# =================================
 	# Types
 
 	# Type
 	type: type
+
 
 	# =================================
 	# Exec
@@ -509,6 +516,9 @@ util =
 		# Run the tasks synchronously
 		tasks.sync()
 
+		# Chain
+		@
+
 
 	# =================================
 	# Paths
@@ -527,15 +537,20 @@ util =
 				if err
 					console.log 'bal-util.cp: writeFile failed on:',dst
 				return next?(err)
+		# Chain
+		@
 	
+
 	# Get the parent path
 	getParentPathSync: (p) ->
 		parentPath = p.replace /[\/\\][^\/\\]+$/, ''
 		return parentPath
 	
+
 	# Ensure path exists
 	# next(err)
 	ensurePath: (p,next) ->
+		path = require('path')
 		p = p.replace /[\/\\]$/, ''
 		path.exists p, (exists) ->
 			# Error 
@@ -556,7 +571,10 @@ util =
 							return next?(new Error 'Failed to create the directory '+p)
 						# Success
 						next?()
+		# Chain
+		@
 	
+
 	# Prefix path
 	prefixPathSync: (path,parentPath) ->
 		path = path.replace /[\/\\]$/, ''
@@ -564,6 +582,7 @@ util =
 			path = parentPath + '/' + path
 		return path
 	
+
 	# Is it a directory?
 	# next(err,isDirectory)
 	isDirectory: (fileFullPath,next) ->
@@ -575,25 +594,11 @@ util =
 				return next?(err)
 			# Success
 			return next?(null, fileStat.isDirectory())
+		
+		# Chain
+		@
 	
-	# Resolve file path
-	# next(err,fileFullPath,fileRelativePath)
-	resolvePath: (srcPath,parentPath,next) ->
-		fs.realpath srcPath, (err,fileFullPath) ->
-			# Error 
-			if err
-				console.log 'bal-util.resolvePath: realpath failed on:',srcPath
-				return next?(err, srcPath)
-			# Check
-			else if fileFullPath.substring(0,parentPath.length) isnt parentPath
-				err = new Error 'Hacker! Tried to create a file outside our working directory: '+fileFullPath
-				return next?(err, fileFullPath, false)
-			# Success
-			else
-				fileRelativePath = fileFullPath.substring parentPath.length
-				return next?(null, fileFullPath, fileRelativePath)
 	
-
 	# Generate a slug for a file
 	generateSlugSync: (fileFullPath) ->
 		# Slugify
@@ -601,6 +606,7 @@ util =
 
 		# Return
 		return result
+
 
 	# Recursively scan a directory, file, or series of files
 	scan: (files,fileAction,dirAction,next) ->
@@ -654,11 +660,56 @@ util =
 		else
 			next?(new Error 'bal-util.scandir: unsupported files type:', typeof files, files)
 
+		# Chain
+		@
+	
+
+	# Scan a directory into a tree
+	# next(err,tree)
+	scantree: (dirPath,next) ->
+		# Handle
+		util.scandir(
+			path: dirPath
+			readFiles: true
+			next: (err,list,tree) ->
+				next?(err,tree)
+		)
+
+		# Chain
+		@
+
+
 	# Recursively scan a directory
 	# fileAction(fileFullPath,fileRelativePath,next(err,skip)) or false
 	# dirAction(fileFullPath,fileRelativePath,next(err,skip)) or false
-	# next(err)
-	scandir: (parentPath,fileAction,dirAction,next,relativePath) ->
+	# next(err,list,tree)
+	scandir: (args...) ->
+		# Prepare
+		if args.length is 1
+			{path,parentPath,fileAction,dirAction,next,relativePath,readFiles} = args[0]
+		else if args.length >= 4
+			[parentPath,fileAction,dirAction,next] = args
+		else
+			err = new Error('bal-util.scandir: unknown arguments')
+			if next
+				return next?(err)
+			else
+				throw err
+			
+		
+		# Prepare defaults
+		readFiles or= false
+
+		# Check needed
+		if !parentPath and path
+			parentPath = path
+		if !parentPath
+			err = new Error('bal-util.scandir: parentPath is needed')
+			if next
+				return next?(err)
+			else
+				throw err
+
 		# Return
 		list = {}
 		tree = {}
@@ -704,7 +755,6 @@ util =
 					else if isDirectory
 						# Prepare
 						complete = (err,skip,subtreeCallback) ->
-							#console.log 'dir0', tasks.total, tasks.completed
 							# Error
 							return tasks.exit(err)  if err
 				
@@ -720,13 +770,13 @@ util =
 								# Recurse
 								return util.scandir(
 									# Path
-									fileFullPath
+									path: fileFullPath
 									# File
-									fileAction
+									fileAction: fileAction
 									# Dir
-									dirAction
+									dirAction: dirAction
 									# Completed
-									(err,_list,_tree) ->
+									next: (err,_list,_tree) ->
 										# Merge in children of the parent directory
 										tree[file] = _tree
 										for own filePath, fileType of _list
@@ -744,15 +794,15 @@ util =
 											return subtreeCallback tasks.completer()
 										# Complete
 										else
-											#console.log 'dir1', tasks.total, tasks.completed
 											return tasks.complete()
 									# Relative Path
-									fileRelativePath
+									relativePath: fileRelativePath
+									# Read Files
+									readFiles: readFiles
 								)
 							
 							else
 								# Done
-								#console.log 'dir2', tasks.total, tasks.completed
 								return tasks.complete()
 						
 						# Action
@@ -767,7 +817,6 @@ util =
 					else
 						# Prepare
 						complete = (err,skip) ->
-							#console.log 'file0', tasks.total, tasks.completed
 							# Error
 							return tasks.exit(err)  if err
 							
@@ -775,14 +824,24 @@ util =
 							return tasks.exit()  if tasks.exited
 
 							# Handle
-							unless skip
+							if skip
+								# Done
+								return tasks.complete()
+							else
 								# Append
 								list[fileRelativePath] = 'file'
-								tree[file] = true
-							
-							# Done
-							#console.log 'file1', tasks.total, tasks.completed
-							return tasks.complete()
+								if readFiles
+									fs.readFile fileFullPath, (err,data) ->
+										return tasks.exit(err)  if err
+										# Append
+										tree[file] = data.toString()
+										# Done
+										return tasks.complete()
+								else
+									# Append
+									tree[file] = true
+									# Done
+									return tasks.complete()
 						
 						# Action
 						if fileAction
@@ -791,7 +850,11 @@ util =
 							return complete(err,true)
 						else
 							return complete(err,false)
+		
+		# Chain
+		@
 	
+
 	# Copy a directory
 	# next(err)
 	cpdir: (srcPath,outPath,next) ->
@@ -801,7 +864,7 @@ util =
 			# File
 			(fileSrcPath,fileRelativePath,next) ->
 				fileOutPath = outPath+'/'+fileRelativePath
-				util.ensurePath path.dirname(fileOutPath), (err) ->
+				util.ensurePath require('path').dirname(fileOutPath), (err) ->
 					# Error
 					if err
 						console.log 'bal-util.cpdir: failed to create the path for the file:',fileSrcPath
@@ -817,10 +880,15 @@ util =
 			# Completed
 			next
 		)
+
+		# Chain
+		@
 	
+
 	# Remove a directory
 	# next(err)
 	rmdir: (parentPath,next) ->
+		path = require('path')
 		path.exists parentPath, (exists) ->
 			# Skip
 			return next?()  unless exists
@@ -858,7 +926,10 @@ util =
 							console.log 'bal-util.rmdir: failed to remove the parent directory:', parentPath
 						return next?(err, list, tree)
 			)
-	
+		
+		# Chain
+		@
+
 	# Write tree
 	# next(err)
 	writetree: (dstPath,tree,next) ->
@@ -876,7 +947,6 @@ util =
 			for own fileRelativePath, value of tree
 				++tasks.total
 				fileFullPath = dstPath+'/'+fileRelativePath.replace(/^\/+/,'')
-				#console.log 'bal-util.writetree: handling:', fileFullPath, typeof value
 				if typeof value is 'object'
 					util.writetree fileFullPath, value, tasks.completer()
 				else
@@ -892,90 +962,27 @@ util =
 			# Return
 			return
 		
-		# Return
-		return
-	
-	# Expand a path
-	# next(err,expandedPath)
-	expandPath: (path,dir,{cwd,realpath},next) ->
-		# Prepare
-		cwd ?= false
-		realpath ?= false
-		expandedPath = null
-		cwdPath = false
-		if cwd
-			if type.string cwd
-				cwdPath = cwd
-			else
-				cwdPath = process.cwd()
+		# Chain
+		@
 
-		# Check
-		unless type.string path
-			return next?(new Error 'bal-util.expandPath: path needs to be a string')
-		unless type.string dir
-			return next?(new Error 'bal-util.expandPath: dir needs to be a string')
-	
-		# Absolute path
-		if /^\/|\:/.test path
-			# Use it
-			expandedPath = path
-		
-		# Relative Path
+	# Read path
+	# Reads a path be it local or remote
+	# next(err,data)
+	readPath: (filePath,next) ->
+		if /^http/.test(filePath)
+			request = require 'request'  unless request
+			request filePath, (err,response,data) =>
+				return next?(err)  if err
+				return next?(null,data)
 		else
-			# CWD Path
-			if cwd and /^\./.test path
-				expandedPath = cwdPath + '/' + path
-			# Relative Path
-			else # /^[a-zA-Z]/
-				expandedPath = dir + '/' + path
+			fs.readFile filePath, (err,data) ->
+				return next?(err)  if err
+				return next?(null,data)
 		
-		# Realpath?
-		if realpath
-			fs.realpath expandedPath, (err,fileFullPath) ->
-				# Error 
-				if err
-					console.log 'bal-util.expandPath: realpath failed on:',expandedPath
-					return next?(err, expandedPath)
-			
-				# Success
-				return next?(null, fileFullPath)
-		
-		# Done
-		else
-			return next?(null, expandedPath)
-		
-		# Done
-		return
+		# Chain
+		@
 	
-	# Expand a series of paths
-	# next(err,expandedPaths)
-	expandPaths: (paths,dir,options,next) ->
-		# Prepare
-		options or= {}
-		expandedPaths = []
-		tasks = new @Group (err) ->
-			next?(err, expandedPaths)
-		tasks.total += paths.length
 
-		# Cycle
-		for path in paths
-			# Expand
-			@expandPath path, dir, options, (err,expandedPath) ->
-				# Error
-				if err
-					return tasks.exit err
-				
-				# Store
-				expandedPaths.push expandedPath
-				tasks.complete err
-
-		# Empty?
-		unless paths.length
-			tasks.exit()
-		
-		# Done
-		return
-	
 	# =================================
 	# Versions
 
@@ -983,93 +990,108 @@ util =
 	# http://phpjs.org/functions/version_compare
 	# MIT Licensed http://phpjs.org/pages/license
 	versionCompare: (v1,operator,v2) ->
-	    i = x = compare = 0
-	    vm =
-	        'dev': -6
-	        'alpha': -5
-	        'a': -5
-	        'beta': -4
-	        'b': -4
-	        'RC': -3
-	        'rc': -3
-	        '#': -2
-	        'p': -1
-	        'pl': -1
+		i = x = compare = 0
+		vm =
+			'dev': -6
+			'alpha': -5
+			'a': -5
+			'beta': -4
+			'b': -4
+			'RC': -3
+			'rc': -3
+			'#': -2
+			'p': -1
+			'pl': -1
 
-	    prepVersion = (v) ->
-	        v = ('' + v).replace(/[_\-+]/g, '.')
-	        v = v.replace(/([^.\d]+)/g, '.$1.').replace(/\.{2,}/g, '.')
-	        if !v.length
-	            [-8]
-	        else
-	            v.split('.')
+		prepVersion = (v) ->
+			v = ('' + v).replace(/[_\-+]/g, '.')
+			v = v.replace(/([^.\d]+)/g, '.$1.').replace(/\.{2,}/g, '.')
+			if !v.length
+				[-8]
+			else
+				v.split('.')
 
-	    numVersion = (v) ->
-	        if !v
-	            0
-	        else
-	            if isNaN(v)
-	                vm[v] or -7
-	            else
-	                parseInt(v, 10)
-	    
-	    v1 = prepVersion(v1)
-	    v2 = prepVersion(v2)
-	    x = Math.max(v1.length, v2.length)
+		numVersion = (v) ->
+			if !v
+				0
+			else
+				if isNaN(v)
+					vm[v] or -7
+				else
+					parseInt(v, 10)
+		
+		v1 = prepVersion(v1)
+		v2 = prepVersion(v2)
+		x = Math.max(v1.length, v2.length)
 
-	    for i in [0..x]
-	        if (v1[i] == v2[i])
-	            continue
-	        
-	        v1[i] = numVersion(v1[i])
-	        v2[i] = numVersion(v2[i])
-	        
-	        if (v1[i] < v2[i])
-	            compare = -1
-	            break
-	        else if v1[i] > v2[i]
-	            compare = 1
-	            break
-	    
-	    if !operator
-	        return compare
+		for i in [0..x]
+			if (v1[i] == v2[i])
+				continue
+			
+			v1[i] = numVersion(v1[i])
+			v2[i] = numVersion(v2[i])
+			
+			if (v1[i] < v2[i])
+				compare = -1
+				break
+			else if v1[i] > v2[i]
+				compare = 1
+				break
+		
+		if !operator
+			return compare
 
-	    switch operator
-	        when '>', 'gt'
-	            compare > 0
-	        when '>=', 'ge'
-	            compare >= 0
-	        when '<=', 'le'
-	            compare <= 0
-	        when '==', '=', 'eq', 'is'
-	            compare == 0
-	        when '<>', '!=', 'ne', 'isnt'
-	            compare != 0
-	        when '', '<', 'lt'
-	            compare < 0
-	        else
-	            null
+		result = 
+			switch operator
+				when '>', 'gt'
+					compare > 0
+				when '>=', 'ge'
+					compare >= 0
+				when '<=', 'le'
+					compare <= 0
+				when '==', '=', 'eq', 'is'
+					compare == 0
+				when '<>', '!=', 'ne', 'isnt'
+					compare != 0
+				when '', '<', 'lt'
+					compare < 0
+				else
+					null
+		
+		# Return result
+		result
 	
-	# Compare Package
-	packageCompare: ({local,remote,newVersionCallback,oldVersionCallback,errorCallback}) ->
-		details = {}
-		try
-			details.local = JSON.parse fs.readFileSync(local).toString()
-			request = require 'request'  unless request
-			request remote, (err,response,body) =>
-				if not err and response.statusCode is 200
-					details.remote = JSON.parse body
-					unless @versionCompare(details.local.version, '>=', details.remote.version)
-						newVersionCallback(details)  if newVersionCallback
-					else
-						oldVersionCallback(details)  if oldVersionCallback
-		catch err
-			errorCallback(err)  if errorCallback
 
+	# Compare Package
+	packageCompare: ({local,remote,newVersionCallback,sameVersionCallback,oldVersionCallback,errorCallback}) ->
+		details = {}
+
+		# Handler
+		runCompare = ->
+			if util.versionCompare(details.local.version, '<', details.remote.version)
+				newVersionCallback?(details)
+			else if util.versionCompare(details.local.version, '==', details.remote.version)
+				sameVersionCallback?(details)
+			else if util.versionCompare(details.local.version, '>', details.remote.version)
+				oldVersionCallback?(details)
+		
+		# Read local
+		util.readPath local, (err,data) ->
+			return errorCallback?(err)  if err
+			details.local = JSON.parse(data.toString())
+			# Read remote
+			util.readPath remote, (err,data) ->
+				return errorCallback?(err)  if err
+				details.remote = JSON.parse(data.toString())
+				# Compare
+				runCompare()
+		
+		# Chain
+		@
 	
 	# Initialise git submodules
 	# next(err,stdout,stderr)
-	initGitSubmodules: (path,next) ->
+	initGitSubmodules: (dirPath,next) ->
 		# Create the child process
 		child = util.exec(
 			# Commands
@@ -1084,7 +1106,7 @@ util =
 			
 			# Options
 			{
-				cwd: path
+				cwd: dirPath
 			}
 
 			# Next
@@ -1097,7 +1119,7 @@ util =
 	
 	# Initialise node modules
 	# next(err,stdout,stderr)
-	initNodeModules: (path,next) ->
+	initNodeModules: (dirPath,next) ->
 		# Create the child process
 		child = util.exec(
 			# Commands
@@ -1107,7 +1129,7 @@ util =
 			
 			# Options
 			{
-				cwd: path
+				cwd: dirPath
 			}
 
 			# Next
@@ -1117,21 +1139,22 @@ util =
 		# Return child process
 		return child
 	
+
 	# Git Pull
 	# next(err,stdout,stderr)
-	gitPull: (path,url,next) ->
+	gitPull: (dirPath,url,next) ->
 		# Create the child process
 		child = exec(
 			# Commands
 			[
 				"git init"
-				"git remote add skeleton #{url}"
-				"git pull skeleton master"
+				"git remote add origin #{url}"
+				"git pull origin master"
 			]
 			
 			# Options
 			{
-				cwd: path
+				cwd: dirPath
 			}
 
 			# Next
@@ -1140,7 +1163,6 @@ util =
 
 		# Return the child process
 		return child
-
 
 
 

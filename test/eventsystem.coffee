@@ -1,9 +1,12 @@
 # Requires
 assert = require 'assert'
 EventSystem = require(__dirname+'/../lib/util.coffee').EventSystem
-debug = true
+debug = false
 
-# Test Data
+
+# =====================================
+# Configuration
+
 class Person extends EventSystem
 	###
 	A person can eat while they drink, but they can't drink while they eat
@@ -81,10 +84,14 @@ class Person extends EventSystem
 				,1*1000)
 		
 
+# =====================================
 # Tests
-tests =
-	'everything': (beforeExit) ->
+
+describe 'EventSystem', ->
+
+	it 'should work as expected', (done) ->
 		# Prepare
+		@timeout(15000)
 		foods = ['apple','orange','grape']
 		drinks = ['coke','fanta','water']
 		joe = new Person()
@@ -137,10 +144,11 @@ tests =
 		joe.drink(drink,drankADrink)  for drink in drinks
 
 		# Async
-		beforeExit ->
-			assert.equal(foods.length, foodsAte.length, 'joe ate all his foods')
-			assert.equal(drinks.length, drinksDrunk.length, 'joe ate all his drinks')
-			assert.equal(false, joeTriedToDrinkThenEat, 'joe tried to drink then eat, when he shouldn\'t have')
-
-# Export
-module.exports = tests
+		setTimeout(
+			->
+				assert.equal(foods.length, foodsAte.length, 'joe ate all his foods')
+				assert.equal(drinks.length, drinksDrunk.length, 'joe ate all his drinks')
+				assert.equal(false, joeTriedToDrinkThenEat, 'joe tried to drink then eat, when he shouldn\'t have')
+				done()
+			,14000
+		)

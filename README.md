@@ -5,7 +5,7 @@ This project contains several utility functions used and maintained by Benjamin 
 
 ## What it provides
 
-[Take a look at its source file here](https://github.com/balupton/docpad/blob/master/lib/util.coffee#files)
+[Take a look at its source file here](https://github.com/balupton/bal-util.npm/blob/master/lib/util.coffee#files)
 
 
 ## Installing

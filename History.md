@@ -1,5 +1,19 @@
 ## History
 
+- v1.0 February 5, 2012
+	- Moved unit tests to [Mocha](http://visionmedia.github.com/mocha/)
+		- Offers more flexible unit testing
+		- Offers better guarantees that tests actually ran, and that they actually ran correctly
+	- Added `readPath` and `scantree`
+	- Added `readFiles` option to `scandir`
+	- `scandir` now supports arguments in object format
+	- Removed `parallel`
+	- Tasks inside groups now are passed `next` as there only argument
+	- Removed `resolvePath`, `expandPath` and `expandPaths`, they were essentially the same as `path.resolve`
+	- Most functions will now chain
+	- `comparePackage` now supports comparing two local, or two remote packages
+	- Added `gitPull`
+
 - v0.9 January 18, 2012
 	- Added `exec`, `initNodeModules`, `initGitSubmodules`, `EventSystem.when`
 	- Added support for no callbacks
