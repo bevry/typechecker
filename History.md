@@ -1,5 +1,9 @@
 ## History
 
+- v1.1 February 6, 2012
+	- Modularized
+	- Added [docco](http://jashkenas.github.com/docco/) docs
+
 - v1.0 February 5, 2012
 	- Moved unit tests to [Mocha](http://visionmedia.github.com/mocha/)
 		- Offers more flexible unit testing

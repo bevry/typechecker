@@ -24,22 +24,22 @@ This project contains several utility functions used and maintained by Benjamin 
 
 	``` javascript
 	require('coffee-script');
-	util = require('bal-util');
+	var balUtil = require('bal-util');
 	```
 
 - With Node.js in CoffeeScript
 	
 	``` coffeescript
-	util = require 'bal-util'
+	balUtil = require 'bal-util'
 	```
 
 
 ## History
 
-Discover the history inside the `History.md` file
+You can discover the history inside the [History.md](https://github.com/balupton/bal-util.npm/blob/master/History.md#files) file
 
 
 ## License
 
-Licensed under the [MIT License](http://creativecommons.org/licenses/MIT/)
+Licensed under the [MIT License](https://github.com/balupton/bal-util.npm/blob/master/LICENSE.txt)
 Copyright 2011 [Benjamin Arthur Lupton](http://balupton.com)

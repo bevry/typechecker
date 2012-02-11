@@ -1,6 +1,6 @@
 # Requires
 assert = require('assert')
-util = require(__dirname+'/../lib/util.coffee')
+balUtil = require(__dirname+'/../lib/balutil.coffee')
 
 
 # =====================================
@@ -40,7 +40,7 @@ describe 'versionCompare', ->
 		operator = test[1]
 		v2 = test[2]
 		resultExpected = test[3]
-		resultActual = util.versionCompare v1, operator, v2
+		resultActual = balUtil.versionCompare v1, operator, v2
 		testVersion(v1,operator,v2,resultExpected,resultActual)
 
 
@@ -54,13 +54,13 @@ describe 'packageCompare', ->
 
 	# Handler
 	testVersion = (v1,operator,v2) ->
-		resultActual = util.versionCompare(v1, operator, v2)
+		resultActual = balUtil.versionCompare(v1, operator, v2)
 		assert.equal(resultActual,true)
 
 	# Run
 	it 'should run as expected', (done) ->
 		@timeout(10000)
-		util.packageCompare(
+		balUtil.packageCompare(
 			local: localPackagePath
 			remote: remotePackagePath
 			newVersionCallback: (details) ->

@@ -12,5 +12,7 @@ test-debug:
 		--ignore-leaks \
 		--growl
 
+docs:
+	./node_modules/.bin/docco lib/*.coffee
 
 .PHONY: test

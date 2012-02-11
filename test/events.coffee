@@ -1,6 +1,6 @@
 # Requires
 assert = require 'assert'
-EventSystem = require(__dirname+'/../lib/util.coffee').EventSystem
+EventSystem = require(__dirname+'/../lib/balutil.coffee').EventSystem
 debug = false
 
 

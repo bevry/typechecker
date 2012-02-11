@@ -1,8 +1,7 @@
 # Requires
 assert = require('assert')
 path = require('path')
-util = require(__dirname+'/../lib/util.coffee')
-nodeUtil = require('util')
+balUtil = require(__dirname+'/../lib/balutil.coffee')
 
 
 # =====================================
@@ -50,7 +49,7 @@ describe 'rmdir', ->
 	it 'should fail gracefully when the directory does not exist', (done) ->
 
 		# rmdir
-		util.rmdir nonPath, (err) ->
+		balUtil.rmdir nonPath, (err) ->
 			# There should be no error
 			assert.equal(err||false, false)
 			done()
@@ -64,11 +63,11 @@ describe 'writetree', ->
 	it 'should work as expected', (done) ->
 
 		# Write the tree
-		util.writetree srcPath, writetree, (err) ->
+		balUtil.writetree srcPath, writetree, (err) ->
 			throw err  if err
 
 			# Check if the tree was written correctly
-			util.scantree srcPath, (err,scantree) ->
+			balUtil.scantree srcPath, (err,scantree) ->
 				throw err  if err
 
 				# Check if they match
@@ -82,11 +81,11 @@ describe 'writetree', ->
 					it 'should work as expected', (done) ->
 						
 						# Copy the source path to the out path
-						util.cpdir srcPath, outPath, (err) ->
+						balUtil.cpdir srcPath, outPath, (err) ->
 							throw err  if err
 
 							# Check if the tree was written correctly
-							util.scantree outPath, (err,scantree) ->
+							balUtil.scantree outPath, (err,scantree) ->
 								throw err  if err
 
 								# Check if they match
@@ -99,14 +98,14 @@ describe 'writetree', ->
 								describe 'rmdir', ->
 									# Cleaup srcPath
 									it 'should clean up the srcPath', (done) ->
-										util.rmdir srcPath, (err) ->
+										balUtil.rmdir srcPath, (err) ->
 											throw err  if err
 											exists = path.existsSync(srcPath)
 											assert.equal(exists,false)
 											done()
 									# Cleanup outPath
 									it 'should clean up the outPath', (done) ->
-										util.rmdir outPath, (err) ->
+										balUtil.rmdir outPath, (err) ->
 											throw err  if err
 											exists = path.existsSync(outPath)
 											assert.equal(exists,false)

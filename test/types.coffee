@@ -1,7 +1,7 @@
 # Requires
 assert = require('assert')
-util = require(__dirname+'/../lib/util.coffee')
-nodeUtil = require('util')
+balUtil = require(__dirname+'/../lib/balutil.coffee')
+util = require('util')
 
 
 # =====================================
@@ -26,11 +26,11 @@ describe 'type', ->
 
 	# Handler
 	testType = (value,typeExpected,typeActual) ->
-		it "should detect #{nodeUtil.inspect value} is of type #{typeExpected}", ->
+		it "should detect #{util.inspect value} is of type #{typeExpected}", ->
 			assert.equal(typeActual,typeExpected)
 	
 	# Run
 	for [value,typeExpected] in typeTestData
-		typeActual = util.type.get(value)
+		typeActual = balUtil.type.get(value)
 		testType(value,typeExpected,typeActual)
 

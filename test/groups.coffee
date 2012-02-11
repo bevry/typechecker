@@ -1,6 +1,6 @@
 # Requires
 assert = require('assert')
-util = require(__dirname+'/../lib/util.coffee')
+balUtil = require(__dirname+'/../lib/balutil.coffee')
 
 
 # =====================================
@@ -19,7 +19,7 @@ describe 'Group', ->
 		tasksCompleted = 0
 
 		# Create our group
-		tasks = new util.Group ->
+		tasks = new balUtil.Group ->
 			assert.equal(tasksExpected, tasksCompleted, 'the group of tasks finished with the expected tasks completing')
 		tasks.total = tasksExpected
 	
@@ -60,7 +60,7 @@ describe 'Group', ->
 		tasksCompleted = 0
 
 		# Create our group
-		tasks = new util.Group ->
+		tasks = new balUtil.Group ->
 			assert.equal(tasksExpected, tasksCompleted, 'the group of tasks finished with the expected tasks completing')
 		tasks.total = tasksExpected
 	
@@ -107,7 +107,7 @@ describe 'Group', ->
 		tasksCompleted = 0
 
 		# Create our group
-		tasks = new util.Group ->
+		tasks = new balUtil.Group ->
 			assert.equal(tasksExpected, tasksCompleted, 'the group of tasks finished with the expected tasks completing')
 		tasks.total = tasksExpected
 	
