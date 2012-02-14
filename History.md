@@ -1,6 +1,9 @@
 ## History
 
-- v1.1 February 6, 2012
+- v1.2.0 February 14, 2012
+	- Removed single and multi modes from `exec`, now always returns the same consistent `callback(err,results)` instead
+
+- v1.1.0 February 6, 2012
 	- Modularized
 	- Added [docco](http://jashkenas.github.com/docco/) docs
 

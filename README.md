@@ -41,5 +41,5 @@ You can discover the history inside the [History.md](https://github.com/balupton
 
 ## License
 
-Licensed under the [MIT License](https://github.com/balupton/bal-util.npm/blob/master/LICENSE.txt)
-Copyright 2011 [Benjamin Arthur Lupton](http://balupton.com)
+Licensed under the [MIT License](http://creativecommons.org/licenses/MIT/)
+<br/>Copyright &copy; 2011-2012 [Benjamin Arthur Lupton](http://balupton.com)

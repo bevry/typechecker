@@ -11,6 +11,7 @@ balUtilGroups = require("#{__dirname}/groups.coffee")
 balUtilPaths =
 
 	# Copy a file
+	# Or rather overwrite a file, regardless of whether or not it was existing before
 	# next(err)
 	cp: (src,dst,next) ->
 		fs.readFile src, 'binary', (err,data) ->
@@ -345,18 +346,21 @@ balUtilPaths =
 	# Copy a directory
 	# next(err)
 	cpdir: (srcPath,outPath,next) ->
+		# Scan all the files in the diretory and copy them over asynchronously
 		balUtilPaths.scandir(
 			# Path
 			srcPath
 			# File
 			(fileSrcPath,fileRelativePath,next) ->
-				fileOutPath = outPath+'/'+fileRelativePath
+				fileOutPath = "#{outPath}/#{fileRelativePath}"
+				# Ensure the directory that the file is going to exists
 				balUtilPaths.ensurePath require('path').dirname(fileOutPath), (err) ->
 					# Error
 					if err
 						console.log 'balUtilPaths.cpdir: failed to create the path for the file:',fileSrcPath
 						return next?(err)
-					# Success
+					# The directory now does exist
+					# So let's now place the file inside it
 					balUtilPaths.cp fileSrcPath, fileOutPath, (err) ->
 						# Forward
 						if err

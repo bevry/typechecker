@@ -13,7 +13,7 @@ balUtilModules =
 
 	# Runs multiple commands at the same time
 	# And fires the callback once they have all completed
-	# callback(err,args...) where args are the result of the exec
+	# callback(err,results) where args are the result of the exec
 	exec: (commands,options,callback) ->
 		# Requires
 		child_process = require('child_process')
@@ -23,11 +23,8 @@ balUtilModules =
 		results = []
 
 		# Make sure we send back the arguments
-		tasks = new balUtilGroups.Group ->
-			if mode is 'single'
-				callback.apply(callback,results[0])
-			else
-				callback.apply(callback,[results])
+		tasks = new balUtilGroups.Group (err) ->
+			return callback.apply(callback,[err,results])
 		
 		# Make sure we send back the arguments
 		createHandler = (command) ->
@@ -41,10 +38,7 @@ balUtilModules =
 				tasks.complete(err)
 		
 		# Prepare tasks
-		if commands instanceof Array
-			mode or= 'multiple'
-		else
-			mode or= 'single'
+		unless commands instanceof Array
 			commands = [commands]
 		
 		# Add tasks
@@ -59,7 +53,7 @@ balUtilModules =
 
 	
 	# Initialise git submodules
-	# next(err,stdout,stderr)
+	# next(err,results)
 	initGitSubmodules: (dirPath,next) ->
 		# Create the child process
 		child = balUtilModules.exec(
@@ -87,7 +81,7 @@ balUtilModules =
 	
 	
 	# Initialise node modules
-	# next(err,stdout,stderr)
+	# next(err,results)
 	initNodeModules: (dirPath,next) ->
 		# Create the child process
 		child = balUtilModules.exec(
@@ -110,7 +104,7 @@ balUtilModules =
 	
 
 	# Git Pull
-	# next(err,stdout,stderr)
+	# next(err,results)
 	gitPull: (dirPath,url,next) ->
 		# Create the child process
 		child = exec(
