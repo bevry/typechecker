@@ -4,23 +4,61 @@ request = null
 balUtilPaths = null
 balUtilGroups = require("#{__dirname}/groups.coffee")
 
+# Create a counter of all the open files we have
+# As the filesystem will throw a fatal error if we have too many open files
+global.numberOfOpenFiles ?= 0
+global.maxNumberOfOpenFiles ?= 500
+
 
 # =====================================
 # Paths
 
 balUtilPaths =
 
+	# =====================================
+	# Open and Close Files
+
+	# Allows us to open files safely
+	# by tracking the amount of open files we have
+
+	# Open a file
+	# Pass your callback to fire when it is safe to open the file
+	openFile: (next) ->
+		if global.numberOfOpenFiles >= global.maxNumberOfOpenFiles
+			setTimeout(
+				->
+					balUtilPaths.openFile(next)
+				,50
+			)
+		else
+			++global.numberOfOpenFiles
+			next?()
+		@
+
+	# Close a file
+	# Call this once you are done with that file
+	closeFile: (next) ->
+		--global.numberOfOpenFiles
+		next?()
+		@
+
+
+	# =====================================
+	# Our Extensions
+
 	# Copy a file
 	# Or rather overwrite a file, regardless of whether or not it was existing before
 	# next(err)
 	cp: (src,dst,next) ->
-		fs.readFile src, 'binary', (err,data) ->
+		balUtilPaths.openFile -> fs.readFile src, 'binary', (err,data) ->
+			balUtilPaths.closeFile()
 			# Error
 			if err
 				console.log 'balUtilPaths.cp: cp failed on:',src
 				return next?(err)
 			# Success
-			fs.writeFile dst, data, 'binary', (err) ->
+			balUtilPaths.openFile -> fs.writeFile dst, data, 'binary', (err) ->
+				balUtilPaths.closeFile()
 				# Forward
 				if err
 					console.log 'balUtilPaths.cp: writeFile failed on:',dst
@@ -51,8 +89,10 @@ balUtilPaths =
 					console.log 'balUtilPaths.ensurePath: failed to ensure the path:',parentPath
 					return next?(err)
 				# Success
-				fs.mkdir p, 0700, (err) ->
+				balUtilPaths.openFile -> fs.mkdir p, 0700, (err) ->
 					path.exists p, (exists) ->
+						# Close
+						balUtilPaths.closeFile()
 						# Error
 						if not exists
 							console.log 'balUtilPaths.ensurePath: failed to create the directory:',p
@@ -75,7 +115,8 @@ balUtilPaths =
 	# next(err,isDirectory)
 	isDirectory: (fileFullPath,next) ->
 		# Stat
-		fs.stat fileFullPath, (err,fileStat) ->
+		balUtilPaths.openFile -> fs.stat fileFullPath, (err,fileStat) ->
+			balUtilPaths.closeFile()
 			# Error
 			if err
 				console.log 'balUtilPaths.isDirectory: stat failed on:',fileFullPath
@@ -166,7 +207,6 @@ balUtilPaths =
 		# Chain
 		@
 
-
 	# Recursively scan a directory
 	# fileAction(fileFullPath,fileRelativePath,next(err,skip)) or false
 	# dirAction(fileFullPath,fileRelativePath,next(err,skip)) or false
@@ -204,10 +244,13 @@ balUtilPaths =
 
 		# Group
 		tasks = new balUtilGroups.Group (err) ->
-			next?(err, list, tree)
+			return next?(err, list, tree)
 		
 		# Cycle
-		fs.readdir parentPath, (err,files) ->
+		balUtilPaths.openFile -> fs.readdir parentPath, (err,files) ->
+			# Close
+			balUtilPaths.closeFile()
+
 			# Check
 			if tasks.exited
 				return
@@ -319,7 +362,11 @@ balUtilPaths =
 								# Append
 								list[fileRelativePath] = 'file'
 								if readFiles
-									fs.readFile fileFullPath, (err,data) ->
+									# Read file
+									balUtilPaths.openFile -> fs.readFile fileFullPath, (err,data) ->
+										# Close file
+										balUtilPaths.closeFile()
+										# Error?
 										return tasks.exit(err)  if err
 										# Append
 										tree[file] = data.toString()
@@ -390,7 +437,8 @@ balUtilPaths =
 				
 				# File
 				(fileFullPath,fileRelativePath,next) ->
-					fs.unlink fileFullPath, (err) ->
+					balUtilPaths.openFile -> fs.unlink fileFullPath, (err) ->
+						balUtilPaths.closeFile()
 						# Forward
 						if err
 							console.log 'balUtilPaths.rmdir: failed to remove the child file:', fileFullPath
@@ -399,7 +447,8 @@ balUtilPaths =
 				# Dir
 				(fileFullPath,fileRelativePath,next) ->
 					next? null, false, (next) ->
-						fs.rmdir fileFullPath, (err) ->
+						balUtilPaths.openFile -> fs.rmdir fileFullPath, (err) ->
+							balUtilPaths.closeFile()
 							# Forward
 							if err
 								console.log 'balUtilPaths.rmdir: failed to remove the child directory:', fileFullPath
@@ -411,7 +460,8 @@ balUtilPaths =
 					if err
 						return next?(err, list, tree)
 					# Success
-					fs.rmdir parentPath, (err) ->
+					balUtilPaths.openFile -> fs.rmdir parentPath, (err) ->
+						balUtilPaths.closeFile()
 						# Forward
 						if err
 							console.log 'balUtilPaths.rmdir: failed to remove the parent directory:', parentPath
@@ -441,7 +491,8 @@ balUtilPaths =
 				if typeof value is 'object'
 					balUtilPaths.writetree fileFullPath, value, tasks.completer()
 				else
-					fs.writeFile fileFullPath, value, (err) ->
+					balUtilPaths.openFile -> fs.writeFile fileFullPath, value, (err) ->
+						balUtilPaths.closeFile()
 						if err
 							console.log 'balUtilPaths.writetree: writeFile failed on:',fileFullPath
 						return tasks.complete err
@@ -466,7 +517,8 @@ balUtilPaths =
 				return next?(err)  if err
 				return next?(null,data)
 		else
-			fs.readFile filePath, (err,data) ->
+			balUtilPaths.openFile -> fs.readFile filePath, (err,data) ->
+				balUtilPaths.closeFile()
 				return next?(err)  if err
 				return next?(null,data)
 		

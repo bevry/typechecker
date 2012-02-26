@@ -1,18 +1,9 @@
-test:
-	./node_modules/.bin/mocha \
-		--reporter spec \
-		--ui bdd \
-		--ignore-leaks \
-		--growl
+# If you change something here, be sure to change it in package.json's scripts as well
 
-test-debug:
-	node --debug-brk ./node_modules/.bin/mocha \
-		--reporter spec \
-		--ui bdd \
-		--ignore-leaks \
-		--growl
+test:
+	node ./node_modules/mocha/bin/mocha  --reporter spec  --ui bdd  --ignore-leaks  --growl
 
 docs:
 	./node_modules/.bin/docco lib/*.coffee
 
-.PHONY: test
+.PHONY: test docs
