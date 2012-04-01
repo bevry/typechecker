@@ -6,14 +6,14 @@ debug = false
 balUtil = {}
 balUtilCompare = require("#{__dirname}/compare.coffee")
 balUtilEvents = require("#{__dirname}/events.coffee")
-balUtilGroups = require("#{__dirname}/groups.coffee")
+balUtilFlow = require("#{__dirname}/flow.coffee")
 balUtilModules = require("#{__dirname}/modules.coffee")
 balUtilPaths = require("#{__dirname}/paths.coffee")
 balUtilTypes = require("#{__dirname}/types.coffee")
 subpackages = [
 	balUtilCompare
 	balUtilEvents
-	balUtilGroups
+	balUtilFlow
 	balUtilModules
 	balUtilPaths
 	balUtilTypes

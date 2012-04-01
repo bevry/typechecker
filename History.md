@@ -1,5 +1,10 @@
 ## History
 
+- v1.4.0 April 2, 2012
+	- Renamed `balUtilGroups` to `balUtilFlow`
+	- Added `toString`, `isArray` and `each` to `balUtilFlow`
+	- Added `rpdir`, `empty`, and `isPathOlderThan` to `balUtilPaths`
+
 - v1.3.0 February 26, 2012
 	- Added `openFile` and `closeFile` to open and close files safely (always stays below the maximum number of allowed open files)
 	- Updated all path utilities to use `openFile` and `closeFile`

@@ -1,6 +1,6 @@
 # Requires
 balUtilModules = null
-balUtilGroups = require("#{__dirname}/groups.coffee")
+balUtilFlow = require("#{__dirname}/flow.coffee")
 
 
 # =====================================
@@ -23,7 +23,7 @@ balUtilModules =
 		results = []
 
 		# Make sure we send back the arguments
-		tasks = new balUtilGroups.Group (err) ->
+		tasks = new balUtilFlow.Group (err) ->
 			return callback.apply(callback,[err,results])
 		
 		# Make sure we send back the arguments

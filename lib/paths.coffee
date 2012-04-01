@@ -2,7 +2,7 @@
 fs = require('fs')
 request = null
 balUtilPaths = null
-balUtilGroups = require("#{__dirname}/groups.coffee")
+balUtilFlow = require("#{__dirname}/flow.coffee")
 
 # Create a counter of all the open files we have
 # As the filesystem will throw a fatal error if we have too many open files
@@ -155,7 +155,7 @@ balUtilPaths =
 			
 			files: =>
 				# Queue
-				tasks = new balUtilGroups.Group next
+				tasks = new balUtilFlow.Group next
 				tasks.total += files.length
 			
 				# Array
@@ -243,7 +243,7 @@ balUtilPaths =
 		tree = {}
 
 		# Group
-		tasks = new balUtilGroups.Group (err) ->
+		tasks = new balUtilFlow.Group (err) ->
 			return next?(err, list, tree)
 		
 		# Cycle
@@ -399,6 +399,7 @@ balUtilPaths =
 			srcPath
 			# File
 			(fileSrcPath,fileRelativePath,next) ->
+				# Prepare
 				fileOutPath = "#{outPath}/#{fileRelativePath}"
 				# Ensure the directory that the file is going to exists
 				balUtilPaths.ensurePath require('path').dirname(fileOutPath), (err) ->
@@ -413,6 +414,46 @@ balUtilPaths =
 						if err
 							console.log 'balUtilPaths.cpdir: failed to copy the child file:',fileSrcPath
 						return next?(err)
+			# Dir
+			null
+			# Completed
+			next
+		)
+
+		# Chain
+		@
+	
+	# Replace a directory
+	# next(err)
+	rpdir: (srcPath,outPath,next) ->
+		# Scan all the files in the diretory and copy them over asynchronously
+		balUtilPaths.scandir(
+			# Path
+			srcPath
+			# File
+			(fileSrcPath,fileRelativePath,next) ->
+				# Prepare
+				fileOutPath = "#{outPath}/#{fileRelativePath}"
+				# Ensure the directory that the file is going to exists
+				balUtilPaths.ensurePath require('path').dirname(fileOutPath), (err) ->
+					# Error
+					if err
+						console.log 'balUtilPaths.rpdir: failed to create the path for the file:',fileSrcPath
+						return next?(err)
+					# Check if it is worthwhile copying that file
+					balUtilPaths.isPathOlderThan fileOutPath, fileSrcPath, (err,older) ->
+						# The src path has been modified since the out path was generated
+						if older is true or older is null
+							# The directory now does exist
+							# So let's now place the file inside it
+							balUtilPaths.cp fileSrcPath, fileOutPath, (err) ->
+								# Forward
+								if err
+									console.log 'balUtilPaths.rpdir: failed to copy the child file:',fileSrcPath
+								return next?(err)
+						# The out path is new enough
+						else
+							return next?()
 			# Dir
 			null
 			# Completed
@@ -475,7 +516,7 @@ balUtilPaths =
 	# next(err)
 	writetree: (dstPath,tree,next) ->
 		# Group
-		tasks = new balUtilGroups.Group (err) ->
+		tasks = new balUtilFlow.Group (err) ->
 			next?(err)
 		
 		# Ensure Destination
@@ -524,6 +565,97 @@ balUtilPaths =
 		
 		# Chain
 		@
+
+	# Empty
+	# Check if the file does not exist, or is empty
+	# next(err,empty)
+	empty: (filePath,next) ->
+		# Prepare
+		path = require('path')
+
+		# Check if we exist
+		path.exists filePath, (exists) ->
+			# Return empty if we don't exist
+			return next?(null,true)  unless exists
+
+			# We do exist, so check if we have content
+			balUtilPaths.openFile -> fs.stat filePath, (err,stat) ->
+				balUtilPaths.closeFile()
+				# Check
+				return next?(err)  if err
+				# Return whether or not we are actually empty
+				return next?(null,stat.size is 0)
+
+		# Chain
+		@
+
+
+	# Is Path Older Than
+	# Checks if a path is older than a particular amount of millesconds
+	# next(err,older)
+	# older will be null if the path does not exist
+	isPathOlderThan: (aPath,bInput,next) ->
+		# Prepare
+		path = require('path')
+
+		# Handle mtime
+		bMtime = null
+		if typeof bInput is 'number'
+			mode = 'time'
+			bMtime = new Date(new Date() - bInput)
+		else
+			mode = 'path'
+			bPath = bInput
+
+		# Check if the path exists
+		balUtilPaths.empty aPath, (err,empty) ->
+			# If it doesn't then we should return right away
+			return next?(err,null)  if empty or err
+
+			# We do exist, so let's check how old we are
+			balUtilPaths.openFile -> fs.stat aPath, (err,aStat) ->
+				balUtilPaths.closeFile()
+
+				# Check
+				return next?(err)  if err
+
+				# Prepare
+				compare = ->
+					# Time comparison
+					if aStat.mtime < bMtime
+						older = true
+					else
+						older = false
+
+					# Return result
+					return next?(null,older)
+
+				# Perform the comparison
+				if mode is 'path'
+					# Check if the bPath exists
+					balUtilPaths.empty bPath, (err,empty) ->
+						# Return result if we are empty
+						return next?(err,null)  if empty or err
+
+						# It does exist so lets get the stat
+						balUtilPaths.openFile -> fs.stat bPath, (err,bStat) ->
+							balUtilPaths.closeFile()
+
+							# Check
+							return next?(err)  if err
+
+							# Assign the outer bMtime variable
+							bMtime = bStat.mtime
+
+							# Perform the comparison
+							return compare()
+				else
+					# We already have the bMtime
+					return compare()
+
+		# Chain
+		@
+
 
 
 # =====================================

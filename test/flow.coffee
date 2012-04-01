@@ -7,6 +7,40 @@ balUtil = require(__dirname+'/../lib/balutil.coffee')
 # Tests
 
 # -------------------------------------
+# Flow
+
+describe 'flow', ->
+
+	it 'should detect arrays', (done) ->
+		# Prepare
+		arr = []
+		obj = {}
+		str = ''
+		assert.equal(true,balUtil.isArray(arr), 'array vs array comparison')
+		assert.equal(false,balUtil.isArray(obj), 'object vs array comparison')
+		assert.equal(false,balUtil.isArray(str), 'string vs array comparison')
+		done()
+
+	it 'should cycle arrays', (done) ->
+		# Prepare
+		arr = ['a','b','c']
+		out = []
+		balUtil.each arr, (value,key) ->
+			out[key] = value
+		assert.deepEqual(arr,out, 'cycling an array produced the expected results')
+		done()
+
+	it 'should cycle objects', (done) ->
+		# Prepare
+		obj = {'a':1,'b':2,'c':3}
+		out = {}
+		balUtil.each obj, (value,key) ->
+			out[key] = value
+		assert.deepEqual(obj,out, 'cycling an object produced the expected results')
+		done()
+
+
+# -------------------------------------
 # Group
 
 describe 'Group', ->

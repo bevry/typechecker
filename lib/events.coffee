@@ -1,5 +1,6 @@
 # Require
 EventEmitter = require('events').EventEmitter
+balUtilFlow = require("#{__dirname}/flow.coffee")
 debug = false
 
 
@@ -237,16 +238,35 @@ class EventSystem extends EventEmitter
 		# Chain
 		@
 	
-	cycle: (eventName, data, next) ->
+	# Emit a group of listeners asynchronously
+	# next(err,result,results)
+	emitAsync: (eventName,data,next) ->
 		# Get listeners
 		listeners = @listeners(eventName)
 		# Prepare tasks
-		tasks = new balUtil.Group (err) ->
-			next?(err)
-		tasks.total = listeners.length
-		# Cycle through
-		for listener in listeners
-			listener data, tasks.completer()
+		tasks = new balUtilFlow.Group(next)
+		# Add the tasks for the listeners
+		balUtilFlow.each listeners, (listener) ->
+			tasks.push (complete) ->
+				listener(data,complete)
+		# Trigger asynchronously
+		tasks.async()
+		# Chain
+		@
+
+	# Emit a group of listeners synchronously
+	# next(err,result,results)
+	emitSync: (eventName,data,next) ->
+		# Get listeners
+		listeners = @listeners(eventName)
+		# Prepare tasks
+		tasks = new balUtilFlow.Group(next)
+		# Add the tasks for the listeners
+		balUtilFlow.each listeners, (listener) ->
+			tasks.push (complete) ->
+				listener(data,complete)
+		# Trigger synchronously
+		tasks.sync()
 		# Chain
 		@
 
