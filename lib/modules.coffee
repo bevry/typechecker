@@ -54,9 +54,10 @@ balUtilModules =
 					errors += dataStr
 
 				# Wait
-				pid.on 'exit', ->
-					err = new Error(errors)  if errors
-					results.push [err,result]
+				pid.on 'exit', (code,signal) ->
+					err = null
+					err = new Error(errors)  if errors and code is 1
+					results.push [errors,result,code,signal]
 					tasks.complete(err)
 		
 		# Prepare tasks

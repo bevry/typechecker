@@ -1,5 +1,12 @@
 ## History
 
+- v1.4.2 April 5, 2012
+	- Fixed a failing test due to the `bal-util.npm` to `bal-util` rename
+	- Improvements to `balUtilModules.spawn`
+		- will only return an error if the exit code was `1`
+		- will also contain the `code` and `signal` with the results
+		- `results[x][0]` is now the stderr string, rather than an error object
+
 - v1.4.1 April 5, 2012
 	- Added `spawn` to `balUtilModules`
 	- Added `ignoreHiddenFiles` option to `balUtilPaths.scandir`
