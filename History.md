@@ -1,5 +1,9 @@
 ## History
 
+- v1.4.1 April 5, 2012
+	- Added `spawn` to `balUtilModules`
+	- Added `ignoreHiddenFiles` option to `balUtilPaths.scandir`
+
 - v1.4.0 April 2, 2012
 	- Renamed `balUtilGroups` to `balUtilFlow`
 	- Added `toString`, `isArray` and `each` to `balUtilFlow`

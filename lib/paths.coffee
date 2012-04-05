@@ -200,6 +200,7 @@ balUtilPaths =
 		balUtilPaths.scandir(
 			path: dirPath
 			readFiles: true
+			ignoreHiddenFiles: true
 			next: (err,list,tree) ->
 				next?(err,tree)
 		)
@@ -214,7 +215,7 @@ balUtilPaths =
 	scandir: (args...) ->
 		# Prepare
 		if args.length is 1
-			{path,parentPath,fileAction,dirAction,next,relativePath,readFiles} = args[0]
+			{path,parentPath,fileAction,dirAction,next,relativePath,readFiles,ignoreHiddenFiles} = args[0]
 		else if args.length >= 4
 			[parentPath,fileAction,dirAction,next] = args
 		else
@@ -227,6 +228,7 @@ balUtilPaths =
 		
 		# Prepare defaults
 		readFiles or= false
+		ignoreHiddenFiles ?= true
 
 		# Check needed
 		if !parentPath and path
@@ -266,6 +268,9 @@ balUtilPaths =
 			
 			# Cycle
 			else files.forEach (file) ->
+				# Check
+				return  if ignoreHiddenFiles and /^\./.test(file)
+
 				# Prepare
 				++tasks.total
 				fileFullPath = parentPath+'/'+file

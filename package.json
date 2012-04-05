@@ -1,8 +1,8 @@
 {
 	"name": "bal-util",
-	"version": "1.4.0",
+	"version": "1.4.1",
 	"description": "Common utility functions for Node.js used and maintained by Benjamin Lupton",
-	"homepage": "https://github.com/balupton/bal-util.npm",
+	"homepage": "https://github.com/balupton/bal-util",
 	"keywords": [
 		"javascript",
 		"flow",
@@ -38,7 +38,7 @@
 		}
 	],
 	"bugs": {
-		"url": "https://github.com/balupton/bal-util.npm/issues"
+		"url": "https://github.com/balupton/bal-util/issues"
 	},
 	"licenses": [
 		{
@@ -48,7 +48,7 @@
 	],
 	"repository": {
 		"type": "git",
-		"url": "http://github.com/balupton/bal-util.npm.git"
+		"url": "http://github.com/balupton/bal-util.git"
 	},
 	"dependencies": {
 		"request": "2.9.x"

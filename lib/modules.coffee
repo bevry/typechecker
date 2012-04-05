@@ -14,12 +14,74 @@ balUtilModules =
 	# Runs multiple commands at the same time
 	# And fires the callback once they have all completed
 	# callback(err,results) where args are the result of the exec
-	exec: (commands,options,callback) ->
+	spawn: (commands,options,callback) ->
 		# Requires
-		child_process = require('child_process')
+		{spawn,exec} = require('child_process')
 		
 		# Sync
-		mode = options.mode or null
+		results = []
+		options or= {}
+
+		# Make sure we send back the arguments
+		tasks = new balUtilFlow.Group (err) ->
+			return callback.apply(callback,[err,results])
+
+		# Make sure we send back the arguments
+		createHandler = (command) ->
+			return ->
+				# Prepare
+				pid = null
+				err = null
+				result = ''
+				errors = ''
+
+				# Spawn
+				if typeof command is 'string'
+					pid = spawn(command,[],options)
+				else
+					pid = spawn(command.command,command.args or [],command.options or options)
+
+				# Fetch
+				pid.stdout.on 'data', (data) ->
+					dataStr = data.toString()
+					if options.output
+						console.log(dataStr)
+					result += dataStr
+				pid.stderr.on 'data', (data) ->
+					dataStr = data.toString()
+					if options.output
+						console.log(dataStr)
+					errors += dataStr
+
+				# Wait
+				pid.on 'exit', ->
+					err = new Error(errors)  if errors
+					results.push [err,result]
+					tasks.complete(err)
+		
+		# Prepare tasks
+		unless commands instanceof Array
+			commands = [commands]
+		
+		# Add tasks
+		for command in commands
+			tasks.push createHandler command
+
+		# Run the tasks synchronously
+		tasks.sync()
+
+		# Chain
+		@
+
+
+	# Runs multiple commands at the same time
+	# And fires the callback once they have all completed
+	# callback(err,results) where args are the result of the exec
+	exec: (commands,options,callback) ->
+		# Requires
+		{spawn,exec} = require('child_process')
+		
+		# Sync
 		results = []
 
 		# Make sure we send back the arguments
@@ -28,15 +90,17 @@ balUtilModules =
 		
 		# Make sure we send back the arguments
 		createHandler = (command) ->
-			return -> child_process.exec command, options, (args...) ->
-				err = args[0] or null
-				
-				# Push args to result list
-				results.push args
+			return ->
+				exec command, options, (args...) ->
+					# Prepare
+					err = args[0] or null
+					
+					# Push args to result list
+					results.push args
 
-				# Complete the task
-				tasks.complete(err)
-		
+					# Complete the task
+					tasks.complete(err)
+			
 		# Prepare tasks
 		unless commands instanceof Array
 			commands = [commands]
