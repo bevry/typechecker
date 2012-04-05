@@ -50,7 +50,7 @@ describe 'versionCompare', ->
 describe 'packageCompare', ->
 	# Prepare
 	localPackagePath = "#{__dirname}/../package.json"
-	remotePackagePath = 'https://raw.github.com/balupton/bal-util.npm/master/package.json'
+	remotePackagePath = 'https://raw.github.com/balupton/bal-util/master/package.json'
 
 	# Handler
 	testVersion = (v1,operator,v2) ->
