@@ -5,7 +5,7 @@ This project contains several utility functions used and maintained by Benjamin 
 
 ## What it provides
 
-[Take a look at its source here](https://github.com/balupton/bal-util.npm/tree/master/lib#files)
+[Take a look at its source here](https://github.com/balupton/bal-util/tree/master/lib#files)
 
 
 ## Installing
@@ -36,7 +36,7 @@ This project contains several utility functions used and maintained by Benjamin 
 
 ## History
 
-You can discover the history inside the [History.md](https://github.com/balupton/bal-util.npm/blob/master/History.md#files) file
+You can discover the history inside the [History.md](https://github.com/balupton/bal-util/blob/master/History.md#files) file
 
 
 ## License

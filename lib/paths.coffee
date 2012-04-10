@@ -215,7 +215,7 @@ balUtilPaths =
 	scandir: (args...) ->
 		# Prepare
 		if args.length is 1
-			{path,parentPath,fileAction,dirAction,next,relativePath,readFiles,ignoreHiddenFiles} = args[0]
+			{path,parentPath,fileAction,dirAction,next,relativePath,readFiles,ignoreHiddenFiles,ignorePatterns} = args[0]
 		else if args.length >= 4
 			[parentPath,fileAction,dirAction,next] = args
 		else
@@ -229,6 +229,7 @@ balUtilPaths =
 		# Prepare defaults
 		readFiles or= false
 		ignoreHiddenFiles ?= true
+		ignorePatterns ?= /(node_modules)$/
 
 		# Check needed
 		if !parentPath and path
@@ -269,7 +270,10 @@ balUtilPaths =
 			# Cycle
 			else files.forEach (file) ->
 				# Check
-				return  if ignoreHiddenFiles and /^\./.test(file)
+				isHiddenFile = ignoreHiddenFiles and /^\./.test(file)
+				isIgnoredFile = ignorePatterns.test(file)
+				if isHiddenFile or isIgnoredFile
+					return
 
 				# Prepare
 				++tasks.total
