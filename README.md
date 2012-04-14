@@ -23,14 +23,13 @@ This project contains several utility functions used and maintained by Benjamin 
 - With Node.js in JavaScript
 
 	``` javascript
-	require('coffee-script');
 	var balUtil = require('bal-util');
 	```
 
 - With Node.js in CoffeeScript
 	
 	``` coffeescript
-	balUtil = require 'bal-util'
+	balUtil = require('bal-util')
 	```
 
 

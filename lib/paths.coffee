@@ -89,7 +89,7 @@ balUtilPaths =
 					console.log 'balUtilPaths.ensurePath: failed to ensure the path:',parentPath
 					return next?(err)
 				# Success
-				balUtilPaths.openFile -> fs.mkdir p, 0700, (err) ->
+				balUtilPaths.openFile -> fs.mkdir p, '700', (err) ->
 					path.exists p, (exists) ->
 						# Close
 						balUtilPaths.closeFile()

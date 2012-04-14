@@ -1,5 +1,9 @@
 ## History
 
+- v1.4.3 April 14, 2012
+	- CoffeeScript dependency is now bundled
+	- Fixed incorrect octal `0700` should have been `700`
+
 - v1.4.2 April 5, 2012
 	- Fixed a failing test due to the `bal-util.npm` to `bal-util` rename
 	- Improvements to `balUtilModules.spawn`
