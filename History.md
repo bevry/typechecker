@@ -1,8 +1,17 @@
 ## History
 
 - v1.5.0 April 18, 2012
-	- Fixed `scandir` error throwing when passed an invalid path
-	- More...
+	- `balUtilPaths` changes:
+		- `scan` was removed, not sure what it was used for
+		- `isDirectory` now returns the `fileStat` argument to the callback
+		- `scandir` changes:
+			- `ignorePatterns` option when set to true now uses the new `balUtilPaths.commonIgnorePatterns` property
+			- fixed error throwing when passed an invalid path
+			- now supports a new `stat` option
+			- will return the `fileStat` argument to the `fileAction` and `dirAction` callbacks
+			- `ignorePatterns` and `ignoreHiddenFiles` will now correctly be passed to child scandir calls
+		- `cpdir` and `rpdir` now uses `path.join` and support `ignoreHiddenFiles` and `ignorePatterns`
+		- `writetree` now uses `path.join`
 
 - v1.4.3 April 14, 2012
 	- CoffeeScript dependency is now bundled
