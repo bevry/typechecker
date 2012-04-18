@@ -18,37 +18,22 @@
 		"compare",
 		"comparison"
 	],
-	"author": {
-		"name": "Benjamin Lupton",
-		"email": "b@lupton.cc",
-		"url": "http://balupton.com"
-	},
-	"maintainers": [
-		{
-			"name": "Benjamin Lupton",
-			"email": "b@lupton.cc",
-			"url": "http://balupton.com"
-		}
-	],
-	"contributors": [
-		{
-			"name": "Benjamin Lupton",
-			"email": "b@lupton.cc",
-			"url": "http://balupton.com"
-		}
-	],
-	"bugs": {
-		"url": "https://github.com/balupton/bal-util/issues"
-	},
-	"licenses": [
-		{
-			"type": "MIT",
-			"url": "http://creativecommons.org/licenses/MIT/"
-		}
-	],
-	"repository": {
+    "author": "Benjamin Lupton <b@lupton.cc> (http://balupton.com)",
+    "maintainers": [
+        "Benjamin Lupton <b@lupton.cc> (http://balupton.com)"
+    ],
+    "contributors": [
+        "Benjamin Lupton <b@lupton.cc> (http://balupton.com)"
+    ],
+    "bugs": {
+        "url": "https://github.com/balupton/bal-util/issues"
+    },
+	"repository" : {
 		"type": "git",
 		"url": "http://github.com/balupton/bal-util.git"
+	},
+	"engines" : {
+		"node": ">=0.4.0"
 	},
 	"dependencies": {
 		"request": "2.9.x",
@@ -57,9 +42,6 @@
 	"devDependencies": {
 		"docco": "0.3.x",
 		"mocha": "1.0.x"
-	},
-	"engines": {
-		"node": ">=0.4.0"
 	},
 	"directories": {
 		"lib": "lib"
