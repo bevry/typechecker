@@ -1,5 +1,9 @@
 ## History
 
+- v1.5.0 April 18, 2012
+	- Fixed `scandir` error throwing when passed an invalid path
+	- More...
+
 - v1.4.3 April 14, 2012
 	- CoffeeScript dependency is now bundled
 	- Fixed incorrect octal `0700` should have been `700`

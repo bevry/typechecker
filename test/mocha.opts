@@ -1,5 +1,6 @@
---reporter spec
+--reporter list
 --ui bdd
 --ignore-leaks
 --growl
---bail
+--compilers coffee:coffee-script
+--timeout 10000

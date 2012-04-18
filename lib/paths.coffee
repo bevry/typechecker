@@ -1,8 +1,9 @@
 # Requires
 fs = require('fs')
+pathUtil = require('path')
 request = null
 balUtilPaths = null
-balUtilFlow = require("#{__dirname}/flow.coffee")
+balUtilFlow = require(pathUtil.join __dirname, 'flow.coffee')
 
 # Create a counter of all the open files we have
 # As the filesystem will throw a fatal error if we have too many open files
@@ -76,9 +77,8 @@ balUtilPaths =
 	# Ensure path exists
 	# next(err)
 	ensurePath: (p,next) ->
-		path = require('path')
 		p = p.replace /[\/\\]$/, ''
-		path.exists p, (exists) ->
+		pathUtil.exists p, (exists) ->
 			# Error 
 			return next?()  if exists
 			# Success
@@ -90,7 +90,7 @@ balUtilPaths =
 					return next?(err)
 				# Success
 				balUtilPaths.openFile -> fs.mkdir p, '700', (err) ->
-					path.exists p, (exists) ->
+					pathUtil.exists p, (exists) ->
 						# Close
 						balUtilPaths.closeFile()
 						# Error
@@ -107,12 +107,12 @@ balUtilPaths =
 	prefixPathSync: (path,parentPath) ->
 		path = path.replace /[\/\\]$/, ''
 		if /^([a-zA-Z]\:|\/)/.test(path) is false
-			path = parentPath + '/' + path
+			path = pathUtil.join(parentPath,path)
 		return path
 	
 
 	# Is it a directory?
-	# next(err,isDirectory)
+	# next(err,isDirectory,fileStat)
 	isDirectory: (fileFullPath,next) ->
 		# Stat
 		balUtilPaths.openFile -> fs.stat fileFullPath, (err,fileStat) ->
@@ -122,7 +122,7 @@ balUtilPaths =
 				console.log 'balUtilPaths.isDirectory: stat failed on:',fileFullPath
 				return next?(err)
 			# Success
-			return next?(null, fileStat.isDirectory())
+			return next?(null, fileStat.isDirectory(), fileStat)
 		
 		# Chain
 		@
@@ -135,63 +135,7 @@ balUtilPaths =
 
 		# Return
 		return result
-
-
-	# Recursively scan a directory, file, or series of files
-	scan: (files,fileAction,dirAction,next) ->
-		# Actions
-		actions =
-			directory: =>
-				@scandir(
-					# Directory
-					files
-					# File Action
-					fileAction
-					# Dir Action
-					dirAction
-					# Complete Action
-					next
-				)
-			
-			files: =>
-				# Queue
-				tasks = new balUtilFlow.Group next
-				tasks.total += files.length
-			
-				# Array
-				for file in files
-					@scan fileFullPath, fileAction, dirAction, tasks.completer()
-				
-				# Done
-				return true
 		
-		# String
-		if typeof files.charAt isnt 'undefined'
-			balUtilPaths.isDirectory (err,isDirectory) ->
-				# Error
-				if err
-					return next?(err)
-				
-				# Directory
-				else if isDirectory
-					actions.directory()
-				
-				# File
-				else
-					files = [file]
-					actions.files()
-		
-		# Array
-		else if files instanceof Array
-			actions.files()
-		
-		# Unsupported
-		else
-			next?(new Error 'balUtilPaths.scandir: unsupported files type:', typeof files, files)
-
-		# Chain
-		@
-	
 
 	# Scan a directory into a tree
 	# next(err,tree)
@@ -208,80 +152,125 @@ balUtilPaths =
 		# Chain
 		@
 
+	# Common Ignore Patterns
+	# These are files are directories commonly ignored when it comes with dealing with paths
+	commonIgnorePatterns: /^(\~|(\.(svn|git|hg|DS_Store))|node_modules|CVS|thumbs\.db|desktop\.ini)$/i
+
 	# Recursively scan a directory
-	# fileAction(fileFullPath,fileRelativePath,next(err,skip)) or false
-	# dirAction(fileFullPath,fileRelativePath,next(err,skip)) or false
-	# next(err,list,tree)
+	# Usage:
+	#	scandir(path,action,fileAction,dirAction,next)
+	#	scandir({path,action,fileAction,dirAction,next,stat,recurse,readFiles,ignoreHiddenFiles,ignorePatterns})
+	# Options:
+	#	path: the path you want to read
+	#	action: null, or a function to use for both the fileAction and dirACtion
+	#	fileAction: null, or a function to run against each file, in the following format:
+	#		fileAction(fileFullPath,fileRelativePath,next(err,skip),fileStat)
+	#	dirAction: null, or a function to run against each directory, in the following format:
+	#		dirAction(fileFullPath,fileRelativePath,next(err,skip),fileStat)
+	#	next: null, or a function to run after the entire directory has been scanned, in the following format:
+	#		next(err,list,tree)
+	#	stat: null, or a file stat object for the path if we already have one
+	#	recurse: null, or a boolean for whether or not to scan subdirectories too
+	#	readFiles: null, or a boolean for whether or not we should read the file contents
+	#	ignoreHiddenFiles: null, or a boolean for if we should ignore files starting with a dot
+	#	ignorePatterns: null, or true (if true will use balUtilPaths.commonIgnorePatterns),
+	#		or a regex to match paths against to determine if we should ignore them
+	# Next Callback Arguments:
+	#	err: null, or an error that has occured
+	#	list: a collection of all the child nodes in a list/object format:
+	#		{fileRelativePath: 'dir|file'}
+	#	tree: a colleciton of all the child nodes in a tree format:
+	#		{dir:{dir:{},file1:true}}
+	#		if the readFiles option is true, then files will be returned with their contents instead
 	scandir: (args...) ->
-		# Prepare
-		if args.length is 1
-			{path,parentPath,fileAction,dirAction,next,relativePath,readFiles,ignoreHiddenFiles,ignorePatterns} = args[0]
-		else if args.length >= 4
-			[parentPath,fileAction,dirAction,next] = args
-		else
-			err = new Error('balUtilPaths.scandir: unknown arguments')
-			if next
-				return next?(err)
-			else
-				throw err
-			
-		
-		# Prepare defaults
-		readFiles or= false
-		ignoreHiddenFiles ?= true
-		ignorePatterns ?= /(node_modules)$/
-
-		# Check needed
-		if !parentPath and path
-			parentPath = path
-		if !parentPath
-			err = new Error('balUtilPaths.scandir: parentPath is needed')
-			if next
-				return next?(err)
-			else
-				throw err
-
-		# Return
+		# Prepare 
 		list = {}
 		tree = {}
 
+		# Arguments
+		if args.length is 1
+			options = args[0]
+		else if args.length >= 4
+			options =
+				path: args[0]
+				fileAction: args[1] or null
+				dirAction: args[2] or null
+				next: args[3] or null
+		else
+			err = new Error('balUtilPaths.scandir: unsupported arguments')
+			if next
+				return next?(err)
+			else
+				throw err
+
+		# Prepare defaults
+		options.recurse ?= true
+		options.readFiles ?= false
+		options.ignoreHiddenFiles ?= false
+		options.ignorePatterns ?= false
+
+		# Action
+		if options.action?
+			options.fileAction ?= options.action
+			options.dirAction ?= options.action
+
+		# Ignore Patterns
+		if options.ignorePatterns is true
+			options.ignorePatterns = balUtilPaths.commonIgnorePatterns
+
+		# Check needed
+		if options.parentPath and !options.path
+			options.path = options.parentPath
+		if !options.path
+			err = new Error('balUtilPaths.scandir: path is needed')
+			if next
+				return next?(err)
+			else
+				throw err
+
 		# Group
 		tasks = new balUtilFlow.Group (err) ->
-			return next?(err, list, tree)
+			return options.next?(err, list, tree)
 		
 		# Cycle
-		balUtilPaths.openFile -> fs.readdir parentPath, (err,files) ->
+		balUtilPaths.openFile -> fs.readdir options.path, (err,files) ->
 			# Close
 			balUtilPaths.closeFile()
 
-			# Check
+			# Checks
 			if tasks.exited
 				return
-
 			# Error
 			else if err
-				console.log 'balUtilPaths.scandir: readdir has failed on:', parentPath
+				debugger
+				console.log 'balUtilPaths.scandir: readdir has failed on:', options.path
 				return tasks.exit(err)
 			
+			# Totals
+			tasks.total += files.length
+
 			# Empty?
-			else if !files.length
+			if !files.length
 				return tasks.exit()
 			
 			# Cycle
 			else files.forEach (file) ->
 				# Check
-				isHiddenFile = ignoreHiddenFiles and /^\./.test(file)
-				isIgnoredFile = ignorePatterns.test(file)
+				isHiddenFile = options.ignoreHiddenFiles and /^\./.test(file)
+				isIgnoredFile = options.ignorePatterns and options.ignorePatterns.test(file)
 				if isHiddenFile or isIgnoredFile
-					return
+					return tasks.complete()
 
 				# Prepare
-				++tasks.total
-				fileFullPath = parentPath+'/'+file
-				fileRelativePath = (if relativePath then relativePath+'/' else '')+file
+				fileFullPath = pathUtil.join(options.path,file)
+				fileRelativePath =
+					if options.relativePath
+						pathUtil.join(options.relativePath,file)
+					else
+						file
 
 				# IsDirectory
-				balUtilPaths.isDirectory fileFullPath, (err,isDirectory) ->
+				balUtilPaths.isDirectory fileFullPath, (err,isDirectory,fileStat) ->
 					# Check
 					if tasks.exited
 						return
@@ -307,48 +296,54 @@ balUtilPaths =
 								list[fileRelativePath] = 'dir'
 								tree[file] = {}
 
-								# Recurse
-								return balUtilPaths.scandir(
-									# Path
-									path: fileFullPath
-									# File
-									fileAction: fileAction
-									# Dir
-									dirAction: dirAction
-									# Completed
-									next: (err,_list,_tree) ->
-										# Merge in children of the parent directory
-										tree[file] = _tree
-										for own filePath, fileType of _list
-											list[filePath] = fileType
+								# No Recurse
+								unless options.recurse
+									return tasks.complete()
 
-										# Exited
-										if tasks.exited
-											return tasks.exit()
-										# Error
-										else if err
-											console.log 'balUtilPaths.scandir: has failed on:', fileFullPath
-											return tasks.exit(err)
-										# Subtree
-										else if subtreeCallback
-											return subtreeCallback tasks.completer()
-										# Complete
-										else
-											return tasks.complete()
-									# Relative Path
-									relativePath: fileRelativePath
-									# Read Files
-									readFiles: readFiles
-								)
+								# Recurse
+								else
+									return balUtilPaths.scandir(
+										# Path
+										path: fileFullPath
+										relativePath: fileRelativePath
+										# Options
+										fileAction: options.fileAction
+										dirAction: options.dirAction
+										readFiles: options.readFiles
+										ignorePatterns: options.ignorePatterns
+										ignoreHiddenFiles: options.ignoreHiddenFiles
+										recurse: options.recurse
+										stat: options.fileStat
+										# Completed
+										next: (err,_list,_tree) ->
+											# Merge in children of the parent directory
+											tree[file] = _tree
+											for own filePath, fileType of _list
+												list[filePath] = fileType
+
+											# Exited
+											if tasks.exited
+												return tasks.exit()
+											# Error
+											else if err
+												console.log 'balUtilPaths.scandir: has failed on:', fileFullPath
+												return tasks.exit(err)
+											# Subtree
+											else if subtreeCallback
+												return subtreeCallback tasks.completer()
+											# Complete
+											else
+												return tasks.complete()
+									)
 							
 							else
 								# Done
 								return tasks.complete()
 						
 						# Action
-						if dirAction
-							return dirAction fileFullPath, fileRelativePath, complete
-						else if dirAction is false
+						if options.dirAction
+							return options.dirAction(fileFullPath, fileRelativePath, complete, fileStat)
+						else if options.dirAction is false
 							return complete(err,true)
 						else
 							return complete(err,false)
@@ -370,7 +365,7 @@ balUtilPaths =
 							else
 								# Append
 								list[fileRelativePath] = 'file'
-								if readFiles
+								if options.readFiles
 									# Read file
 									balUtilPaths.openFile -> fs.readFile fileFullPath, (err,data) ->
 										# Close file
@@ -388,9 +383,9 @@ balUtilPaths =
 									return tasks.complete()
 						
 						# Action
-						if fileAction
-							return fileAction fileFullPath, fileRelativePath, complete
-						else if fileAction is false
+						if options.fileAction
+							return options.fileAction(fileFullPath, fileRelativePath, complete, fileStat)
+						else if options.fileAction is false
 							return complete(err,true)
 						else
 							return complete(err,false)
@@ -400,18 +395,33 @@ balUtilPaths =
 	
 
 	# Copy a directory
-	# next(err)
-	cpdir: (srcPath,outPath,next) ->
-		# Scan all the files in the diretory and copy them over asynchronously
-		balUtilPaths.scandir(
-			# Path
-			srcPath
-			# File
-			(fileSrcPath,fileRelativePath,next) ->
+	# If the same file already exists, we will keep the source one
+	# Usage:
+	# 	cpdir({srcPath,outPath,next,[ignoreHiddenFiles],[ignorePatterns]})
+	# 	cpdir(srcPath,outPath,next)
+	# Callbacks:
+	# 	next(err)
+	cpdir: (args...) ->
+		# Prepare
+		if args.length is 1
+			{srcPath,outPath,next,ignoreHiddenFiles,ignorePatterns} = args[0]
+		else if args.length >= 3
+			[srcPath,outPath,next] = args
+		else
+			err = new Error('balUtilPaths.cpdir: unknown arguments')
+			if next
+				return next?(err)
+			else
+				throw err
+
+		# Create options
+		scandirOptions = {
+			path: srcPath
+			fileAction: (fileSrcPath,fileRelativePath,next) ->
 				# Prepare
-				fileOutPath = "#{outPath}/#{fileRelativePath}"
+				fileOutPath = pathUtil.join(outPath,fileRelativePath)
 				# Ensure the directory that the file is going to exists
-				balUtilPaths.ensurePath require('path').dirname(fileOutPath), (err) ->
+				balUtilPaths.ensurePath pathUtil.dirname(fileOutPath), (err) ->
 					# Error
 					if err
 						console.log 'balUtilPaths.cpdir: failed to create the path for the file:',fileSrcPath
@@ -423,28 +433,50 @@ balUtilPaths =
 						if err
 							console.log 'balUtilPaths.cpdir: failed to copy the child file:',fileSrcPath
 						return next?(err)
-			# Dir
-			null
-			# Completed
-			next
-		)
+			next: next
+		}
+
+		# Extra options
+		if ignoreHiddenFiles?
+			scandirOptions.ignoreHiddenFiles = ignoreHiddenFiles
+		if ignorePatterns?
+			scandirOptions.ignorePatterns = ignorePatterns
+
+		# Scan all the files in the diretory and copy them over asynchronously
+		balUtilPaths.scandir(scandirOptions)
 
 		# Chain
 		@
 	
+
 	# Replace a directory
-	# next(err)
-	rpdir: (srcPath,outPath,next) ->
-		# Scan all the files in the diretory and copy them over asynchronously
-		balUtilPaths.scandir(
-			# Path
-			srcPath
-			# File
-			(fileSrcPath,fileRelativePath,next) ->
+	# If the same file already exists, we will keep the newest one
+	# Usage:
+	# 	rpdir({srcPath,outPath,next,[ignoreHiddenFiles],[ignorePatterns]})
+	# 	rpdir(srcPath,outPath,next)
+	# Callbacks:
+	# 	next(err)
+	rpdir: (args...) ->
+		# Prepare
+		if args.length is 1
+			{srcPath,outPath,next,ignoreHiddenFiles,ignorePatterns} = args[0]
+		else if args.length >= 3
+			[srcPath,outPath,next] = args
+		else
+			err = new Error('balUtilPaths.cpdir: unknown arguments')
+			if next
+				return next?(err)
+			else
+				throw err
+
+		# Create options
+		scandirOptions = {
+			path: srcPath
+			fileAction: (fileSrcPath,fileRelativePath,next) ->
 				# Prepare
-				fileOutPath = "#{outPath}/#{fileRelativePath}"
+				fileOutPath = pathUtil.join(outPath,fileRelativePath)
 				# Ensure the directory that the file is going to exists
-				balUtilPaths.ensurePath require('path').dirname(fileOutPath), (err) ->
+				balUtilPaths.ensurePath pathUtil.dirname(fileOutPath), (err) ->
 					# Error
 					if err
 						console.log 'balUtilPaths.rpdir: failed to create the path for the file:',fileSrcPath
@@ -463,11 +495,17 @@ balUtilPaths =
 						# The out path is new enough
 						else
 							return next?()
-			# Dir
-			null
-			# Completed
-			next
-		)
+			next: next
+		}
+
+		# Extra options
+		if ignoreHiddenFiles?
+			scandirOptions.ignoreHiddenFiles = ignoreHiddenFiles
+		if ignorePatterns?
+			scandirOptions.ignorePatterns = ignorePatterns
+
+		# Scan all the files in the diretory and copy them over asynchronously
+		balUtilPaths.scandir(scandirOptions)
 
 		# Chain
 		@
@@ -476,8 +514,7 @@ balUtilPaths =
 	# Remove a directory
 	# next(err)
 	rmdir: (parentPath,next) ->
-		path = require('path')
-		path.exists parentPath, (exists) ->
+		pathUtil.exists parentPath, (exists) ->
 			# Skip
 			return next?()  unless exists
 			# Remove
@@ -521,13 +558,14 @@ balUtilPaths =
 		# Chain
 		@
 
+
 	# Write tree
 	# next(err)
 	writetree: (dstPath,tree,next) ->
 		# Group
 		tasks = new balUtilFlow.Group (err) ->
 			next?(err)
-		
+
 		# Ensure Destination
 		balUtilPaths.ensurePath dstPath, (err) ->
 			# Checks
@@ -537,7 +575,7 @@ balUtilPaths =
 			# Cycle
 			for own fileRelativePath, value of tree
 				++tasks.total
-				fileFullPath = dstPath+'/'+fileRelativePath.replace(/^\/+/,'')
+				fileFullPath = pathUtil.join( dstPath, fileRelativePath.replace(/^\/+/,'') )
 				if typeof value is 'object'
 					balUtilPaths.writetree fileFullPath, value, tasks.completer()
 				else
@@ -557,6 +595,7 @@ balUtilPaths =
 		# Chain
 		@
 
+
 	# Read path
 	# Reads a path be it local or remote
 	# next(err,data)
@@ -575,15 +614,13 @@ balUtilPaths =
 		# Chain
 		@
 
+
 	# Empty
 	# Check if the file does not exist, or is empty
 	# next(err,empty)
 	empty: (filePath,next) ->
-		# Prepare
-		path = require('path')
-
 		# Check if we exist
-		path.exists filePath, (exists) ->
+		pathUtil.exists filePath, (exists) ->
 			# Return empty if we don't exist
 			return next?(null,true)  unless exists
 
@@ -604,9 +641,6 @@ balUtilPaths =
 	# next(err,older)
 	# older will be null if the path does not exist
 	isPathOlderThan: (aPath,bInput,next) ->
-		# Prepare
-		path = require('path')
-
 		# Handle mtime
 		bMtime = null
 		if typeof bInput is 'number'
