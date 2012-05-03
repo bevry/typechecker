@@ -1,7 +1,7 @@
 # Requires
 assert = require('assert')
 path = require('path')
-balUtil = require(__dirname+'/../lib/balutil.coffee')
+balUtil = require(__dirname+'/../lib/balutil')
 
 
 # =====================================
@@ -49,7 +49,7 @@ describe 'rmdir', ->
 	it 'should fail gracefully when the directory does not exist', (done) ->
 
 		# rmdir
-		balUtil.rmdir nonPath, (err) ->
+		balUtil.rmdirDeep nonPath, (err) ->
 			# There should be no error
 			assert.equal(err||false, false)
 			done()
@@ -79,7 +79,7 @@ describe 'writetree', ->
 				# Test cpdir
 				describe 'cpdir', ->
 					it 'should work as expected', (done) ->
-						
+
 						# Copy the source path to the out path
 						balUtil.cpdir srcPath, outPath, (err) ->
 							throw err  if err
@@ -95,21 +95,21 @@ describe 'writetree', ->
 								done()
 
 								# Test rmdir
-								describe 'rmdir', ->
+								describe 'rmdirDeep', ->
 									# Cleaup srcPath
 									it 'should clean up the srcPath', (done) ->
-										balUtil.rmdir srcPath, (err) ->
+										balUtil.rmdirDeep srcPath, (err) ->
 											throw err  if err
 											exists = path.existsSync(srcPath)
 											assert.equal(exists,false)
 											done()
 									# Cleanup outPath
 									it 'should clean up the outPath', (done) ->
-										balUtil.rmdir outPath, (err) ->
+										balUtil.rmdirDeep outPath, (err) ->
 											throw err  if err
 											exists = path.existsSync(outPath)
 											assert.equal(exists,false)
 											done()
 
-									
-			
+
+

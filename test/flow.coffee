@@ -1,6 +1,6 @@
 # Requires
 assert = require('assert')
-balUtil = require(__dirname+'/../lib/balutil.coffee')
+balUtil = require(__dirname+'/../lib/balutil')
 
 
 # =====================================
@@ -56,7 +56,7 @@ describe 'Group', ->
 		tasks = new balUtil.Group ->
 			assert.equal(tasksExpected, tasksCompleted, 'the group of tasks finished with the expected tasks completing')
 		tasks.total = tasksExpected
-	
+
 		# Make the first task finish after the second task
 		setTimeout(
 			->
@@ -74,7 +74,7 @@ describe 'Group', ->
 				tasks.complete()
 			500
 		)
-		
+
 		# Check no tasks have run
 		assert.equal(0, tasksCompleted, 'no tasks should have started yet')
 
@@ -97,7 +97,7 @@ describe 'Group', ->
 		tasks = new balUtil.Group ->
 			assert.equal(tasksExpected, tasksCompleted, 'the group of tasks finished with the expected tasks completing')
 		tasks.total = tasksExpected
-	
+
 		# Make the first task take longer than the second task, but as we run synchronously, it should still finish first
 		tasks.push (next) ->
 			setTimeout(
@@ -117,10 +117,10 @@ describe 'Group', ->
 					next()
 				500
 			)
-		
+
 		# Check no tasks have run
 		assert.equal(0, tasksCompleted, 'no tasks should have started yet')
-		
+
 		# Run the tasks
 		tasks.sync()
 
@@ -144,7 +144,7 @@ describe 'Group', ->
 		tasks = new balUtil.Group ->
 			assert.equal(tasksExpected, tasksCompleted, 'the group of tasks finished with the expected tasks completing')
 		tasks.total = tasksExpected
-	
+
 		# Make the first task take longer than the second task, and as we run asynchronously, it should finish last
 		tasks.push (next) ->
 			setTimeout(
@@ -164,10 +164,10 @@ describe 'Group', ->
 					next()
 				500
 			)
-		
+
 		# Check no tasks have run
 		assert.equal(0, tasksCompleted, 'no tasks should have started yet')
-		
+
 		# Run the tasks
 		tasks.async()
 

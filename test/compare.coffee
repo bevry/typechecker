@@ -1,6 +1,6 @@
 # Requires
 assert = require('assert')
-balUtil = require(__dirname+'/../lib/balutil.coffee')
+balUtil = require(__dirname+'/../lib/balutil')
 
 
 # =====================================

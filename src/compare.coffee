@@ -1,6 +1,6 @@
 # Requires
 balUtilCompare = null
-balUtilPaths = require("#{__dirname}/paths.coffee")
+balUtilPaths = require("#{__dirname}/paths")
 
 
 # =====================================
@@ -41,7 +41,7 @@ balUtilCompare =
 					vm[v] or -7
 				else
 					parseInt(v, 10)
-		
+
 		v1 = prepVersion(v1)
 		v2 = prepVersion(v2)
 		x = Math.max(v1.length, v2.length)
@@ -49,21 +49,21 @@ balUtilCompare =
 		for i in [0..x]
 			if (v1[i] == v2[i])
 				continue
-			
+
 			v1[i] = numVersion(v1[i])
 			v2[i] = numVersion(v2[i])
-			
+
 			if (v1[i] < v2[i])
 				compare = -1
 				break
 			else if v1[i] > v2[i]
 				compare = 1
 				break
-		
+
 		if !operator
 			return compare
 
-		result = 
+		result =
 			switch operator
 				when '>', 'gt'
 					compare > 0
@@ -79,10 +79,10 @@ balUtilCompare =
 					compare < 0
 				else
 					null
-		
+
 		# Return result
 		result
-	
+
 
 	# Compare Package
 	packageCompare: ({local,remote,newVersionCallback,sameVersionCallback,oldVersionCallback,errorCallback}) ->
@@ -96,7 +96,7 @@ balUtilCompare =
 				sameVersionCallback?(details)
 			else if balUtilCompare.versionCompare(details.local.version, '>', details.remote.version)
 				oldVersionCallback?(details)
-		
+
 		# Read local
 		balUtilPaths.readPath local, (err,data) ->
 			return errorCallback?(err)  if err
@@ -107,7 +107,7 @@ balUtilCompare =
 				details.remote = JSON.parse(data.toString())
 				# Compare
 				runCompare()
-		
+
 		# Chain
 		@
 

@@ -1,6 +1,6 @@
 # Requires
 balUtilModules = null
-balUtilFlow = require("#{__dirname}/flow.coffee")
+balUtilFlow = require("#{__dirname}/flow")
 
 
 # =====================================
@@ -9,7 +9,7 @@ balUtilFlow = require("#{__dirname}/flow.coffee")
 balUtilModules =
 
 	# =================================
-	# Exec
+	# Executing
 
 	# Runs multiple commands at the same time
 	# And fires the callback once they have all completed
@@ -17,7 +17,7 @@ balUtilModules =
 	spawn: (commands,options,callback) ->
 		# Requires
 		{spawn,exec} = require('child_process')
-		
+
 		# Sync
 		results = []
 		options or= {}
@@ -59,11 +59,11 @@ balUtilModules =
 					err = new Error(errors)  if errors and code is 1
 					results.push [errors,result,code,signal]
 					tasks.complete(err)
-		
+
 		# Prepare tasks
 		unless commands instanceof Array
 			commands = [commands]
-		
+
 		# Add tasks
 		for command in commands
 			tasks.push createHandler command
@@ -81,31 +81,31 @@ balUtilModules =
 	exec: (commands,options,callback) ->
 		# Requires
 		{spawn,exec} = require('child_process')
-		
+
 		# Sync
 		results = []
 
 		# Make sure we send back the arguments
 		tasks = new balUtilFlow.Group (err) ->
 			return callback.apply(callback,[err,results])
-		
+
 		# Make sure we send back the arguments
 		createHandler = (command) ->
 			return ->
 				exec command, options, (args...) ->
 					# Prepare
 					err = args[0] or null
-					
+
 					# Push args to result list
 					results.push args
 
 					# Complete the task
 					tasks.complete(err)
-			
+
 		# Prepare tasks
 		unless commands instanceof Array
 			commands = [commands]
-		
+
 		# Add tasks
 		for command in commands
 			tasks.push createHandler command
@@ -116,81 +116,99 @@ balUtilModules =
 		# Chain
 		@
 
-	
-	# Initialise git submodules
+
+
+	# =================================
+	# Git
+
+	# Initialize a Git Repository
+	# Requires internet access
+	# next(err)
+	initGitRepo: (opts={}) ->
+		# Extract
+		{path,remote,url,branch,gitPath,logger,output,next} = opts
+		gitPath or= 'git'  # default to global git installation
+
+		# Initialise
+		commands = [
+			command: gitPath
+			args: ['init']
+		,
+			command: gitPath
+			args: ['remote', 'add', remote, url]
+		,
+			command: gitPath
+			args: ['fetch', 'skeleton']
+		,
+			command: gitPath
+			args: ['pull', remote, branch]
+		,
+			command: gitPath
+			args: ['submodule', 'init']
+		,
+			command: gitPath
+			args: ['submodule', 'update', '--recursive']
+		]
+		logger.log 'debug', "Initializing git repo with url [#{url}] on directory [#{path}]"  if logger
+		balUtilModules.spawn commands, {cwd:destinationPath,output:output}, (err,results) ->
+			# Check
+			if err
+				logger.log 'debug', results
+				return next(err)
+
+			# Complete
+			logger.log 'debug', "Initialized git repo with url [#{url}] on directory [#{path}]"  if logger
+			return next()
+
+
+	# =================================
+	# Node
+
+	# Init Node Modules
+	# with cross platform support
+	# supports linux, heroku, osx, windows
 	# next(err,results)
-	initGitSubmodules: (dirPath,next) ->
-		# Create the child process
-		child = balUtilModules.exec(
-			# Commands
-			[
-				'git submodule init'
-				'git submodule update'
-				'git submodule foreach --recursive "git init"'
-				'git submodule foreach --recursive "git checkout master"'
-				'git submodule foreach --recursive "git submodule init"'
-				'git submodule foreach --recursive "git submodule update"'
-			]
-			
-			# Options
-			{
-				cwd: dirPath
-			}
+	initNodeModules: (opts={}) ->
+		# Requires
+		pathUtil = require('path')
 
-			# Next
-			next
-		)
+		# Extract
+		{path,nodePath,npmPath,force,logger,next} = opts
+		npmPath or= 'npm'  # default to global npm installation
 
-		# Return child process
-		return child
-	
-	
-	# Initialise node modules
-	# next(err,results)
-	initNodeModules: (dirPath,next) ->
-		# Create the child process
-		child = balUtilModules.exec(
-			# Commands
-			[
-				'npm install'
-			]
-			
-			# Options
-			{
-				cwd: dirPath
-			}
+		# Paths
+		packageJsonPath = pathUtil.join(path,'package.json')
+		nodeModulesPath = pathUtil.join(path,'node_modules')
 
-			# Next
-			next
-		)
+		# Check if node modules already exists
+		if force is false and path.existsSync(nodeModulesPath)
+			return next()
 
-		# Return child process
-		return child
-	
+		# If there is no package.json file, then we can't do anything
+		unless path.existsSync(packageJsonPath)
+			return next()
 
-	# Git Pull
-	# next(err,results)
-	gitPull: (dirPath,url,next) ->
-		# Create the child process
-		child = exec(
-			# Commands
-			[
-				"git init"
-				"git remote add origin #{url}"
-				"git pull origin master"
-			]
-			
-			# Options
-			{
-				cwd: dirPath
-			}
+		# Use npm with node
+		if opts.nodePath
+			command =
+				command: nodePath
+				args: [npmPath, 'install']
+		# Use npm standalone
+		else
+			command =
+				command: npmPath
+				args: ['install']
 
-			# Next
-			next
-		)
+		# Execute npm install inside the pugin directory
+		if logger
+			logger.log 'debug', "Initializing node modules\non:   #{dirPath}\nwith:",command
+		balUtilModules.spawn command, {cwd:path}, (err,results) ->
+			if logger
+				logger.log 'debug', "Initialized node modules\non:   #{dirPath}\nwith:",command
+			return next?(err)
 
-		# Return the child process
-		return child
+		# Chain
+		@
 
 
 # =====================================

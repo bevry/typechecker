@@ -27,7 +27,7 @@ This project contains several utility functions used and maintained by Benjamin 
 	```
 
 - With Node.js in CoffeeScript
-	
+
 	``` coffeescript
 	balUtil = require('bal-util')
 	```

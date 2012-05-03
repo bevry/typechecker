@@ -1,6 +1,6 @@
 # Require
 EventEmitter = require('events').EventEmitter
-balUtilFlow = require("#{__dirname}/flow.coffee")
+balUtilFlow = require("#{__dirname}/flow")
 debug = false
 
 
@@ -27,14 +27,14 @@ class EventSystem extends EventEmitter
 	# Event store
 	# initialised in our event function to prevent javascript reference problems
 	_eventSystemEvents: null
-	
+
 	# Fetch the event object for the event
 	event: (eventName) ->
 		# Prepare
 		@_eventSystemEvents or= {}
 		# Return the fetched event, create it if it doesn't exist already
 		@_eventSystemEvents[eventName] or= new Event(eventName)
-	
+
 	# Lock the event
 	# next(err)
 	lock: (eventName, next) ->
@@ -59,10 +59,10 @@ class EventSystem extends EventEmitter
 				return next?(err)  if err
 				# Then try again
 				@lock eventName, next
-		
+
 		# Chain
 		@
-	
+
 	# Unlock the event
 	# next(err)
 	unlock: (eventName, next) ->
@@ -81,7 +81,7 @@ class EventSystem extends EventEmitter
 			next?()
 		# Chain
 		@
-	
+
 	# Start our event
 	# 1. Performs a lock
 	# 2. Sets event's finished flag to false
@@ -107,11 +107,11 @@ class EventSystem extends EventEmitter
 				next?()
 		# Chain
 		@
-	
+
 	# Finish, alias for finished
 	finish: (args...) ->
 		@finished.apply(@,args)
-	
+
 	# Finished our event
 	# 1. Sets event's finished flag to true
 	# 2. Unlocks the event
@@ -137,7 +137,7 @@ class EventSystem extends EventEmitter
 				next?()
 		# Chain
 		@
-	
+
 	# Run one time once an event has unlocked
 	# next(err)
 	onceUnlocked: (eventName, next) ->
@@ -154,7 +154,7 @@ class EventSystem extends EventEmitter
 			next?()
 		# Chain
 		@
-	
+
 	# Run one time once an event has finished
 	# next(err)
 	onceFinished: (eventName, next) ->
@@ -169,7 +169,7 @@ class EventSystem extends EventEmitter
 			@once eventName+':finished', next
 		# Chain
 		@
-	
+
 	# Run every time an event has finished
 	# next(err)
 	whenFinished: (eventName, next) ->
@@ -183,7 +183,7 @@ class EventSystem extends EventEmitter
 		@on eventName+':finished', next
 		# Chain
 		@
-	
+
 	# When, alias for on
 	when: (args...) ->
 		@on.apply(@,args)
@@ -237,7 +237,7 @@ class EventSystem extends EventEmitter
 					next?()
 		# Chain
 		@
-	
+
 	# Emit a group of listeners asynchronously
 	# next(err,result,results)
 	emitAsync: (eventName,data,next) ->

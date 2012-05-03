@@ -1,6 +1,6 @@
 # Requires
 assert = require('assert')
-balUtil = require(__dirname+'/../lib/balutil.coffee')
+balUtil = require(__dirname+'/../lib/balutil')
 util = require('util')
 
 
@@ -28,7 +28,7 @@ describe 'type', ->
 	testType = (value,typeExpected,typeActual) ->
 		it "should detect #{util.inspect value} is of type #{typeExpected}", ->
 			assert.equal(typeActual,typeExpected)
-	
+
 	# Run
 	for [value,typeExpected] in typeTestData
 		typeActual = balUtil.type.get(value)

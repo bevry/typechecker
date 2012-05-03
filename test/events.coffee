@@ -1,6 +1,6 @@
 # Requires
-assert = require 'assert'
-EventSystem = require(__dirname+'/../lib/balutil.coffee').EventSystem
+assert = require('assert')
+EventSystem = require(__dirname+'/../lib/balutil').EventSystem
 debug = false
 
 
@@ -29,7 +29,7 @@ class Person extends EventSystem
 			setTimeout(=>
 				# Finished eating
 				console.log "#{something}: swallowed food"  if debug
-			
+
 				# Perform our callback
 				next?(null,something)
 
@@ -41,8 +41,8 @@ class Person extends EventSystem
 					return next?(err)  if err
 
 			,2*1000)
-		
-	
+
+
 	# Drink something
 	drink: (something,next) ->
 		console.log "#{something}: started drink"  if debug
@@ -53,7 +53,7 @@ class Person extends EventSystem
 			# Eating blocked
 			console.log "#{something}: blocked eating"  if debug
 			return next?(err)  if err
-				
+
 			# Start drinking
 			console.log "#{something}: start drinking"  if debug
 			@start 'drinking', (err) =>
@@ -67,14 +67,14 @@ class Person extends EventSystem
 
 					# Perform our callback
 					next?(null,something)
-			
+
 					# Clean up
 					console.log "#{something}: start finish"  if debug
 					@finished 'drinking', (err) =>
 						# Finished drinking
 						console.log "#{something}: finished drink"  if debug
 						throw err  if err
-						
+
 						# Resume eating
 						console.log "#{something}: unblocking eating"  if debug
 						@unblock 'eating', (err) =>
@@ -82,7 +82,7 @@ class Person extends EventSystem
 							throw err  if err
 
 				,1*1000)
-		
+
 
 # =====================================
 # Tests
@@ -101,7 +101,7 @@ describe 'EventSystem', ->
 		drinksDrunk = []
 		joeTriedToDrinkThenEat = false
 
-		# Track the order of what joe ate 
+		# Track the order of what joe ate
 		eating = false
 		drinking = false
 		joe.on 'eating:locked', ->
@@ -117,7 +117,7 @@ describe 'EventSystem', ->
 		joe.on 'eating:finished', ->
 			console.log 'eating:finished'  if debug
 			eating = false
-		
+
 		joe.on 'drinking:locked', ->
 			console.log 'drinking:locked'  if debug
 		joe.on 'drinking:unlocked', ->
@@ -138,7 +138,7 @@ describe 'EventSystem', ->
 			throw err  if err
 			drinksDrunk.push something
 			console.log "completely finished drinking #{something} - #{drinksDrunk.length}/#{drinks.length}"  if debug
-		
+
 		# Stuff joe full of stuff
 		joe.eat(food,ateAFood)  for food in foods
 		joe.drink(drink,drankADrink)  for drink in drinks
