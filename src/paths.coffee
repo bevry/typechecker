@@ -1,7 +1,7 @@
 # Necessary
 fsUtil = require('fs')
 pathUtil = require('path')
-balUtilFlow = require(pathUtil.join __dirname, 'flow')
+balUtilFlow = require(__dirname+'/flow')
 
 # Optional
 balUtilPaths = null

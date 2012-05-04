@@ -1,6 +1,6 @@
 # Requires
 balUtilModules = null
-balUtilFlow = require("#{__dirname}/flow")
+balUtilFlow = require(__dirname+'/flow')
 
 
 # =====================================
@@ -152,13 +152,11 @@ balUtilModules =
 		logger.log 'debug', "Initializing git repo with url [#{url}] on directory [#{path}]"  if logger
 		balUtilModules.spawn commands, {cwd:destinationPath,output:output}, (err,results) ->
 			# Check
-			if err
-				logger.log 'debug', results
-				return next(err)
+			return next(err,results)  if err
 
 			# Complete
 			logger.log 'debug', "Initialized git repo with url [#{url}] on directory [#{path}]"  if logger
-			return next()
+			return next(err,results)
 
 
 	# =================================
@@ -181,11 +179,11 @@ balUtilModules =
 		nodeModulesPath = pathUtil.join(path,'node_modules')
 
 		# Check if node modules already exists
-		if force is false and path.existsSync(nodeModulesPath)
+		if force is false and pathUtil.existsSync(nodeModulesPath)
 			return next()
 
 		# If there is no package.json file, then we can't do anything
-		unless path.existsSync(packageJsonPath)
+		unless pathUtil.existsSync(packageJsonPath)
 			return next()
 
 		# Use npm with node
@@ -200,12 +198,11 @@ balUtilModules =
 				args: ['install']
 
 		# Execute npm install inside the pugin directory
-		if logger
-			logger.log 'debug', "Initializing node modules\non:   #{dirPath}\nwith:",command
+		logger.log 'debug', "Initializing node modules\non:   #{dirPath}\nwith:",command  if logger
 		balUtilModules.spawn command, {cwd:path}, (err,results) ->
 			if logger
-				logger.log 'debug', "Initialized node modules\non:   #{dirPath}\nwith:",command
-			return next?(err)
+				logger.log 'debug', "Initialized node modules\non:   #{dirPath}\nwith:",command  if logger
+			return next?(err,results)
 
 		# Chain
 		@

@@ -1,11 +1,11 @@
 # BalUtil
 balUtil = {}
-balUtilCompare = require("#{__dirname}/compare")
-balUtilEvents = require("#{__dirname}/events")
-balUtilFlow = require("#{__dirname}/flow")
-balUtilModules = require("#{__dirname}/modules")
-balUtilPaths = require("#{__dirname}/paths")
-balUtilTypes = require("#{__dirname}/types")
+balUtilCompare = require(__dirname+'/compare')
+balUtilEvents = require(__dirname+'/events')
+balUtilFlow = require(__dirname+'/flow')
+balUtilModules = require(__dirname+'/modules')
+balUtilPaths = require(__dirname+'/paths')
+balUtilTypes = require(__dirname+'/types')
 subpackages = [
 	balUtilCompare
 	balUtilEvents

@@ -49,5 +49,5 @@
 	"scripts": {
 		"test": "node ./node_modules/mocha/bin/mocha"
 	},
-	"main": "./main.js"
+	"main": "./lib/balutil"
 }

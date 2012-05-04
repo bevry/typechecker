@@ -1,5 +1,15 @@
 ## History
 
+- v1.6.0 May 4, 2012
+	- We now pre-compile our coffee-script
+	- `balUtilPaths` changes:
+		- Added `readFile`, `writeFile`, `mkdir`, `stat`, `readdir`, `unlink`, `rmdir`
+		- Renamed `rmdir` to `rmdirDeep`
+	- `balUtilModules` changes:
+		- Removed `initGitSubmodules`, `gitPull`
+		- Added `initGitRepo`
+		- Rewrote `initNodeModules`
+
 - v1.5.0 April 18, 2012
 	- `balUtilPaths` changes:
 		- `scan` was removed, not sure what it was used for

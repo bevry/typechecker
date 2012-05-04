@@ -1,6 +1,6 @@
 # Require
 EventEmitter = require('events').EventEmitter
-balUtilFlow = require("#{__dirname}/flow")
+balUtilFlow = require(__dirname+'/flow')
 debug = false
 
 
