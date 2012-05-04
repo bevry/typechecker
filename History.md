@@ -1,5 +1,9 @@
 ## History
 
+- v1.6.1 May 4, 2012
+	- `balUtilPaths` changes:
+		- Fixed `initNodeModules`
+
 - v1.6.0 May 4, 2012
 	- We now pre-compile our coffee-script
 	- `balUtilPaths` changes:

@@ -138,7 +138,7 @@ balUtilModules =
 			args: ['remote', 'add', remote, url]
 		,
 			command: gitPath
-			args: ['fetch', 'skeleton']
+			args: ['fetch', remote]
 		,
 			command: gitPath
 			args: ['pull', remote, branch]
@@ -150,7 +150,7 @@ balUtilModules =
 			args: ['submodule', 'update', '--recursive']
 		]
 		logger.log 'debug', "Initializing git repo with url [#{url}] on directory [#{path}]"  if logger
-		balUtilModules.spawn commands, {cwd:destinationPath,output:output}, (err,results) ->
+		balUtilModules.spawn commands, {cwd:path,output:output}, (err,results) ->
 			# Check
 			return next(err,results)  if err
 
