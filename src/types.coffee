@@ -6,7 +6,7 @@
 # Types
 # Provides higher level typeof functionality
 
-type =
+balUtilTypes =
 	# Get the type
 	get: (value) ->
 		# Prepare
@@ -14,17 +14,17 @@ type =
 
 		# Cycle
 		for type in ['array','regex','function','boolean','number','string','null','undefined']
-			if @[type] value
+			if balUtilTypes[type](value)
 				result = type
 				break
-		
+
 		# Return
 		return result
 
 	# Checks to see if a value is an object
 	object: (value) ->
-		return @get(value) is 'object'
-		
+		return balUtilTypes.get(value) is 'object'
+
 	# Checks to see if a value is a function
 	function: (value) ->
 		return value instanceof Function
@@ -57,7 +57,7 @@ type =
 	# Checks to see if a value is undefined
 	'undefined': (value) ->
 		return typeof value is 'undefined'
-	
+
 	# Checks to see if a value is empty
 	empty: (value) ->
 		return value?
@@ -65,5 +65,6 @@ type =
 
 # =====================================
 # Export
+# for node.js and browsers
 
-module.exports = {type}
+if module? then (module.exports = balUtilTypes) else (@balUtilTypes = balUtilTypes)

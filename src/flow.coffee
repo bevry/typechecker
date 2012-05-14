@@ -89,13 +89,12 @@ balUtilFlow =
 		# What to do next?
 		next: ->
 			throw new Error 'Groups require a completion callback'
-		
+
 		# Construct our group
 		constructor: (@next,mode) ->
-			@queue = []
-			@results = []
+			@clear()
 			@mode = mode  if mode
-		
+
 		# Next task
 		nextTask: ->
 			++@queueIndex
@@ -103,7 +102,18 @@ balUtilFlow =
 				task = @queue[@queueIndex]
 				task @completer()
 			@
-			
+
+		# Check if we have completed
+		hasCompleted: ->
+			return @total is @completed
+
+		# Clear the queue
+		clear: ->
+			@queue = []
+			@queueIndex = 0
+			@results = []
+			@lastResult = null
+
 		# A task has completed
 		complete: (args...) ->
 			err = args[0] or undefined
@@ -114,40 +124,54 @@ balUtilFlow =
 					return @exit err
 				else
 					++@completed
-					if @completed is @total
+					if @hasCompleted()
 						return @exit()
 					else if @mode is 'sync'
 						@nextTask()
 			@
-		
+
 		# Alias for complete
 		completer: ->
 			return (args...) => @complete(args...)
-		
+
 		# The group has finished
 		exit: (err=false) ->
 			if @exited is false
 				@exited = true
-				@next?(err,@lastResult,@results)
+				lastResult = @lastResult
+				results = @results
+				@clear()
+				@next?(err,lastResult,results)
 			else
 				err = new Error('Group has already exited')
-				@next?(err,@lastResult,@results)
+				lastResult = @lastResult
+				results = @results
+				@clear()
+				@next?(err,lastResult,results)
 			@
-		
+
 		# Push a set of tasks to the group
 		tasks: (tasks) ->
 			for task in tasks
-				@push task
+				@push(task)
 			@
-		
+
 		# Push a new task to the group
 		push: (task) ->
 			++@total
-			@queue.push task
+			@exited = false
+			@queue.push(task)
 			@
-		
+
+		# Push and run
+		pushAndRun: (task) ->
+			@push(task)
+			task @completer()
+			@
+
 		# Run the tasks
 		run: ->
+			@exited = false
 			if @mode is 'sync'
 				@queueIndex = 0
 				if @queue[@queueIndex]?
@@ -157,10 +181,10 @@ balUtilFlow =
 					catch err
 						@complete(err)
 				else
-					@exit() # nothing to do
+					@exit()  # nothing to do
 			else
 				unless @queue.length
-					@exit() # nothing to do
+					@exit()  # nothing to do
 				else
 					for task in @queue
 						try
@@ -168,13 +192,13 @@ balUtilFlow =
 						catch err
 							@complete(err)
 			@
-		
+
 		# Async
 		async: (args...) ->
 			@mode = 'async'
 			@run(args...)
 			@
-		
+
 		# Sync
 		sync: (args...) ->
 			@mode = 'sync'
@@ -184,5 +208,6 @@ balUtilFlow =
 
 # =====================================
 # Export
+# for node.js and browsers
 
-module.exports = balUtilFlow
+if module? then (module.exports = balUtilFlow) else (@balUtilFlow = balUtilFlow)

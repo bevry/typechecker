@@ -12,7 +12,7 @@ subpackages = [
 	balUtilFlow
 	balUtilModules
 	balUtilPaths
-	balUtilTypes
+	{type: balUtilTypes}
 ]
 
 # Merge in the sub-packages
