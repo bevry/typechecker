@@ -10,7 +10,8 @@ request = null
 # Create a counter of all the open files we have
 # As the filesystem will throw a fatal error if we have too many open files
 global.numberOfOpenFiles ?= 0
-global.maxNumberOfOpenFiles ?= 500
+global.maxNumberOfOpenFiles ?= 100
+global.waitingToOpenFileDelay ?= 100
 
 
 # =====================================
@@ -27,11 +28,12 @@ balUtilPaths =
 	# Open a file
 	# Pass your callback to fire when it is safe to open the file
 	openFile: (next) ->
+		if global.numberOfOpenFiles < 0
+			throw new Error("balUtilPaths.openFile: the numberOfOpenFiles is [#{global.numberOfOpenFiles}] which should be impossible...")
 		if global.numberOfOpenFiles >= global.maxNumberOfOpenFiles
 			setTimeout(
-				->
-					balUtilPaths.openFile(next)
-				,50
+				-> balUtilPaths.openFile(next)
+				global.waitingToOpenFileDelay
 			)
 		else
 			++global.numberOfOpenFiles
@@ -211,7 +213,7 @@ balUtilPaths =
 	# next(err,isDirectory,fileStat)
 	isDirectory: (path,next) ->
 		# Stat
-		balUtilPaths.stat path, (err,stat) ->
+		balUtilPaths.openFile -> balUtilPaths.stat path, (err,stat) ->
 			balUtilPaths.closeFile()
 			# Error
 			if err
