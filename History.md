@@ -1,12 +1,15 @@
 ## History
 
-- v1.6.2 May 4, 2012
+- v1.6.3 May 22, 2012
 	- `balUtilPaths` changes:
 		- Fixed a problem introduced with v1.6.0 with `isDirectory` not opening the file before closing it
 		- If the number of open files becomes a negative number, we will now throw an error
 		- Decreased the max amount of allowed open files from `500` to `100`
 		- Increased the wait time for opening a file from `50` to `100`
 			- This is now customisable through the global `waitingToOpenFileDelay`
+
+- v1.6.2 May 13, 2012
+	- Added support for `balUtilFlow` and `balUtilTypes` to be used inside web browsers
 
 - v1.6.1 May 4, 2012
 	- `balUtilPaths` changes:
