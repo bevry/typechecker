@@ -3,10 +3,13 @@
 dev:
 	./node_modules/.bin/coffee -w -o lib/ -c src/
 
+compile:
+	./node_modules/.bin/coffee -o lib/ -c src/
+
 docs:
 	./node_modules/.bin/docco src/*.coffee
 
 test:
 	node ./node_modules/mocha/bin/mocha
 
-.PHONY: dev docs test
+.PHONY: dev compile docs test
