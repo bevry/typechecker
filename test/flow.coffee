@@ -6,6 +6,8 @@ balUtil = require(__dirname+'/../lib/balutil')
 # =====================================
 # Tests
 
+wait = (delay,fn) -> setTimeout(fn,delay)
+
 # -------------------------------------
 # Flow
 
@@ -53,38 +55,33 @@ describe 'Group', ->
 		tasksCompleted = 0
 
 		# Create our group
-		tasks = new balUtil.Group ->
+		tasks = new balUtil.Group (err) ->
 			assert.equal(tasksExpected, tasksCompleted, 'the group of tasks finished with the expected tasks completing')
-		tasks.total = tasksExpected
+			assert.equal(false, err?, 'no error is present')
+		tasks.total = 2
 
 		# Make the first task finish after the second task
-		setTimeout(
-			->
-				assert.equal(1, tasksCompleted, 'the first task finished last as expected')
-				++tasksCompleted
-				tasks.complete()
-			1000
-		)
+		wait 1000, ->
+			assert.equal(1, tasksCompleted, 'the first task ran last as expected')
+			++tasksCompleted
+			tasks.complete()
 
 		# Make the second task finish before the first task
-		setTimeout(
-			->
-				assert.equal(0, tasksCompleted, 'the second task finished first as expected')
-				++tasksCompleted
-				tasks.complete()
-			500
-		)
+		wait 500, ->
+			assert.equal(0, tasksCompleted, 'the second task ran first as expected')
+			++tasksCompleted
+			tasks.complete()
 
 		# Check no tasks have run
 		assert.equal(0, tasksCompleted, 'no tasks should have started yet')
 
 		# Check all tasks ran
-		setTimeout(
-			->
-				assert.equal(tasksExpected, tasksCompleted, 'only the expected number of tasks ran')
-				done()
-			2000
-		)
+		wait 2000, ->
+			assert.equal(tasksExpected, tasksCompleted, 'only the expected number of tasks ran')
+			assert.equal(true, tasks.hasCompleted(), 'hasCompleted() returned true')
+			assert.equal(true, tasks.hasExited(), 'hasExited() returned true')
+			done()
+
 
 	it 'should work when run synchronously', (done) ->
 		# Prepare
@@ -94,29 +91,21 @@ describe 'Group', ->
 		tasksCompleted = 0
 
 		# Create our group
-		tasks = new balUtil.Group ->
+		tasks = new balUtil.Group (err) ->
 			assert.equal(tasksExpected, tasksCompleted, 'the group of tasks finished with the expected tasks completing')
-		tasks.total = tasksExpected
+			assert.equal(false, err?, 'no error is present')
 
 		# Make the first task take longer than the second task, but as we run synchronously, it should still finish first
-		tasks.push (next) ->
-			setTimeout(
-				->
-					assert.equal(0, tasksCompleted, 'the first task finished first as expected')
-					++tasksCompleted
-					next()
-				1000
-			)
+		tasks.push (complete) ->  wait 1000, ->
+			assert.equal(0, tasksCompleted, 'the first task ran first as expected')
+			++tasksCompleted
+			complete()
 
 		# Make the second task take shorter than the first task, but as we run synchronously, it should still finish second
-		tasks.push (next) ->
-			setTimeout(
-				->
-					assert.equal(1, tasksCompleted, 'the second task finished last as expected')
-					++tasksCompleted
-					next()
-				500
-			)
+		tasks.push (complete) ->  wait 500, ->
+			assert.equal(1, tasksCompleted, 'the second task ran last as expected')
+			++tasksCompleted
+			complete()
 
 		# Check no tasks have run
 		assert.equal(0, tasksCompleted, 'no tasks should have started yet')
@@ -125,12 +114,11 @@ describe 'Group', ->
 		tasks.sync()
 
 		# Check all tasks ran
-		setTimeout(
-			->
-				assert.equal(tasksExpected, tasksCompleted, 'only the expected number of tasks ran')
-				done()
-			2000
-		)
+		wait 2000, ->
+			assert.equal(tasksExpected, tasksCompleted, 'only the expected number of tasks ran')
+			assert.equal(true, tasks.hasCompleted(), 'hasCompleted() returned true')
+			assert.equal(true, tasks.hasExited(), 'hasExited() returned true')
+			done()
 
 
 	it 'should work when run asynchronously', (done) ->
@@ -141,29 +129,21 @@ describe 'Group', ->
 		tasksCompleted = 0
 
 		# Create our group
-		tasks = new balUtil.Group ->
+		tasks = new balUtil.Group (err) ->
 			assert.equal(tasksExpected, tasksCompleted, 'the group of tasks finished with the expected tasks completing')
-		tasks.total = tasksExpected
+			assert.equal(false, err?, 'no error is present')
 
 		# Make the first task take longer than the second task, and as we run asynchronously, it should finish last
-		tasks.push (next) ->
-			setTimeout(
-				->
-					assert.equal(1, tasksCompleted, 'the first task finished last as expected')
-					++tasksCompleted
-					next()
-				1000
-			)
+		tasks.push (complete) ->  wait 1000, ->
+			assert.equal(1, tasksCompleted, 'the first task ran last as expected')
+			++tasksCompleted
+			complete()
 
 		# Make the second task take shorter than the first task, and as we run asynchronously, it should finish first
-		tasks.push (next) ->
-			setTimeout(
-				->
-					assert.equal(0, tasksCompleted, 'the second task finished first as expected')
-					++tasksCompleted
-					next()
-				500
-			)
+		tasks.push (complete) ->  wait 500, ->
+			assert.equal(0, tasksCompleted, 'the second task ran first as expected')
+			++tasksCompleted
+			complete()
 
 		# Check no tasks have run
 		assert.equal(0, tasksCompleted, 'no tasks should have started yet')
@@ -172,9 +152,48 @@ describe 'Group', ->
 		tasks.async()
 
 		# Check all tasks ran
-		setTimeout(
-			->
-				assert.equal(tasksExpected, tasksCompleted, 'only the expected number of tasks ran')
-				done()
-			2000
-		)
+		wait 2000, ->
+			assert.equal(tasksExpected, tasksCompleted, 'only the expected number of tasks ran')
+			assert.equal(true, tasks.hasCompleted(), 'hasCompleted() returned true')
+			assert.equal(true, tasks.hasExited(), 'hasExited() returned true')
+			done()
+
+
+
+	it 'should handle errors correctly', (done) ->
+		# Prepare
+		@timeout(2200)
+		tasks = null
+		tasksExpected = 2
+		tasksCompleted = 0
+
+		# Create our group
+		tasks = new balUtil.Group (err) ->
+			assert.equal(tasksExpected, tasksCompleted, 'the group of tasks finished with the expected tasks completing')
+			assert.equal(true, err?, 'the error is present')
+
+		# Make the first task take longer than the second task, but as we run synchronously, it should still finish first
+		tasks.push (complete) ->
+			assert.equal(0, tasksCompleted, 'the first task ran first as expected')
+			++tasksCompleted
+			complete()
+
+		# Make the second task take shorter than the first task, but as we run synchronously, it should still finish second
+		tasks.push (complete) ->
+			assert.equal(1, tasksCompleted, 'the second task ran last as expected')
+			++tasksCompleted
+			complete(new Error('deliberate error'))
+
+		# Check no tasks have run
+		assert.equal(0, tasksCompleted, 'no tasks should have started yet')
+
+		# Run the tasks
+		tasks.sync()
+
+		# Check all tasks ran
+		wait 2000, ->
+			assert.equal(tasksExpected, tasksCompleted, 'only the expected number of tasks ran')
+			assert.equal(false, tasks.hasCompleted(), 'hasCompleted() returned false')
+			assert.equal(true, tasks.hasExited(), 'hasExited() returned true')
+			done()
+

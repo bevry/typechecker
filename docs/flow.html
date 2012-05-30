@@ -55,10 +55,10 @@ Easily group together asynchronmous functions and run them synchronously or asyn
 			<span class="vi">@lastResult = </span><span class="nx">args</span>
 			<span class="nx">@results</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">args</span><span class="p">)</span>
 			<span class="k">if</span> <span class="nx">@hasExited</span><span class="p">()</span> <span class="o">is</span> <span class="kc">false</span>
-				<span class="o">++</span><span class="nx">@completed</span>
 				<span class="k">if</span> <span class="nx">err</span>
 					<span class="k">return</span> <span class="nx">@exit</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
 				<span class="k">else</span>
+					<span class="o">++</span><span class="nx">@completed</span>
 					<span class="k">if</span> <span class="nx">@hasCompleted</span><span class="p">()</span>
 						<span class="k">return</span> <span class="nx">@exit</span><span class="p">()</span>
 					<span class="k">else</span> <span class="k">if</span> <span class="nx">@mode</span> <span class="o">is</span> <span class="s">&#39;sync&#39;</span>

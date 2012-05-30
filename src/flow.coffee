@@ -157,10 +157,10 @@ balUtilFlow =
 			@lastResult = args
 			@results.push(args)
 			if @hasExited() is false
-				++@completed
 				if err
 					return @exit(err)
 				else
+					++@completed
 					if @hasCompleted()
 						return @exit()
 					else if @mode is 'sync'

@@ -1,5 +1,11 @@
 ## History
 
+- v1.6.5 May 30, 2012
+	- `balUtilFlow` changes:
+		- `Group` changes:
+			- Reverted the change made in v1.6.4 where errors in callbacks still increment the complete count
+				- Instead, you should be using the `hasExited()` instead of `hasCompleted()` which is used to find out if everything passed successfully
+
 - v1.6.4 May 30, 2012
 	- `balUtilFlow` changes:
 		- Added `flow({object,action,[args],[tasks],next})` to simplify calling a series of functions of an object

@@ -59,7 +59,7 @@ describe 'packageCompare', ->
 
 	# Run
 	it 'should run as expected', (done) ->
-		@timeout(10000)
+		@timeout(20*1000)
 		balUtil.packageCompare(
 			local: localPackagePath
 			remote: remotePackagePath
