@@ -178,4 +178,3 @@ describe 'Group', ->
 				done()
 			2000
 		)
-

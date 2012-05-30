@@ -1,5 +1,14 @@
 ## History
 
+- v1.6.4 May 30, 2012
+	- `balUtilFlow` changes:
+		- Added `flow({object,action,[args],[tasks],next})` to simplify calling a series of functions of an object
+		- `Group` changes:
+			- If complete callback is called with an error, it'll still increment the complete count (it didn't before)
+			- Added `hasExited()`
+	- `balUtilPaths` changes:
+		- `writeFile` will now call `ensurePath` before writing the file
+
 - v1.6.3 May 22, 2012
 	- `balUtilPaths` changes:
 		- Fixed a problem introduced with v1.6.0 with `isDirectory` not opening the file before closing it

@@ -11,12 +11,15 @@ balUtilFlow =
 	# Flow
 	# Flow based helpers
 
+	# Is an item a string
 	toString: (obj) ->
 		return Object::toString.call(obj)
 
+	# Is an item an array
 	isArray: (obj) ->
 		return @toString(obj) is '[object Array]'
 
+	# Cycle through each item in an array or object
 	each: (obj,callback,context) ->
 		# Prepare
 		broke = false
@@ -33,6 +36,35 @@ balUtilFlow =
 				if callback.call(context,item,key,obj) is false
 					broke = true
 					break
+
+		# Chain
+		@
+
+	# Flow through a series of actions on an object
+	# next(err)
+	flow: (opts) ->
+		# Extract
+		{object,action,args,tasks,next} = opts
+
+		# Check
+		unless action
+			console.log(opts);
+			throw new Error('balUtilFlow.flow called without any action')
+
+		# Create tasks group and cycle through it
+		actions = action.split(/[,\s]+/g)
+		tasks or= new balUtilFlow.Group(next)
+		balUtilFlow.each actions, (action) -> tasks.push (complete) ->
+			# Prepare callback
+			argsClone = (args or []).slice()
+			argsClone.push(complete)
+
+			# Fire the action with the next helper
+			fn = object[action]
+			fn.apply(object,argsClone)
+
+		# Fire the tasks synchronously
+		tasks.sync()
 
 		# Chain
 		@
@@ -107,6 +139,11 @@ balUtilFlow =
 		hasCompleted: ->
 			return @total is @completed
 
+		# Check if we have exited
+		hasExited: (value) ->
+			@exited = value  if value?
+			return @exited is true
+
 		# Clear the queue
 		clear: ->
 			@queue = []
@@ -119,11 +156,11 @@ balUtilFlow =
 			err = args[0] or undefined
 			@lastResult = args
 			@results.push(args)
-			if @exited is false
+			if @hasExited() is false
+				++@completed
 				if err
-					return @exit err
+					return @exit(err)
 				else
-					++@completed
 					if @hasCompleted()
 						return @exit()
 					else if @mode is 'sync'
@@ -135,9 +172,9 @@ balUtilFlow =
 			return (args...) => @complete(args...)
 
 		# The group has finished
-		exit: (err=false) ->
-			if @exited is false
-				@exited = true
+		exit: (err=null) ->
+			if @hasExited() is false
+				@hasExited(true)
 				lastResult = @lastResult
 				results = @results
 				@clear()
@@ -159,7 +196,7 @@ balUtilFlow =
 		# Push a new task to the group
 		push: (task) ->
 			++@total
-			@exited = false
+			@hasExited(false)
 			@queue.push(task)
 			@
 
@@ -171,7 +208,7 @@ balUtilFlow =
 
 		# Run the tasks
 		run: ->
-			@exited = false
+			@hasExited(false)
 			if @mode is 'sync'
 				@queueIndex = 0
 				if @queue[@queueIndex]?

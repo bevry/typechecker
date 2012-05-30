@@ -75,10 +75,15 @@ balUtilPaths =
 			next = encoding
 			encoding = null
 
-		# Write data
-		balUtilPaths.openFile -> fsUtil.writeFile path, data, encoding, (err) ->
-			balUtilPaths.closeFile()
-			return next?(err)
+		# Ensure path
+		balUtilPaths.ensurePath pathUtil.dirname(path), (err) ->
+			# Error
+			return next?(err)  if err
+
+			# Write data
+			balUtilPaths.openFile -> fsUtil.writeFile path, data, encoding, (err) ->
+				balUtilPaths.closeFile()
+				return next?(err)
 
 		# Chain
 		@
