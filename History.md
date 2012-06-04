@@ -1,5 +1,15 @@
 ## History
 
+- v1.7.0 Unreleased
+	- `balUtilFlow` changes:
+		- `Group` changes:
+			- Constructor now supports `next` and `mode` arguments in any order
+			- `clear()` now clears everything
+			- Added `hasTasks()`
+			- Group completion callback's first argument (the error argument) is now an array of errors (or null if no errors)
+			- Added `breakOnError` option (defaults to `true`)
+			- Added `autoClear` option to clear once all tasks have run (defualts to `false`)
+
 - v1.6.5 May 30, 2012
 	- `balUtilFlow` changes:
 		- `Group` changes:

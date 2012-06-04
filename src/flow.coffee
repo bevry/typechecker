@@ -48,7 +48,6 @@ balUtilFlow =
 
 		# Check
 		unless action
-			console.log(opts);
 			throw new Error('balUtilFlow.flow called without any action')
 
 		# Create tasks group and cycle through it
@@ -76,25 +75,17 @@ balUtilFlow =
 
 	###
 	Usage:
-
-		# Fire tasks as we go
+		# Add tasks to a queue then fire them in parallel (asynchronously)
 		tasks = new Group (err) -> next err
-		tasks.total = 2
-		someAsyncFunction arg1, arg2, tasks.completer()
-		anotherAsyncFunction arg1, arg2, (err) ->
-			tasks.complete err
+		tasks.push (complete) -> someAsyncFunction(arg1, arg2, complete)
+		tasks.push (complete) -> anotherAsyncFunction(arg1, arg2, complete)
+		tasks.async()
 
-		# Add tasks to a queue then fire them together asynchronously
+		# Add tasks to a queue then fire them in serial (synchronously)
 		tasks = new Group (err) -> next err
-		tasks.push ((arg1,arg2) -> someAsyncFunction arg1, arg2, tasks.completer())(arg1,arg2)
-		tasks.push ((arg1,arg2) -> anotherAsyncFunction arg1, arg2, tasks.completer())(arg1,arg2)
-		tasks.run()
-
-		# Add tasks to a queue then fire them together synchronously
-		tasks = new Group (err) -> next err
-		tasks.push ((arg1,arg2) -> someAsyncFunction arg1, arg2, tasks.completer())(arg1,arg2)
-		tasks.push ((arg1,arg2) -> anotherAsyncFunction arg1, arg2, tasks.completer())(arg1,arg2)
-		tasks.run()
+		tasks.push (complete) -> someAsyncFunction(arg1, arg2, complete)
+		tasks.push (complete) -> anotherAsyncFunction(arg1, arg2, complete)
+		tasks.sync()
 	###
 
 	Group: class
@@ -104,12 +95,20 @@ balUtilFlow =
 		# How many tasks have completed?
 		completed: 0
 
+		# How many tasks are currently running?
+		running: 0
+
 		# Have we already exited?
 		exited: false
 
+		# Should we break on errors?
+		breakOnError: true
+
+		# Should we auto clear?
+		autoClear: false
+
 		# Queue
 		queue: []
-		queueIndex: 0
 
 		# Mode
 		mode: 'async'
@@ -117,54 +116,94 @@ balUtilFlow =
 		# Results
 		lastResult: null
 		results: []
+		errors: []
 
 		# What to do next?
 		next: ->
 			throw new Error 'Groups require a completion callback'
 
 		# Construct our group
-		constructor: (@next,mode) ->
+		constructor: (args...) ->
 			@clear()
-			@mode = mode  if mode
+			for arg in args
+				if typeof arg is 'string'
+					@mode = arg
+				else if typeof arg is 'function'
+					@next = arg
+				else if typeof arg is 'object'
+					{next,mode,breakOnError,autoClear} = arg
+					@next = next  if next
+					@mode = mode  if mode
+					@breakOnError = breakOnError  if breakOnError
+					@autoClear = autoClear  if autoClear
+				else
+					throw new Error 'Unknown argument sent to Groups constructor'
 
-		# Next task
-		nextTask: ->
-			++@queueIndex
-			if @queue[@queueIndex]?
-				task = @queue[@queueIndex]
-				task @completer()
+		# Clear the queue
+		clear: ->
+			# Clear all our properties
+			@total = 0
+			@completed = 0
+			@running = 0
+			@exited = false
+			@queue = []
+			@results = []
+			@errors = []
+			@lastResult = null
+
+			# Chain
 			@
+
+		# Check if we have tasks
+		hasTasks: ->
+			return @queue.length isnt 0
 
 		# Check if we have completed
 		hasCompleted: ->
-			return @total is @completed
+			return @total isnt 0  and  @total is @completed
+
+		# Check if we are currently running
+		isRunning: ->
+			return @running isnt 0
 
 		# Check if we have exited
 		hasExited: (value) ->
 			@exited = value  if value?
 			return @exited is true
 
-		# Clear the queue
-		clear: ->
-			@queue = []
-			@queueIndex = 0
-			@results = []
-			@lastResult = null
-
 		# A task has completed
 		complete: (args...) ->
+			# Push the result
 			err = args[0] or undefined
 			@lastResult = args
+			@errors.push(err)  if err
 			@results.push(args)
-			if @hasExited() is false
-				if err
-					return @exit(err)
+
+			# We are one less running task
+			if @running isnt 0
+				--@running
+
+			# Check if we have already completed
+			if @hasExited()
+				# if so, do nothing
+
+			# Otherwise
+			else
+				# If we have an error, and we are told to break on an error, then we should
+				if err and @breakOnError
+					@exit()
+
+				# Otherwise complete the task successfully
+				# and run the next task if we have one
+				# otherwise, exit
 				else
 					++@completed
-					if @hasCompleted()
-						return @exit()
-					else if @mode is 'sync'
+					if @hasTasks()
 						@nextTask()
+					else if @isRunning() is false and @hasCompleted()
+						@exit()
+
+			# Chain
 			@
 
 		# Alias for complete
@@ -173,73 +212,103 @@ balUtilFlow =
 
 		# The group has finished
 		exit: (err=null) ->
-			if @hasExited() is false
-				@hasExited(true)
-				lastResult = @lastResult
-				results = @results
-				@clear()
-				@next?(err,lastResult,results)
+			# Check if we have already exited, if so, ignore
+			if @hasExited()
+				# do nothing
+
+			# Otherwise
 			else
-				err = new Error('Group has already exited')
+				# Fetch the results
 				lastResult = @lastResult
+				errors = if @errors.length isnt 0 then @errors else null
 				results = @results
-				@clear()
-				@next?(err,lastResult,results)
+
+				# Clear, and exit with the results
+				if @autoClear
+					@clear()
+				else
+					@hasExited(true)
+				@next?(errors,lastResult,results)
+
+			# Chain
 			@
 
 		# Push a set of tasks to the group
 		tasks: (tasks) ->
-			for task in tasks
-				@push(task)
+			# Push the tasks
+			@push(task)  for task in tasks
+
+			# Chain
 			@
 
 		# Push a new task to the group
 		push: (task) ->
+			# Add the task and increment the count
 			++@total
-			@hasExited(false)
 			@queue.push(task)
+
+			# Chain
 			@
 
 		# Push and run
 		pushAndRun: (task) ->
-			@push(task)
-			task @completer()
+			# Check if we are currently running in sync mode
+			if @mode is 'sync' and @isRunning()
+				# push the task for later
+				@push(task)
+			else
+				# run the task now
+				++@total
+				@runTask(task)
+
+			# Chain
+			@
+
+		# Next task
+		nextTask: ->
+			# Only run the next task if we have one
+			if @hasTasks()
+				task = @queue.shift()
+				@runTask(task)
+
+			# Chain
+			@
+
+		# Run a task
+		runTask: (task) ->
+			# Run it, and catch errors
+			try
+				++@running
+				task @completer()
+			catch err
+				@complete(err)
+
+			# Chain
 			@
 
 		# Run the tasks
 		run: ->
-			@hasExited(false)
-			if @mode is 'sync'
-				@queueIndex = 0
-				if @queue[@queueIndex]?
-					task = @queue[@queueIndex]
-					try
-						task @completer()
-					catch err
-						@complete(err)
+			if @isRunning() is false
+				@hasExited(false)
+				if @hasTasks()
+					if @mode is 'sync'
+						@nextTask()
+					else
+						@nextTask()  for task in @queue
 				else
-					@exit()  # nothing to do
-			else
-				unless @queue.length
-					@exit()  # nothing to do
-				else
-					for task in @queue
-						try
-							task @completer()
-						catch err
-							@complete(err)
+					@exit()
 			@
 
 		# Async
-		async: (args...) ->
+		async: ->
 			@mode = 'async'
-			@run(args...)
+			@run()
 			@
 
 		# Sync
-		sync: (args...) ->
+		sync: ->
 			@mode = 'sync'
-			@run(args...)
+			@run()
 			@
 
 
