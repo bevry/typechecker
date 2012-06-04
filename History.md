@@ -1,6 +1,6 @@
 ## History
 
-- v1.7.0 Unreleased
+- v1.7.0 June 4, 2012
 	- `balUtilFlow` changes:
 		- `Group` changes:
 			- Constructor now supports `next` and `mode` arguments in any order
