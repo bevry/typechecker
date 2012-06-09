@@ -9,7 +9,7 @@ balUtil = require(__dirname+'/../lib/balutil')
 # -------------------------------------
 # Version Compare
 
-describe 'versionCompare', ->
+describe 'versionCompare', (describe,it) ->
 	# Prepare
 	versionCompareTestData = [
 		['1.1.0', '<', '1.2.0', true]
@@ -47,9 +47,9 @@ describe 'versionCompare', ->
 # -------------------------------------
 # Package Compare
 
-describe 'packageCompare', ->
+describe 'packageCompare', (describe,it) ->
 	# Prepare
-	localPackagePath = "#{__dirname}/../package.json"
+	localPackagePath = __dirname+'/../../package.json'
 	remotePackagePath = 'https://raw.github.com/balupton/bal-util/master/package.json'
 
 	# Handler
@@ -59,7 +59,6 @@ describe 'packageCompare', ->
 
 	# Run
 	it 'should run as expected', (done) ->
-		@timeout(20*1000)
 		balUtil.packageCompare(
 			local: localPackagePath
 			remote: remotePackagePath
@@ -73,6 +72,6 @@ describe 'packageCompare', ->
 				testVersion(details.local.version,'>',details.remote.version)
 				done()
 			errorCallback: (err) ->
-				assert.ok false, 'an error occured'
+				assert.ok false, 'the package compare request failed'
 				done()
 		)

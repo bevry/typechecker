@@ -7,10 +7,8 @@ util = require('util')
 # =====================================
 # Tests
 
-# -------------------------------------
 # Types
-
-describe 'type', ->
+describe 'type', (describe,it) ->
 	# Prepare
 	typeTestData = [
 		[false,'boolean']

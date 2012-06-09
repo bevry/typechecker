@@ -11,7 +11,7 @@ wait = (delay,fn) -> setTimeout(fn,delay)
 # -------------------------------------
 # Flow
 
-describe 'flow', ->
+describe 'flow', (describe,it) ->
 
 	it 'should detect arrays', (done) ->
 		# Prepare
@@ -45,11 +45,10 @@ describe 'flow', ->
 # -------------------------------------
 # Group
 
-describe 'Group', ->
+describe 'Group', (describe,it) ->
 
 	it 'should work when tasks are specified manually', (done) ->
 		# Prepare
-		@timeout(2200)
 		firstTaskFinished = false
 		secondTaskFinished = false
 		finished = false
@@ -87,7 +86,6 @@ describe 'Group', ->
 
 	it 'should work when run synchronously', (done) ->
 		# Prepare
-		@timeout(2200)
 		firstTaskRun = false
 		secondTaskRun = false
 		firstTaskFinished = false
@@ -136,7 +134,6 @@ describe 'Group', ->
 
 	it 'should work when run asynchronously', (done) ->
 		# Prepare
-		@timeout(2200)
 		firstTaskRun = false
 		secondTaskRun = false
 		firstTaskFinished = false
@@ -186,7 +183,6 @@ describe 'Group', ->
 
 	it 'should handle errors correctly', (done) ->
 		# Prepare
-		@timeout(2200)
 		firstTaskRun = false
 		secondTaskRun = false
 		firstTaskFinished = false
@@ -235,7 +231,6 @@ describe 'Group', ->
 
 	it 'should push and run synchronous tasks correctly', (done) ->
 		# Prepare
-		@timeout(5000)
 		firstTaskRun = false
 		secondTaskRun = false
 		firstTaskFinished = false
@@ -282,7 +277,6 @@ describe 'Group', ->
 
 	it 'should push and run asynchronous tasks correctly (queued)', (done) ->
 		# Prepare
-		@timeout(5000)
 		firstTaskRun = false
 		secondTaskRun = false
 		firstTaskFinished = false
@@ -328,7 +322,6 @@ describe 'Group', ->
 
 	it 'should push and run synchronous tasks correctly (multiple times)', (done) ->
 		# Prepare
-		@timeout(2200)
 		finished = 0
 
 		# Create our group

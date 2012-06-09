@@ -1,5 +1,7 @@
 ## History
 
+- v1.8.0 June 9, 2012
+
 - v1.7.0 June 4, 2012
 	- `balUtilFlow` changes:
 		- `Group` changes:

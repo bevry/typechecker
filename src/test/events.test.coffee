@@ -73,13 +73,13 @@ class Person extends EventSystem
 					@finished 'drinking', (err) =>
 						# Finished drinking
 						console.log "#{something}: finished drink"  if debug
-						throw err  if err
+						return done(err)  if err
 
 						# Resume eating
 						console.log "#{something}: unblocking eating"  if debug
 						@unblock 'eating', (err) =>
 							console.log "#{something}: unblocked eating"  if debug
-							throw err  if err
+							return done(err)  if err
 
 				,1*1000)
 
@@ -87,68 +87,67 @@ class Person extends EventSystem
 # =====================================
 # Tests
 
-describe 'EventSystem', ->
+describe 'EventSystem', (describe,it) ->
 
 	it 'should work as expected', (done) ->
 		# Prepare
-		@timeout(15000)
 		foods = ['apple','orange','grape']
 		drinks = ['coke','fanta','water']
-		joe = new Person()
+		myPerson = new Person()
 
 		# Completion handlers
 		foodsAte = []
 		drinksDrunk = []
-		joeTriedToDrinkThenEat = false
+		myPersonTriedToDrinkThenEat = false
 
-		# Track the order of what joe ate
+		# Track the order of what myPerson ate
 		eating = false
 		drinking = false
-		joe.on 'eating:locked', ->
+		myPerson.on 'eating:locked', ->
 			console.log 'eating:locked'  if debug
-		joe.on 'eating:unlocked', ->
+		myPerson.on 'eating:unlocked', ->
 			console.log 'eating:unlocked'  if debug
-		joe.on 'eating:started', ->
+		myPerson.on 'eating:started', ->
 			console.log 'eating:started'  if debug
 			if drinking is true
-				console.log 'joe just tried to eat then drink'  if debug
-				joeTriedToDrinkThenEat = true
+				console.log 'myPerson just tried to eat then drink'  if debug
+				myPersonTriedToDrinkThenEat = true
 			eating = true
-		joe.on 'eating:finished', ->
+		myPerson.on 'eating:finished', ->
 			console.log 'eating:finished'  if debug
 			eating = false
 
-		joe.on 'drinking:locked', ->
+		myPerson.on 'drinking:locked', ->
 			console.log 'drinking:locked'  if debug
-		joe.on 'drinking:unlocked', ->
+		myPerson.on 'drinking:unlocked', ->
 			console.log 'drinking:unlocked'  if debug
-		joe.on 'drinking:started', ->
+		myPerson.on 'drinking:started', ->
 			console.log 'drinking:started'  if debug
 			drinking = true
-		joe.on 'drinking:finished', ->
+		myPerson.on 'drinking:finished', ->
 			console.log 'drinking:finished'  if debug
 			drinking = false
 
-		# Track what joe ate
+		# Track what myPerson ate
 		ateAFood = (err,something) ->
-			throw err  if err
+			return done(err)  if err
 			foodsAte.push something
 			console.log "completely finished eating #{something} - #{foodsAte.length}/#{foods.length}"  if debug
 		drankADrink = (err,something) ->
-			throw err  if err
+			return done(err)  if err
 			drinksDrunk.push something
 			console.log "completely finished drinking #{something} - #{drinksDrunk.length}/#{drinks.length}"  if debug
 
-		# Stuff joe full of stuff
-		joe.eat(food,ateAFood)  for food in foods
-		joe.drink(drink,drankADrink)  for drink in drinks
+		# Stuff myPerson full of stuff
+		myPerson.eat(food,ateAFood)  for food in foods
+		myPerson.drink(drink,drankADrink)  for drink in drinks
 
 		# Async
 		setTimeout(
 			->
-				assert.equal(foods.length, foodsAte.length, 'joe ate all his foods')
-				assert.equal(drinks.length, drinksDrunk.length, 'joe ate all his drinks')
-				assert.equal(false, joeTriedToDrinkThenEat, 'joe tried to drink then eat, when he shouldn\'t have')
+				assert.equal(foods.length, foodsAte.length, 'myPerson ate all his foods')
+				assert.equal(drinks.length, drinksDrunk.length, 'myPerson ate all his drinks')
+				assert.equal(false, myPersonTriedToDrinkThenEat, 'myPerson tried to drink then eat, when he shouldn\'t have')
 				done()
 			,14000
 		)
