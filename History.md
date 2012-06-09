@@ -1,5 +1,9 @@
 ## History
 
+- v1.8.3 June 9, 2012
+	- `balUtilCompare` changes:
+		- `packageCompare` will now fail gracefully if it receives malformed json
+
 - v1.8.2 June 9, 2012
 	- Removed request dependency, we now use the native http/https modules
 

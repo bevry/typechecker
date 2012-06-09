@@ -108,14 +108,22 @@
       };
       balUtilPaths.readPath(local, function(err, data) {
         if (err) {
-          return typeof errorCallback === "function" ? errorCallback(err) : void 0;
+          return typeof errorCallback === "function" ? errorCallback(err, data) : void 0;
         }
-        details.local = JSON.parse(data.toString());
+        try {
+          details.local = JSON.parse(data.toString());
+        } catch (err) {
+          return typeof errorCallback === "function" ? errorCallback(err, data) : void 0;
+        }
         return balUtilPaths.readPath(remote, function(err, data) {
           if (err) {
-            return typeof errorCallback === "function" ? errorCallback(err) : void 0;
+            return typeof errorCallback === "function" ? errorCallback(err, data) : void 0;
           }
-          details.remote = JSON.parse(data.toString());
+          try {
+            details.remote = JSON.parse(data.toString());
+          } catch (err) {
+            return typeof errorCallback === "function" ? errorCallback(err, data) : void 0;
+          }
           return runCompare();
         });
       });

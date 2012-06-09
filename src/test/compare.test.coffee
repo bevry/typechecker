@@ -72,7 +72,8 @@ joe.describe 'packageCompare', (describe,it) ->
 			oldVersionCallback: (details) ->
 				testVersion(details.local.version,'>',details.remote.version)
 				done()
-			errorCallback: (err) ->
+			errorCallback: (err,data) ->
+				return done()  if /redirected/.test(data.toString())
 				assert.ok false, 'the package compare request failed'
 				done()
 		)

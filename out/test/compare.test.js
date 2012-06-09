@@ -54,7 +54,10 @@
           testVersion(details.local.version, '>', details.remote.version);
           return done();
         },
-        errorCallback: function(err) {
+        errorCallback: function(err, data) {
+          if (/redirected/.test(data.toString())) {
+            return done();
+          }
           assert.ok(false, 'the package compare request failed');
           return done();
         }

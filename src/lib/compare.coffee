@@ -86,6 +86,7 @@ balUtilCompare =
 
 	# Compare Package
 	packageCompare: ({local,remote,newVersionCallback,sameVersionCallback,oldVersionCallback,errorCallback}) ->
+		# Prepare
 		details = {}
 
 		# Handler
@@ -99,12 +100,18 @@ balUtilCompare =
 
 		# Read local
 		balUtilPaths.readPath local, (err,data) ->
-			return errorCallback?(err)  if err
-			details.local = JSON.parse(data.toString())
+			return errorCallback?(err,data)  if err
+			try
+				details.local = JSON.parse(data.toString())
+			catch err
+				return errorCallback?(err,data)
 			# Read remote
 			balUtilPaths.readPath remote, (err,data) ->
-				return errorCallback?(err)  if err
-				details.remote = JSON.parse(data.toString())
+				return errorCallback?(err,data)  if err
+				try
+					details.remote = JSON.parse(data.toString())
+				catch err
+					return errorCallback?(err,data)
 				# Compare
 				runCompare()
 
