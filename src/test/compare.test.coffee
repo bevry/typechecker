@@ -1,5 +1,6 @@
 # Requires
 assert = require('assert')
+joe = require('joe')
 balUtil = require(__dirname+'/../lib/balutil')
 
 
@@ -9,7 +10,7 @@ balUtil = require(__dirname+'/../lib/balutil')
 # -------------------------------------
 # Version Compare
 
-describe 'versionCompare', (describe,it) ->
+joe.describe 'versionCompare', (describe,it) ->
 	# Prepare
 	versionCompareTestData = [
 		['1.1.0', '<', '1.2.0', true]
@@ -47,7 +48,7 @@ describe 'versionCompare', (describe,it) ->
 # -------------------------------------
 # Package Compare
 
-describe 'packageCompare', (describe,it) ->
+joe.describe 'packageCompare', (describe,it) ->
 	# Prepare
 	localPackagePath = __dirname+'/../../package.json'
 	remotePackagePath = 'https://raw.github.com/balupton/bal-util/master/package.json'

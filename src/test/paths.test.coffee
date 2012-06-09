@@ -1,6 +1,6 @@
 # Requires
 assert = require('assert')
-path = require('path')
+joe = require('joe')
 balUtil = require(__dirname+'/../lib/balutil')
 
 
@@ -40,7 +40,7 @@ scantree =
 # =====================================
 # Tests
 
-describe 'paths', (describe,it) ->
+joe.describe 'paths', (describe,it) ->
 
 	# Test rmdir
 	describe 'rmdir', (describe,it) ->
@@ -84,7 +84,7 @@ describe 'paths', (describe,it) ->
 		it 'should clean up the srcPath', (done) ->
 			balUtil.rmdirDeep srcPath, (err) ->
 				return done(err)  if err
-				exists = path.existsSync(srcPath)
+				exists = balUtil.existsSync(srcPath)
 				assert.equal(exists,false)
 				done()
 
@@ -92,6 +92,6 @@ describe 'paths', (describe,it) ->
 		it 'should clean up the outPath', (done) ->
 			balUtil.rmdirDeep outPath, (err) ->
 				return done(err)  if err
-				exists = path.existsSync(outPath)
+				exists = balUtil.existsSync(outPath)
 				assert.equal(exists,false)
 				done()

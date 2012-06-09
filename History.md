@@ -1,6 +1,16 @@
 ## History
 
+- v1.8.1 June 9, 2012
+	- Restructured directories
+	- Now using [Joe](https://github.com/bevry/joe) for tests
+	- Travis now tests against node v0.7
+	- `balUtilPaths` changes:
+		- Added `exists` and `existsSync` to normalize node's 0.6 to 0.8 api differences
+	- Made [request](https://github.com/mikeal/request) an optional dependency
+
 - v1.8.0 June 9, 2012
+	- Added expiremental `balUtilFlow.Block`
+	- Possibly some undocumented `balUtilFlow.Group` changes
 
 - v1.7.0 June 4, 2012
 	- `balUtilFlow` changes:

@@ -1,6 +1,7 @@
 # Requires
-assert = require('assert')
-balUtil = require(__dirname+'/../lib/balutil')
+assert = require?('assert') or @assert
+joe = require?('joe') or @joe
+balUtil = require?(__dirname+'/../lib/balutil') or @balUtil
 
 
 # =====================================
@@ -11,7 +12,7 @@ wait = (delay,fn) -> setTimeout(fn,delay)
 # -------------------------------------
 # Flow
 
-describe 'flow', (describe,it) ->
+joe.describe 'flow', (describe,it) ->
 
 	it 'should detect arrays', (done) ->
 		# Prepare
@@ -45,7 +46,7 @@ describe 'flow', (describe,it) ->
 # -------------------------------------
 # Group
 
-describe 'Group', (describe,it) ->
+joe.describe 'Group', (describe,it) ->
 
 	it 'should work when tasks are specified manually', (done) ->
 		# Prepare

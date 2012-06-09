@@ -1,5 +1,6 @@
 # Requires
 assert = require('assert')
+joe = require('joe')
 balUtil = require(__dirname+'/../lib/balutil')
 util = require('util')
 
@@ -8,7 +9,7 @@ util = require('util')
 # Tests
 
 # Types
-describe 'type', (describe,it) ->
+joe.describe 'type', (describe,it) ->
 	# Prepare
 	typeTestData = [
 		[false,'boolean']

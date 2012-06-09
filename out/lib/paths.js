@@ -130,6 +130,23 @@
       });
       return this;
     },
+    exists: function(path, next) {
+      var exists;
+      exists = pathUtil.exists || fsUtil.exists;
+      balUtilPaths.openFile(function() {
+        return exists(path, function(exists) {
+          balUtilPaths.closeFile();
+          return typeof next === "function" ? next(exists) : void 0;
+        });
+      });
+      return this;
+    },
+    existsSync: function(path) {
+      var existsSync, result;
+      existsSync = pathUtil.existsSync || fsUtil.existsSync;
+      result = existsSync(path);
+      return result;
+    },
     cp: function(src, dst, next) {
       balUtilPaths.readFile(src, 'binary', function(err, data) {
         if (err) {
@@ -152,7 +169,7 @@
     },
     ensurePath: function(path, next) {
       path = path.replace(/[\/\\]$/, '');
-      pathUtil.exists(path, function(exists) {
+      balUtilPaths.exists(path, function(exists) {
         var parentPath;
         if (exists) {
           return typeof next === "function" ? next() : void 0;
@@ -164,7 +181,7 @@
             return typeof next === "function" ? next(err) : void 0;
           }
           return balUtilPaths.mkdir(path, '700', function(err) {
-            return pathUtil.exists(path, function(exists) {
+            return balUtilPaths.exists(path, function(exists) {
               if (!exists) {
                 console.log("balUtilPaths.ensurePath: failed to create the directory: " + path);
                 return typeof next === "function" ? next(new Error("Failed to create the directory: " + path)) : void 0;
@@ -491,7 +508,7 @@
       return this;
     },
     rmdirDeep: function(parentPath, next) {
-      pathUtil.exists(parentPath, function(exists) {
+      balUtilPaths.exists(parentPath, function(exists) {
         if (!exists) {
           return typeof next === "function" ? next() : void 0;
         }
@@ -580,7 +597,7 @@
       return this;
     },
     empty: function(filePath, next) {
-      pathUtil.exists(filePath, function(exists) {
+      balUtilPaths.exists(filePath, function(exists) {
         if (!exists) {
           return typeof next === "function" ? next(null, true) : void 0;
         }

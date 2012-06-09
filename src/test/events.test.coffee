@@ -1,5 +1,6 @@
 # Requires
 assert = require('assert')
+joe = require('joe')
 EventSystem = require(__dirname+'/../lib/balutil').EventSystem
 debug = false
 
@@ -87,7 +88,7 @@ class Person extends EventSystem
 # =====================================
 # Tests
 
-describe 'EventSystem', (describe,it) ->
+joe.describe 'EventSystem', (describe,it) ->
 
 	it 'should work as expected', (done) ->
 		# Prepare

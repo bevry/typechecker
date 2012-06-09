@@ -96,7 +96,7 @@ balUtilPaths =
 			next = mode
 			mode = null
 
-		# Mkdir
+		# Action
 		balUtilPaths.openFile -> fsUtil.mkdir path, mode, (err) ->
 			balUtilPaths.closeFile()
 			return next?(err)
@@ -107,7 +107,6 @@ balUtilPaths =
 	# Stat
 	# next(err,stat)
 	stat: (path,next) ->
-		# Stat
 		balUtilPaths.openFile -> fsUtil.stat path, (err,stat) ->
 			balUtilPaths.closeFile()
 			return next?(err,stat)
@@ -118,7 +117,6 @@ balUtilPaths =
 	# Readdir
 	# next(err,files)
 	readdir: (path,next) ->
-		# Stat
 		balUtilPaths.openFile -> fsUtil.readdir path, (err,files) ->
 			balUtilPaths.closeFile()
 			return next?(err,files)
@@ -147,6 +145,32 @@ balUtilPaths =
 
 		# Chain
 		@
+
+	# Exists
+	# next(err)
+	exists: (path,next) ->
+		# Exists function
+		exists = pathUtil.exists or fsUtil.exists
+
+		# Action
+		balUtilPaths.openFile -> exists path, (exists) ->
+			balUtilPaths.closeFile()
+			return next?(exists)
+
+		# Chain
+		@
+
+	# Exits Sync
+	# next(err)
+	existsSync: (path) ->
+		# Exists function
+		existsSync = pathUtil.existsSync or fsUtil.existsSync
+
+		# Action
+		result = existsSync(path)
+
+		# Return
+		result
 
 
 	# =====================================
@@ -183,7 +207,7 @@ balUtilPaths =
 	# next(err)
 	ensurePath: (path,next) ->
 		path = path.replace(/[\/\\]$/, '')
-		pathUtil.exists path, (exists) ->
+		balUtilPaths.exists path, (exists) ->
 			# Error
 			return next?()  if exists
 			# Success
@@ -195,7 +219,7 @@ balUtilPaths =
 					return next?(err)
 				# Success
 				balUtilPaths.mkdir path, '700', (err) ->
-					pathUtil.exists path, (exists) ->
+					balUtilPaths.exists path, (exists) ->
 						# Error
 						if not exists
 							console.log "balUtilPaths.ensurePath: failed to create the directory: #{path}"
@@ -612,7 +636,7 @@ balUtilPaths =
 	# Remove a directory deeply
 	# next(err)
 	rmdirDeep: (parentPath,next) ->
-		pathUtil.exists parentPath, (exists) ->
+		balUtilPaths.exists parentPath, (exists) ->
 			# Skip
 			return next?()  unless exists
 			# Remove
@@ -713,7 +737,7 @@ balUtilPaths =
 	# next(err,empty)
 	empty: (filePath,next) ->
 		# Check if we exist
-		pathUtil.exists filePath, (exists) ->
+		balUtilPaths.exists filePath, (exists) ->
 			# Return empty if we don't exist
 			return next?(null,true)  unless exists
 
