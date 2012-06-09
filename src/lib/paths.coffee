@@ -5,7 +5,6 @@ balUtilFlow = require(__dirname+'/flow')
 
 # Optional
 balUtilPaths = null
-request = null
 
 # Create a counter of all the open files we have
 # As the filesystem will throw a fatal error if we have too many open files
@@ -719,10 +718,17 @@ balUtilPaths =
 	# next(err,data)
 	readPath: (filePath,next) ->
 		if /^http/.test(filePath)
-			request = require('request')  unless request
-			request filePath, (err,response,data) =>
-				return next?(err)  if err
-				return next?(null,data)
+			requestOptions = require('url').parse(filePath)
+			http = if requestOptions.protocol is 'https:' then require('https') else require('http')
+			http
+				.get requestOptions, (res) ->
+					data = ''
+					res.on 'data', (chunk) ->
+						data += chunk
+					res.on 'end', ->
+						return next?(null,data)
+				.on 'error', (err) ->
+					return next?(err)
 		else
 			balUtilPaths.readFile filePath, (err,data) ->
 				return next?(err)  if err
