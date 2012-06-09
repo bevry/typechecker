@@ -2,6 +2,7 @@
 
 - v1.8.1 June 9, 2012
 	- Restructured directories
+	- Removed generated docs, use the wiki instead
 	- Now using [Joe](https://github.com/bevry/joe) for tests
 	- Travis now tests against node v0.7
 	- `balUtilPaths` changes:
