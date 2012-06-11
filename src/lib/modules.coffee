@@ -32,32 +32,37 @@ balUtilModules =
 				# Prepare
 				pid = null
 				err = null
-				result = ''
-				errors = ''
+				stdout = ''
+				stderr = ''
 
-				# Spawn
+				# Prepare format
 				if typeof command is 'string'
-					pid = spawn(command,[],options)
+					command = command.split(' ')
+
+				# Execute command
+				if command instanceof Array
+					pid = spawn(command[0], command.slice(1), options)
 				else
-					pid = spawn(command.command,command.args or [],command.options or options)
+					pid = spawn(command.command, command.args or [], command.options or options)
 
 				# Fetch
 				pid.stdout.on 'data', (data) ->
 					dataStr = data.toString()
 					if options.output
-						console.log(dataStr)
-					result += dataStr
+						process.stdout.write(dataStr)
+					stdout += dataStr
 				pid.stderr.on 'data', (data) ->
 					dataStr = data.toString()
 					if options.output
-						console.log(dataStr)
-					errors += dataStr
+						process.stderr.write(dataStr)
+					stderr += dataStr
 
 				# Wait
-				pid.on 'exit', (code,signal) ->
+				pid.on 'exit', (code, signal) ->
 					err = null
-					err = new Error(errors)  if errors and code is 1
-					results.push [errors,result,code,signal]
+					if code is 1
+						err = new Error(stderr or 'exited with failure code')
+					results.push [err,stdout,stderr,code,signal]
 					tasks.complete(err)
 
 		# Prepare tasks

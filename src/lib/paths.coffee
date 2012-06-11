@@ -149,7 +149,7 @@ balUtilPaths =
 	# next(err)
 	exists: (path,next) ->
 		# Exists function
-		exists = pathUtil.exists or fsUtil.exists
+		exists = fsUtil.exists or pathUtil.exists
 
 		# Action
 		balUtilPaths.openFile -> exists path, (exists) ->
@@ -163,7 +163,7 @@ balUtilPaths =
 	# next(err)
 	existsSync: (path) ->
 		# Exists function
-		existsSync = pathUtil.existsSync or fsUtil.existsSync
+		existsSync = fsUtil.existsSync or pathUtil.existsSync
 
 		# Action
 		result = existsSync(path)

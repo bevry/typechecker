@@ -1,5 +1,14 @@
 ## History
 
+- v1.8.4 June 11, 2012
+	- `balUtilModule` changes:
+		- `spawn`
+			- will now return results in the order of `err`, `stdout`, `stderr`, `code`, `signal`
+			- now splits string commands using `/ /`
+	- `balUtilFlow` changes:
+		- `Group` will now only return error as an array if we have more than one error
+	- Updated for Joe v1.0.0
+
 - v1.8.3 June 9, 2012
 	- `balUtilCompare` changes:
 		- `packageCompare` will now fail gracefully if it receives malformed json

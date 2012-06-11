@@ -221,6 +221,7 @@ balUtilFlow.Group = class
 			# Fetch the results
 			lastResult = @lastResult
 			errors = if @errors.length isnt 0 then @errors else null
+			errors = errors[0]  if @errors.length is 1
 			results = @results
 
 			# Clear, and exit with the results
