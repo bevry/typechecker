@@ -1,8 +1,5 @@
 # Requires
 joe = require('joe')
-joe.setDefaultReporter ->
-	Reporter = joe.require('reporters/list')
-	new Reporter()
 
 # Tests
 require(__dirname+'/compare.test')
