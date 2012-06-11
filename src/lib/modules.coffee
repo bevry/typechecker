@@ -207,7 +207,7 @@ balUtilModules =
 		balUtilModules.spawn command, {cwd:path}, (err,results) ->
 			if logger
 				logger.log 'debug', "Initialized node modules\non:   #{dirPath}\nwith:",command  if logger
-			return next?(err,results)
+			return next(err,results)
 
 		# Chain
 		@

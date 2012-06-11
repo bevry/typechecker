@@ -177,7 +177,7 @@
             logger.log('debug', "Initialized node modules\non:   " + dirPath + "\nwith:", command);
           }
         }
-        return typeof next === "function" ? next(err, results) : void 0;
+        return next(err, results);
       });
       return this;
     }

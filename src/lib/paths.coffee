@@ -36,7 +36,7 @@ balUtilPaths =
 			)
 		else
 			++global.numberOfOpenFiles
-			next?()
+			next()
 		@
 
 	# Close a file
@@ -61,7 +61,7 @@ balUtilPaths =
 		# Read
 		balUtilPaths.openFile -> fsUtil.readFile path, encoding, (err,data) ->
 			balUtilPaths.closeFile()
-			return next?(err,data)
+			return next(err,data)
 
 		# Chain
 		@
@@ -77,12 +77,12 @@ balUtilPaths =
 		# Ensure path
 		balUtilPaths.ensurePath pathUtil.dirname(path), (err) ->
 			# Error
-			return next?(err)  if err
+			return next(err)  if err
 
 			# Write data
 			balUtilPaths.openFile -> fsUtil.writeFile path, data, encoding, (err) ->
 				balUtilPaths.closeFile()
-				return next?(err)
+				return next(err)
 
 		# Chain
 		@
@@ -98,7 +98,7 @@ balUtilPaths =
 		# Action
 		balUtilPaths.openFile -> fsUtil.mkdir path, mode, (err) ->
 			balUtilPaths.closeFile()
-			return next?(err)
+			return next(err)
 
 		# Chain
 		@
@@ -108,7 +108,7 @@ balUtilPaths =
 	stat: (path,next) ->
 		balUtilPaths.openFile -> fsUtil.stat path, (err,stat) ->
 			balUtilPaths.closeFile()
-			return next?(err,stat)
+			return next(err,stat)
 
 		# Chain
 		@
@@ -116,9 +116,10 @@ balUtilPaths =
 	# Readdir
 	# next(err,files)
 	readdir: (path,next) ->
-		balUtilPaths.openFile -> fsUtil.readdir path, (err,files) ->
-			balUtilPaths.closeFile()
-			return next?(err,files)
+		balUtilPaths.openFile ->
+			fsUtil.readdir path, (err,files) ->
+				balUtilPaths.closeFile()
+				return next(err,files)
 
 		# Chain
 		@
@@ -129,7 +130,7 @@ balUtilPaths =
 		# Stat
 		balUtilPaths.openFile -> fsUtil.unlink path, (err) ->
 			balUtilPaths.closeFile()
-			return next?(err)
+			return next(err)
 
 		# Chain
 		@
@@ -140,7 +141,7 @@ balUtilPaths =
 		# Stat
 		balUtilPaths.openFile -> fsUtil.rmdir path, (err) ->
 			balUtilPaths.closeFile()
-			return next?(err)
+			return next(err)
 
 		# Chain
 		@
@@ -154,7 +155,7 @@ balUtilPaths =
 		# Action
 		balUtilPaths.openFile -> exists path, (exists) ->
 			balUtilPaths.closeFile()
-			return next?(exists)
+			return next(exists)
 
 		# Chain
 		@
@@ -184,13 +185,13 @@ balUtilPaths =
 			# Error
 			if err
 				console.log "balUtilPaths.cp: cp failed on: #{src}"
-				return next?(err)
+				return next(err)
 			# Success
 			balUtilPaths.writeFile dst, data, 'binary', (err) ->
 				# Forward
 				if err
 					console.log "balUtilPaths.cp: writeFile failed on: #{dst}"
-				return next?(err)
+				return next(err)
 
 		# Chain
 		@
@@ -208,23 +209,23 @@ balUtilPaths =
 		path = path.replace(/[\/\\]$/, '')
 		balUtilPaths.exists path, (exists) ->
 			# Error
-			return next?()  if exists
+			return next()  if exists
 			# Success
 			parentPath = balUtilPaths.getParentPathSync(path)
 			balUtilPaths.ensurePath parentPath, (err) ->
 				# Error
 				if err
 					console.log "balUtilPaths.ensurePath: failed to ensure the path: #{parentPath}"
-					return next?(err)
+					return next(err)
 				# Success
 				balUtilPaths.mkdir path, '700', (err) ->
 					balUtilPaths.exists path, (exists) ->
 						# Error
 						if not exists
 							console.log "balUtilPaths.ensurePath: failed to create the directory: #{path}"
-							return next?(new Error "Failed to create the directory: #{path}")
+							return next(new Error "Failed to create the directory: #{path}")
 						# Success
-						next?()
+						next()
 		# Chain
 		@
 
@@ -241,14 +242,13 @@ balUtilPaths =
 	# next(err,isDirectory,fileStat)
 	isDirectory: (path,next) ->
 		# Stat
-		balUtilPaths.openFile -> balUtilPaths.stat path, (err,stat) ->
-			balUtilPaths.closeFile()
+		balUtilPaths.stat path, (err,stat) ->
 			# Error
 			if err
 				console.log "balUtilPaths.isDirectory: stat failed on: #{path}"
-				return next?(err)
+				return next(err)
 			# Success
-			return next?(null, stat.isDirectory(), stat)
+			return next(null, stat.isDirectory(), stat)
 
 		# Chain
 		@
@@ -272,7 +272,7 @@ balUtilPaths =
 			readFiles: true
 			ignoreHiddenFiles: true
 			next: (err,list,tree) ->
-				next?(err,tree)
+				return next(err,tree)
 		)
 
 		# Chain
@@ -325,7 +325,7 @@ balUtilPaths =
 		else
 			err = new Error('balUtilPaths.scandir: unsupported arguments')
 			if next
-				return next?(err)
+				return next(err)
 			else
 				throw err
 
@@ -350,13 +350,13 @@ balUtilPaths =
 		if !options.path
 			err = new Error('balUtilPaths.scandir: path is needed')
 			if next
-				return next?(err)
+				return next(err)
 			else
 				throw err
 
 		# Group
 		tasks = new balUtilFlow.Group (err) ->
-			return options.next?(err, list, tree)
+			return options.next(err, list, tree)
 
 		# Cycle
 		balUtilPaths.readdir options.path, (err,files) ->
@@ -531,7 +531,7 @@ balUtilPaths =
 		else
 			err = new Error('balUtilPaths.cpdir: unknown arguments')
 			if next
-				return next?(err)
+				return next(err)
 			else
 				throw err
 
@@ -546,14 +546,14 @@ balUtilPaths =
 					# Error
 					if err
 						console.log 'balUtilPaths.cpdir: failed to create the path for the file:',fileSrcPath
-						return next?(err)
+						return next(err)
 					# The directory now does exist
 					# So let's now place the file inside it
 					balUtilPaths.cp fileSrcPath, fileOutPath, (err) ->
 						# Forward
 						if err
 							console.log 'balUtilPaths.cpdir: failed to copy the child file:',fileSrcPath
-						return next?(err)
+						return next(err)
 			next: next
 		}
 
@@ -586,7 +586,7 @@ balUtilPaths =
 		else
 			err = new Error('balUtilPaths.cpdir: unknown arguments')
 			if next
-				return next?(err)
+				return next(err)
 			else
 				throw err
 
@@ -601,7 +601,7 @@ balUtilPaths =
 					# Error
 					if err
 						console.log 'balUtilPaths.rpdir: failed to create the path for the file:',fileSrcPath
-						return next?(err)
+						return next(err)
 					# Check if it is worthwhile copying that file
 					balUtilPaths.isPathOlderThan fileOutPath, fileSrcPath, (err,older) ->
 						# The src path has been modified since the out path was generated
@@ -612,10 +612,10 @@ balUtilPaths =
 								# Forward
 								if err
 									console.log 'balUtilPaths.rpdir: failed to copy the child file:',fileSrcPath
-								return next?(err)
+								return next(err)
 						# The out path is new enough
 						else
-							return next?()
+							return next()
 			next: next
 		}
 
@@ -637,7 +637,7 @@ balUtilPaths =
 	rmdirDeep: (parentPath,next) ->
 		balUtilPaths.exists parentPath, (exists) ->
 			# Skip
-			return next?()  unless exists
+			return next()  unless exists
 			# Remove
 			balUtilPaths.scandir(
 				# Path
@@ -649,28 +649,28 @@ balUtilPaths =
 						# Forward
 						if err
 							console.log 'balUtilPaths.rmdirDeep: failed to remove the child file:', fileFullPath
-						return next?(err)
+						return next(err)
 
 				# Dir
 				(fileFullPath,fileRelativePath,next) ->
-					next? null, false, (next) ->
+					next null, false, (next) ->
 						balUtilPaths.rmdirDeep fileFullPath, (err) ->
 							# Forward
 							if err
 								console.log 'balUtilPaths.rmdirDeep: failed to remove the child directory:', fileFullPath
-							return next?(err)
+							return next(err)
 
 				# Completed
 				(err,list,tree) ->
 					# Error
 					if err
-						return next?(err, list, tree)
+						return next(err, list, tree)
 					# Success
 					balUtilPaths.rmdir parentPath, (err) ->
 						# Forward
 						if err
 							console.log 'balUtilPaths.rmdirDeep: failed to remove the parent directory:', parentPath
-						return next?(err, list, tree)
+						return next(err, list, tree)
 			)
 
 		# Chain
@@ -682,7 +682,7 @@ balUtilPaths =
 	writetree: (dstPath,tree,next) ->
 		# Group
 		tasks = new balUtilFlow.Group (err) ->
-			next?(err)
+			next(err)
 
 		# Ensure Destination
 		balUtilPaths.ensurePath dstPath, (err) ->
@@ -726,13 +726,13 @@ balUtilPaths =
 					res.on 'data', (chunk) ->
 						data += chunk
 					res.on 'end', ->
-						return next?(null,data)
+						return next(null,data)
 				.on 'error', (err) ->
-					return next?(err)
+					return next(err)
 		else
 			balUtilPaths.readFile filePath, (err,data) ->
-				return next?(err)  if err
-				return next?(null,data)
+				return next(err)  if err
+				return next(null,data)
 
 		# Chain
 		@
@@ -745,14 +745,14 @@ balUtilPaths =
 		# Check if we exist
 		balUtilPaths.exists filePath, (exists) ->
 			# Return empty if we don't exist
-			return next?(null,true)  unless exists
+			return next(null,true)  unless exists
 
 			# We do exist, so check if we have content
 			balUtilPaths.stat filePath, (err,stat) ->
 				# Check
-				return next?(err)  if err
+				return next(err)  if err
 				# Return whether or not we are actually empty
-				return next?(null,stat.size is 0)
+				return next(null,stat.size is 0)
 
 		# Chain
 		@
@@ -775,12 +775,12 @@ balUtilPaths =
 		# Check if the path exists
 		balUtilPaths.empty aPath, (err,empty) ->
 			# If it doesn't then we should return right away
-			return next?(err,null)  if empty or err
+			return next(err,null)  if empty or err
 
 			# We do exist, so let's check how old we are
 			balUtilPaths.stat aPath, (err,aStat) ->
 				# Check
-				return next?(err)  if err
+				return next(err)  if err
 
 				# Prepare
 				compare = ->
@@ -791,19 +791,19 @@ balUtilPaths =
 						older = false
 
 					# Return result
-					return next?(null,older)
+					return next(null,older)
 
 				# Perform the comparison
 				if mode is 'path'
 					# Check if the bPath exists
 					balUtilPaths.empty bPath, (err,empty) ->
 						# Return result if we are empty
-						return next?(err,null)  if empty or err
+						return next(err,null)  if empty or err
 
 						# It does exist so lets get the stat
 						balUtilPaths.stat bPath, (err,bStat) ->
 							# Check
-							return next?(err)  if err
+							return next(err)  if err
 
 							# Assign the outer bMtime variable
 							bMtime = bStat.mtime

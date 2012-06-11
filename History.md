@@ -1,5 +1,8 @@
 ## History
 
+- v1.8.5 June 11, 2012
+	- Made next callbacks necessary by default
+
 - v1.8.4 June 11, 2012
 	- `balUtilModule` changes:
 		- `spawn`

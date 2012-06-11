@@ -35,9 +35,7 @@
         }, global.waitingToOpenFileDelay);
       } else {
         ++global.numberOfOpenFiles;
-        if (typeof next === "function") {
-          next();
-        }
+        next();
       }
       return this;
     },
@@ -56,7 +54,7 @@
       balUtilPaths.openFile(function() {
         return fsUtil.readFile(path, encoding, function(err, data) {
           balUtilPaths.closeFile();
-          return typeof next === "function" ? next(err, data) : void 0;
+          return next(err, data);
         });
       });
       return this;
@@ -68,12 +66,12 @@
       }
       balUtilPaths.ensurePath(pathUtil.dirname(path), function(err) {
         if (err) {
-          return typeof next === "function" ? next(err) : void 0;
+          return next(err);
         }
         return balUtilPaths.openFile(function() {
           return fsUtil.writeFile(path, data, encoding, function(err) {
             balUtilPaths.closeFile();
-            return typeof next === "function" ? next(err) : void 0;
+            return next(err);
           });
         });
       });
@@ -87,7 +85,7 @@
       balUtilPaths.openFile(function() {
         return fsUtil.mkdir(path, mode, function(err) {
           balUtilPaths.closeFile();
-          return typeof next === "function" ? next(err) : void 0;
+          return next(err);
         });
       });
       return this;
@@ -96,7 +94,7 @@
       balUtilPaths.openFile(function() {
         return fsUtil.stat(path, function(err, stat) {
           balUtilPaths.closeFile();
-          return typeof next === "function" ? next(err, stat) : void 0;
+          return next(err, stat);
         });
       });
       return this;
@@ -105,7 +103,7 @@
       balUtilPaths.openFile(function() {
         return fsUtil.readdir(path, function(err, files) {
           balUtilPaths.closeFile();
-          return typeof next === "function" ? next(err, files) : void 0;
+          return next(err, files);
         });
       });
       return this;
@@ -114,7 +112,7 @@
       balUtilPaths.openFile(function() {
         return fsUtil.unlink(path, function(err) {
           balUtilPaths.closeFile();
-          return typeof next === "function" ? next(err) : void 0;
+          return next(err);
         });
       });
       return this;
@@ -123,7 +121,7 @@
       balUtilPaths.openFile(function() {
         return fsUtil.rmdir(path, function(err) {
           balUtilPaths.closeFile();
-          return typeof next === "function" ? next(err) : void 0;
+          return next(err);
         });
       });
       return this;
@@ -134,7 +132,7 @@
       balUtilPaths.openFile(function() {
         return exists(path, function(exists) {
           balUtilPaths.closeFile();
-          return typeof next === "function" ? next(exists) : void 0;
+          return next(exists);
         });
       });
       return this;
@@ -149,13 +147,13 @@
       balUtilPaths.readFile(src, 'binary', function(err, data) {
         if (err) {
           console.log("balUtilPaths.cp: cp failed on: " + src);
-          return typeof next === "function" ? next(err) : void 0;
+          return next(err);
         }
         return balUtilPaths.writeFile(dst, data, 'binary', function(err) {
           if (err) {
             console.log("balUtilPaths.cp: writeFile failed on: " + dst);
           }
-          return typeof next === "function" ? next(err) : void 0;
+          return next(err);
         });
       });
       return this;
@@ -170,21 +168,21 @@
       balUtilPaths.exists(path, function(exists) {
         var parentPath;
         if (exists) {
-          return typeof next === "function" ? next() : void 0;
+          return next();
         }
         parentPath = balUtilPaths.getParentPathSync(path);
         return balUtilPaths.ensurePath(parentPath, function(err) {
           if (err) {
             console.log("balUtilPaths.ensurePath: failed to ensure the path: " + parentPath);
-            return typeof next === "function" ? next(err) : void 0;
+            return next(err);
           }
           return balUtilPaths.mkdir(path, '700', function(err) {
             return balUtilPaths.exists(path, function(exists) {
               if (!exists) {
                 console.log("balUtilPaths.ensurePath: failed to create the directory: " + path);
-                return typeof next === "function" ? next(new Error("Failed to create the directory: " + path)) : void 0;
+                return next(new Error("Failed to create the directory: " + path));
               }
-              return typeof next === "function" ? next() : void 0;
+              return next();
             });
           });
         });
@@ -199,15 +197,12 @@
       return path;
     },
     isDirectory: function(path, next) {
-      balUtilPaths.openFile(function() {
-        return balUtilPaths.stat(path, function(err, stat) {
-          balUtilPaths.closeFile();
-          if (err) {
-            console.log("balUtilPaths.isDirectory: stat failed on: " + path);
-            return typeof next === "function" ? next(err) : void 0;
-          }
-          return typeof next === "function" ? next(null, stat.isDirectory(), stat) : void 0;
-        });
+      balUtilPaths.stat(path, function(err, stat) {
+        if (err) {
+          console.log("balUtilPaths.isDirectory: stat failed on: " + path);
+          return next(err);
+        }
+        return next(null, stat.isDirectory(), stat);
       });
       return this;
     },
@@ -222,7 +217,7 @@
         readFiles: true,
         ignoreHiddenFiles: true,
         next: function(err, list, tree) {
-          return typeof next === "function" ? next(err, tree) : void 0;
+          return next(err, tree);
         }
       });
       return this;
@@ -245,7 +240,7 @@
       } else {
         err = new Error('balUtilPaths.scandir: unsupported arguments');
         if (next) {
-          return typeof next === "function" ? next(err) : void 0;
+          return next(err);
         } else {
           throw err;
         }
@@ -279,13 +274,13 @@
       if (!options.path) {
         err = new Error('balUtilPaths.scandir: path is needed');
         if (next) {
-          return typeof next === "function" ? next(err) : void 0;
+          return next(err);
         } else {
           throw err;
         }
       }
       tasks = new balUtilFlow.Group(function(err) {
-        return typeof options.next === "function" ? options.next(err, list, tree) : void 0;
+        return options.next(err, list, tree);
       });
       balUtilPaths.readdir(options.path, function(err, files) {
         if (tasks.exited) {
@@ -421,7 +416,7 @@
       } else {
         err = new Error('balUtilPaths.cpdir: unknown arguments');
         if (next) {
-          return typeof next === "function" ? next(err) : void 0;
+          return next(err);
         } else {
           throw err;
         }
@@ -434,13 +429,13 @@
           return balUtilPaths.ensurePath(pathUtil.dirname(fileOutPath), function(err) {
             if (err) {
               console.log('balUtilPaths.cpdir: failed to create the path for the file:', fileSrcPath);
-              return typeof next === "function" ? next(err) : void 0;
+              return next(err);
             }
             return balUtilPaths.cp(fileSrcPath, fileOutPath, function(err) {
               if (err) {
                 console.log('balUtilPaths.cpdir: failed to copy the child file:', fileSrcPath);
               }
-              return typeof next === "function" ? next(err) : void 0;
+              return next(err);
             });
           });
         },
@@ -465,7 +460,7 @@
       } else {
         err = new Error('balUtilPaths.cpdir: unknown arguments');
         if (next) {
-          return typeof next === "function" ? next(err) : void 0;
+          return next(err);
         } else {
           throw err;
         }
@@ -478,7 +473,7 @@
           return balUtilPaths.ensurePath(pathUtil.dirname(fileOutPath), function(err) {
             if (err) {
               console.log('balUtilPaths.rpdir: failed to create the path for the file:', fileSrcPath);
-              return typeof next === "function" ? next(err) : void 0;
+              return next(err);
             }
             return balUtilPaths.isPathOlderThan(fileOutPath, fileSrcPath, function(err, older) {
               if (older === true || older === null) {
@@ -486,10 +481,10 @@
                   if (err) {
                     console.log('balUtilPaths.rpdir: failed to copy the child file:', fileSrcPath);
                   }
-                  return typeof next === "function" ? next(err) : void 0;
+                  return next(err);
                 });
               } else {
-                return typeof next === "function" ? next() : void 0;
+                return next();
               }
             });
           });
@@ -508,33 +503,33 @@
     rmdirDeep: function(parentPath, next) {
       balUtilPaths.exists(parentPath, function(exists) {
         if (!exists) {
-          return typeof next === "function" ? next() : void 0;
+          return next();
         }
         return balUtilPaths.scandir(parentPath, function(fileFullPath, fileRelativePath, next) {
           return balUtilPaths.unlink(fileFullPath, function(err) {
             if (err) {
               console.log('balUtilPaths.rmdirDeep: failed to remove the child file:', fileFullPath);
             }
-            return typeof next === "function" ? next(err) : void 0;
+            return next(err);
           });
         }, function(fileFullPath, fileRelativePath, next) {
-          return typeof next === "function" ? next(null, false, function(next) {
+          return next(null, false, function(next) {
             return balUtilPaths.rmdirDeep(fileFullPath, function(err) {
               if (err) {
                 console.log('balUtilPaths.rmdirDeep: failed to remove the child directory:', fileFullPath);
               }
-              return typeof next === "function" ? next(err) : void 0;
+              return next(err);
             });
-          }) : void 0;
+          });
         }, function(err, list, tree) {
           if (err) {
-            return typeof next === "function" ? next(err, list, tree) : void 0;
+            return next(err, list, tree);
           }
           return balUtilPaths.rmdir(parentPath, function(err) {
             if (err) {
               console.log('balUtilPaths.rmdirDeep: failed to remove the parent directory:', parentPath);
             }
-            return typeof next === "function" ? next(err, list, tree) : void 0;
+            return next(err, list, tree);
           });
         });
       });
@@ -543,7 +538,7 @@
     writetree: function(dstPath, tree, next) {
       var tasks;
       tasks = new balUtilFlow.Group(function(err) {
-        return typeof next === "function" ? next(err) : void 0;
+        return next(err);
       });
       balUtilPaths.ensurePath(dstPath, function(err) {
         var fileFullPath, fileRelativePath, value;
@@ -584,17 +579,17 @@
             return data += chunk;
           });
           return res.on('end', function() {
-            return typeof next === "function" ? next(null, data) : void 0;
+            return next(null, data);
           });
         }).on('error', function(err) {
-          return typeof next === "function" ? next(err) : void 0;
+          return next(err);
         });
       } else {
         balUtilPaths.readFile(filePath, function(err, data) {
           if (err) {
-            return typeof next === "function" ? next(err) : void 0;
+            return next(err);
           }
-          return typeof next === "function" ? next(null, data) : void 0;
+          return next(null, data);
         });
       }
       return this;
@@ -602,13 +597,13 @@
     empty: function(filePath, next) {
       balUtilPaths.exists(filePath, function(exists) {
         if (!exists) {
-          return typeof next === "function" ? next(null, true) : void 0;
+          return next(null, true);
         }
         return balUtilPaths.stat(filePath, function(err, stat) {
           if (err) {
-            return typeof next === "function" ? next(err) : void 0;
+            return next(err);
           }
-          return typeof next === "function" ? next(null, stat.size === 0) : void 0;
+          return next(null, stat.size === 0);
         });
       });
       return this;
@@ -625,12 +620,12 @@
       }
       balUtilPaths.empty(aPath, function(err, empty) {
         if (empty || err) {
-          return typeof next === "function" ? next(err, null) : void 0;
+          return next(err, null);
         }
         return balUtilPaths.stat(aPath, function(err, aStat) {
           var compare;
           if (err) {
-            return typeof next === "function" ? next(err) : void 0;
+            return next(err);
           }
           compare = function() {
             var older;
@@ -639,16 +634,16 @@
             } else {
               older = false;
             }
-            return typeof next === "function" ? next(null, older) : void 0;
+            return next(null, older);
           };
           if (mode === 'path') {
             return balUtilPaths.empty(bPath, function(err, empty) {
               if (empty || err) {
-                return typeof next === "function" ? next(err, null) : void 0;
+                return next(err, null);
               }
               return balUtilPaths.stat(bPath, function(err, bStat) {
                 if (err) {
-                  return typeof next === "function" ? next(err) : void 0;
+                  return next(err);
                 }
                 bMtime = bStat.mtime;
                 return compare();

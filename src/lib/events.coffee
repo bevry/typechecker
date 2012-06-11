@@ -49,14 +49,14 @@ class EventSystem extends EventEmitter
 			try
 				@emit eventName+':locked'
 			catch err
-				next?(err)
+				next(err)
 				return @
 			finally
-				next?()
+				next()
 		else
 			# Wait until the current task has finished
 			@onceUnlocked eventName, (err) =>
-				return next?(err)  if err
+				return next(err)  if err
 				# Then try again
 				@lock eventName, next
 
@@ -75,10 +75,10 @@ class EventSystem extends EventEmitter
 		try
 			@emit eventName+':unlocked'
 		catch err
-			next?(err)
+			next(err)
 			return @
 		finally
-			next?()
+			next()
 		# Chain
 		@
 
@@ -91,7 +91,7 @@ class EventSystem extends EventEmitter
 		# Grab a locak
 		@lock eventName, (err) =>
 			# Error?
-			return next?(err)  if err
+			return next(err)  if err
 			# Grab the event
 			event = @event eventName
 			# Set as started
@@ -101,10 +101,10 @@ class EventSystem extends EventEmitter
 			try
 				@emit eventName+':started'
 			catch err
-				next?(err)
+				next(err)
 				return @
 			finally
-				next?()
+				next()
 		# Chain
 		@
 
@@ -125,16 +125,16 @@ class EventSystem extends EventEmitter
 		# Unlock
 		@unlock eventName, (err) =>
 			# Error?
-			return next?(err)  if err
+			return next(err)  if err
 			# Trigger our event
 			# then fire our callback
 			try
 				@emit eventName+':finished'
 			catch err
-				next?(err)
+				next(err)
 				return @
 			finally
-				next?()
+				next()
 		# Chain
 		@
 
@@ -151,7 +151,7 @@ class EventSystem extends EventEmitter
 			@once eventName+':unlocked', next
 		else
 			# Fire our callback now
-			next?()
+			next()
 		# Chain
 		@
 
@@ -163,7 +163,7 @@ class EventSystem extends EventEmitter
 		# Check finish status
 		if event.finished
 			# Fire our callback now
-			next?()
+			next()
 		else
 			# Wait until our event has finished to fire the callback
 			@once eventName+':finished', next
@@ -178,7 +178,7 @@ class EventSystem extends EventEmitter
 		# Check finish status
 		if event.finished
 			# Fire our callback now
-			next?()
+			next()
 		# Everytime our even has finished, fire the callback
 		@on eventName+':finished', next
 		# Chain
@@ -196,7 +196,8 @@ class EventSystem extends EventEmitter
 			if typeof eventNames is 'string'
 				eventNames = eventNames.split /[,\s]+/g
 			else
-				return next? new Error 'Unknown eventNames type'
+				err = new Error('Unknown eventNames type')
+				return next(err)
 		total = eventNames.length
 		done = 0
 		# Block these events
@@ -205,11 +206,11 @@ class EventSystem extends EventEmitter
 				# Error?
 				if err
 					done = total
-					return next?(err)
+					return next(err)
 				# Increment
 				done++
 				if done is total
-					next?()
+					next()
 		# Chain
 		@
 
@@ -221,7 +222,8 @@ class EventSystem extends EventEmitter
 			if typeof eventNames is 'string'
 				eventNames = eventNames.split /[,\s]+/g
 			else
-				return next? new Error 'Unknown eventNames type'
+				err = new Error('Unknown eventNames type')
+				return next(err)
 		total = eventNames.length
 		done = 0
 		# Block these events
@@ -230,11 +232,11 @@ class EventSystem extends EventEmitter
 				# Error?
 				if err
 					done = total
-					return next?(err)
+					return next(err)
 				# Increment
 				done++
 				if done is total
-					next?()
+					next()
 		# Chain
 		@
 

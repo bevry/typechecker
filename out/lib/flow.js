@@ -220,9 +220,7 @@
         } else {
           this.hasExited(true);
         }
-        if (typeof this.next === "function") {
-          this.next(errors, lastResult, results);
-        }
+        this.next(errors, lastResult, results);
       }
       return this;
     };

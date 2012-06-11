@@ -229,7 +229,7 @@ balUtilFlow.Group = class
 				@clear()
 			else
 				@hasExited(true)
-			@next?(errors,lastResult,results)
+			@next(errors,lastResult,results)
 
 		# Chain
 		@

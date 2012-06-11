@@ -52,19 +52,15 @@
         try {
           this.emit(eventName + ':locked');
         } catch (err) {
-          if (typeof next === "function") {
-            next(err);
-          }
+          next(err);
           return this;
         } finally {
-          if (typeof next === "function") {
-            next();
-          }
+          next();
         }
       } else {
         this.onceUnlocked(eventName, function(err) {
           if (err) {
-            return typeof next === "function" ? next(err) : void 0;
+            return next(err);
           }
           return _this.lock(eventName, next);
         });
@@ -79,14 +75,10 @@
       try {
         this.emit(eventName + ':unlocked');
       } catch (err) {
-        if (typeof next === "function") {
-          next(err);
-        }
+        next(err);
         return this;
       } finally {
-        if (typeof next === "function") {
-          next();
-        }
+        next();
       }
       return this;
     };
@@ -96,21 +88,17 @@
       this.lock(eventName, function(err) {
         var event;
         if (err) {
-          return typeof next === "function" ? next(err) : void 0;
+          return next(err);
         }
         event = _this.event(eventName);
         event.finished = false;
         try {
           return _this.emit(eventName + ':started');
         } catch (err) {
-          if (typeof next === "function") {
-            next(err);
-          }
+          next(err);
           return _this;
         } finally {
-          if (typeof next === "function") {
-            next();
-          }
+          next();
         }
       });
       return this;
@@ -129,19 +117,15 @@
       event.finished = true;
       this.unlock(eventName, function(err) {
         if (err) {
-          return typeof next === "function" ? next(err) : void 0;
+          return next(err);
         }
         try {
           return _this.emit(eventName + ':finished');
         } catch (err) {
-          if (typeof next === "function") {
-            next(err);
-          }
+          next(err);
           return _this;
         } finally {
-          if (typeof next === "function") {
-            next();
-          }
+          next();
         }
       });
       return this;
@@ -156,9 +140,7 @@
       if (event.locked) {
         this.once(eventName + ':unlocked', next);
       } else {
-        if (typeof next === "function") {
-          next();
-        }
+        next();
       }
       return this;
     };
@@ -167,9 +149,7 @@
       var event;
       event = this.event(eventName);
       if (event.finished) {
-        if (typeof next === "function") {
-          next();
-        }
+        next();
       } else {
         this.once(eventName + ':finished', next);
       }
@@ -180,9 +160,7 @@
       var event;
       event = this.event(eventName);
       if (event.finished) {
-        if (typeof next === "function") {
-          next();
-        }
+        next();
       }
       this.on(eventName + ':finished', next);
       return this;
@@ -195,12 +173,13 @@
     };
 
     EventSystem.prototype.block = function(eventNames, next) {
-      var done, eventName, total, _i, _len;
+      var done, err, eventName, total, _i, _len;
       if ((eventNames instanceof Array) === false) {
         if (typeof eventNames === 'string') {
           eventNames = eventNames.split(/[,\s]+/g);
         } else {
-          return typeof next === "function" ? next(new Error('Unknown eventNames type')) : void 0;
+          err = new Error('Unknown eventNames type');
+          return next(err);
         }
       }
       total = eventNames.length;
@@ -210,11 +189,11 @@
         this.lock(eventName, function(err) {
           if (err) {
             done = total;
-            return typeof next === "function" ? next(err) : void 0;
+            return next(err);
           }
           done++;
           if (done === total) {
-            return typeof next === "function" ? next() : void 0;
+            return next();
           }
         });
       }
@@ -222,12 +201,13 @@
     };
 
     EventSystem.prototype.unblock = function(eventNames, next) {
-      var done, eventName, total, _i, _len;
+      var done, err, eventName, total, _i, _len;
       if ((eventNames instanceof Array) === false) {
         if (typeof eventNames === 'string') {
           eventNames = eventNames.split(/[,\s]+/g);
         } else {
-          return typeof next === "function" ? next(new Error('Unknown eventNames type')) : void 0;
+          err = new Error('Unknown eventNames type');
+          return next(err);
         }
       }
       total = eventNames.length;
@@ -237,11 +217,11 @@
         this.unlock(eventName, function(err) {
           if (err) {
             done = total;
-            return typeof next === "function" ? next(err) : void 0;
+            return next(err);
           }
           done++;
           if (done === total) {
-            return typeof next === "function" ? next() : void 0;
+            return next();
           }
         });
       }
