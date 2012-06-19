@@ -1,5 +1,8 @@
 ## History
 
+- v1.8.7 June 19, 2012
+	- Defaulted `dependencies` to an empty object, to hopefully fix [npm issue #2540](https://github.com/isaacs/npm/pull/2540)
+
 - v1.8.6 June 19, 2012
 	- Split `emitSync` and `emitAsync` out of `EventSystem` and into new `EventEmitterEnhanced` that `EventSystem` extends
 
