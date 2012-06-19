@@ -1,5 +1,8 @@
 ## History
 
+- v1.8.6 June 19, 2012
+	- Split `emitSync` and `emitAsync` out of `EventSystem` and into new `EventEmitterEnhanced` that `EventSystem` extends
+
 - v1.8.5 June 11, 2012
 	- Made next callbacks necessary by default
 

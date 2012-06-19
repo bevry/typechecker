@@ -5,11 +5,50 @@ debug = false
 
 
 # =====================================
-# Event & EventSystem
+# EventEmitterEnhanced
 # Extends the standard EventEmitter with support for:
+# - support for emitting events both async and sync
+
+class EventEmitterEnhanced extends EventEmitter
+
+	# Emit a group of listeners asynchronously
+	# next(err,result,results)
+	emitAsync: (eventName,data,next) ->
+		# Get listeners
+		listeners = @listeners(eventName)
+		# Prepare tasks
+		tasks = new balUtilFlow.Group(next)
+		# Add the tasks for the listeners
+		balUtilFlow.each listeners, (listener) ->
+			tasks.push (complete) ->
+				listener(data,complete)
+		# Trigger asynchronously
+		tasks.async()
+		# Chain
+		@
+
+	# Emit a group of listeners synchronously
+	# next(err,result,results)
+	emitSync: (eventName,data,next) ->
+		# Get listeners
+		listeners = @listeners(eventName)
+		# Prepare tasks
+		tasks = new balUtilFlow.Group(next)
+		# Add the tasks for the listeners
+		balUtilFlow.each listeners, (listener) ->
+			tasks.push (complete) ->
+				listener(data,complete)
+		# Trigger synchronously
+		tasks.sync()
+		# Chain
+		@
+
+
+# =====================================
+# Event & EventSystem
+# Extends the EventEmitterEnhanced with support for:
 # - blocking events
 # - start and finish events
-# - cycling synchronous events
 
 # Event
 class Event
@@ -23,7 +62,7 @@ class Event
 	constructor: ({@name}) ->
 
 # EventSystem
-class EventSystem extends EventEmitter
+class EventSystem extends EventEmitterEnhanced
 	# Event store
 	# initialised in our event function to prevent javascript reference problems
 	_eventSystemEvents: null
@@ -240,40 +279,9 @@ class EventSystem extends EventEmitter
 		# Chain
 		@
 
-	# Emit a group of listeners asynchronously
-	# next(err,result,results)
-	emitAsync: (eventName,data,next) ->
-		# Get listeners
-		listeners = @listeners(eventName)
-		# Prepare tasks
-		tasks = new balUtilFlow.Group(next)
-		# Add the tasks for the listeners
-		balUtilFlow.each listeners, (listener) ->
-			tasks.push (complete) ->
-				listener(data,complete)
-		# Trigger asynchronously
-		tasks.async()
-		# Chain
-		@
-
-	# Emit a group of listeners synchronously
-	# next(err,result,results)
-	emitSync: (eventName,data,next) ->
-		# Get listeners
-		listeners = @listeners(eventName)
-		# Prepare tasks
-		tasks = new balUtilFlow.Group(next)
-		# Add the tasks for the listeners
-		balUtilFlow.each listeners, (listener) ->
-			tasks.push (complete) ->
-				listener(data,complete)
-		# Trigger synchronously
-		tasks.sync()
-		# Chain
-		@
 
 
 # =====================================
 # Export
 
-module.exports = {Event,EventSystem}
+module.exports = {EventEmitterEnhanced,Event,EventSystem}
