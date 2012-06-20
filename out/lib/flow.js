@@ -260,9 +260,18 @@
     };
 
     _Class.prototype.runTask = function(task) {
+      var me, run;
+      me = this;
       try {
-        ++this.running;
-        task(this.completer());
+        run = function() {
+          ++me.running;
+          return task(me.completer());
+        };
+        if (this.completed && this.completed % 100 === 0) {
+          setTimeout(run, 0);
+        } else {
+          run();
+        }
       } catch (err) {
         this.complete(err);
       }

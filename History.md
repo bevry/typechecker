@@ -1,5 +1,8 @@
 ## History
 
+- v1.8.8 June 19, 2012
+	- Fixed a problem where if we had a group of say ten thousand tasks then it could crash node
+
 - v1.8.7 June 19, 2012
 	- Defaulted `dependencies` to an empty object, to hopefully fix [npm issue #2540](https://github.com/isaacs/npm/pull/2540)
 

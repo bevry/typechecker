@@ -277,10 +277,22 @@ balUtilFlow.Group = class
 
 	# Run a task
 	runTask: (task) ->
+		# Prepare
+		me = @
+
 		# Run it, and catch errors
 		try
-			++@running
-			task @completer()
+			run = ->
+				++me.running
+				task me.completer()
+			# Every hundredth task, fire with an immediate timeout, otherwise node crashes
+			# if we are running with a set that is huge (e.g. ten thousand)
+			# node will throw a segemantion fault / maximum call stack exceeded / range error
+			if @completed and @completed % 100 is 0
+				setTimeout(run,0)
+			# Otherwise run the task right away
+			else
+				run()
 		catch err
 			@complete(err)
 
