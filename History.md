@@ -1,5 +1,11 @@
 ## History
 
+- v1.9.0 June 21, 2012
+	- `balUtilFlow` changes:
+		- `EventEmitterEnhanced` changes:
+			- `emitSync` and `emitAsync` changes:
+				- The next callback is now optional, if it is not detected then we will automatically mark the listener as completed once we have executed it (in other words, if it doesn't have a next callback, then we treat it as a synchronous listener)
+
 - v1.8.8 June 19, 2012
 	- Fixed a problem where if we had a group of say ten thousand tasks then it could crash node
 

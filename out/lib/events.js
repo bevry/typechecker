@@ -25,7 +25,18 @@
       tasks = new balUtilFlow.Group(next);
       balUtilFlow.each(listeners, function(listener) {
         return tasks.push(function(complete) {
-          return listener(data, complete);
+          var err, result;
+          if (listener.length === 1) {
+            result = listener(data);
+            if (result instanceof Error) {
+              err = result;
+            } else {
+              err = null;
+            }
+            return complete(err, result);
+          } else {
+            return listener(data, complete);
+          }
         });
       });
       tasks.async();
@@ -38,7 +49,18 @@
       tasks = new balUtilFlow.Group(next);
       balUtilFlow.each(listeners, function(listener) {
         return tasks.push(function(complete) {
-          return listener(data, complete);
+          var err, result;
+          if (listener.length === 1) {
+            result = listener(data);
+            if (result instanceof Error) {
+              err = result;
+            } else {
+              err = null;
+            }
+            return complete(err, result);
+          } else {
+            return listener(data, complete);
+          }
         });
       });
       tasks.sync();

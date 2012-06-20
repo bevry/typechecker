@@ -21,7 +21,17 @@ class EventEmitterEnhanced extends EventEmitter
 		# Add the tasks for the listeners
 		balUtilFlow.each listeners, (listener) ->
 			tasks.push (complete) ->
-				listener(data,complete)
+				# Sync
+				if listener.length is 1
+					result = listener(data)
+					if result instanceof Error
+						err = result
+					else
+						err = null
+					complete(err,result)
+				# Async
+				else
+					listener(data,complete)
 		# Trigger asynchronously
 		tasks.async()
 		# Chain
@@ -37,7 +47,17 @@ class EventEmitterEnhanced extends EventEmitter
 		# Add the tasks for the listeners
 		balUtilFlow.each listeners, (listener) ->
 			tasks.push (complete) ->
-				listener(data,complete)
+				# Sync
+				if listener.length is 1
+					result = listener(data)
+					if result instanceof Error
+						err = result
+					else
+						err = null
+					complete(err,result)
+				# Async
+				else
+					listener(data,complete)
 		# Trigger synchronously
 		tasks.sync()
 		# Chain

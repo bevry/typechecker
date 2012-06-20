@@ -1,6 +1,3 @@
-# Requires
-joe = require('joe')
-
 # Tests
 require(__dirname+'/compare.test')
 require(__dirname+'/events.test')
