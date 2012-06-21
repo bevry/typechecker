@@ -176,7 +176,7 @@ balUtilModules =
 		pathUtil = require('path')
 
 		# Extract
-		{path,nodePath,npmPath,force,logger,next} = opts
+		{path,nodePath,npmPath,force,logger,output,next} = opts
 		npmPath or= 'npm'  # default to global npm installation
 
 		# Paths
@@ -192,7 +192,7 @@ balUtilModules =
 			return next()
 
 		# Use npm with node
-		if opts.nodePath
+		if nodePath
 			command =
 				command: nodePath
 				args: [npmPath, 'install']
@@ -204,7 +204,7 @@ balUtilModules =
 
 		# Execute npm install inside the pugin directory
 		logger.log 'debug', "Initializing node modules\non:   #{dirPath}\nwith:",command  if logger
-		balUtilModules.spawn command, {cwd:path}, (err,results) ->
+		balUtilModules.spawn command, {cwd:path,output}, (err,results) ->
 			if logger
 				logger.log 'debug', "Initialized node modules\non:   #{dirPath}\nwith:",command  if logger
 			return next(err,results)

@@ -140,12 +140,12 @@
       });
     },
     initNodeModules: function(opts) {
-      var command, force, logger, next, nodeModulesPath, nodePath, npmPath, packageJsonPath, path, pathUtil;
+      var command, force, logger, next, nodeModulesPath, nodePath, npmPath, output, packageJsonPath, path, pathUtil;
       if (opts == null) {
         opts = {};
       }
       pathUtil = require('path');
-      path = opts.path, nodePath = opts.nodePath, npmPath = opts.npmPath, force = opts.force, logger = opts.logger, next = opts.next;
+      path = opts.path, nodePath = opts.nodePath, npmPath = opts.npmPath, force = opts.force, logger = opts.logger, output = opts.output, next = opts.next;
       npmPath || (npmPath = 'npm');
       packageJsonPath = pathUtil.join(path, 'package.json');
       nodeModulesPath = pathUtil.join(path, 'node_modules');
@@ -155,7 +155,7 @@
       if (!pathUtil.existsSync(packageJsonPath)) {
         return next();
       }
-      if (opts.nodePath) {
+      if (nodePath) {
         command = {
           command: nodePath,
           args: [npmPath, 'install']
@@ -170,7 +170,8 @@
         logger.log('debug', "Initializing node modules\non:   " + dirPath + "\nwith:", command);
       }
       balUtilModules.spawn(command, {
-        cwd: path
+        cwd: path,
+        output: output
       }, function(err, results) {
         if (logger) {
           if (logger) {

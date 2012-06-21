@@ -1,5 +1,9 @@
 ## History
 
+- v1.9.1 June 21, 2012
+	- `balUtilModule` changes:
+		- `initNodeModules` now supports `output` option
+
 - v1.9.0 June 21, 2012
 	- `balUtilFlow` changes:
 		- `EventEmitterEnhanced` changes:
