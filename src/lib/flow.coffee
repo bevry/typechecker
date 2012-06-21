@@ -11,6 +11,16 @@ balUtilFlow =
 	# Flow
 	# Flow based helpers
 
+	# Extract the correct options and completion callback from the passed arguments
+	extractOptsAndCallback: (opts,next) ->
+		if typeof opts is 'function' and next? is false
+			next = opts
+			opts = {}
+		else
+			opts or= {}
+		next or= opts.next or null
+		return [opts,next]
+
 	# Fire a function with an optional callback
 	fireWithOptionalCallback: (method,args,context) ->
 		# Prepare
@@ -54,6 +64,15 @@ balUtilFlow =
 	# Is an item an array
 	isArray: (obj) ->
 		return @toString(obj) is '[object Array]'
+
+	# Extend
+	extend: (target,objs...) ->
+		target or= {}
+		for obj in objs
+			obj or= {}
+			for own key,value of obj
+				target[key] = value
+		return target
 
 	# Cycle through each item in an array or object
 	each: (obj,callback,context) ->

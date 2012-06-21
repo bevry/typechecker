@@ -7,6 +7,6 @@ compile:
 	./node_modules/.bin/coffee -o out/ -c src/
 
 test:
-	node ./node_modules/mocha/bin/mocha
+	npm test
 
 .PHONY: dev compile test
