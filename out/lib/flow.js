@@ -6,6 +6,32 @@
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   balUtilFlow = {
+    fireWithOptionalCallback: function(method, args, context) {
+      var callback, err, result;
+      args || (args = []);
+      callback = args[args.length - 1];
+      context || (context = null);
+      result = null;
+      if (method.length === args.length) {
+        try {
+          result = method.apply(context, args);
+        } catch (caughtError) {
+          callback(caughtError);
+        }
+      } else {
+        err = null;
+        try {
+          result = method.apply(context, args);
+          if (result instanceof Error) {
+            err = result;
+          }
+        } catch (caughtError) {
+          err = caughtError;
+        }
+        callback(err, result);
+      }
+      return result;
+    },
     toString: function(obj) {
       return Object.prototype.toString.call(obj);
     },
@@ -405,20 +431,7 @@
           return complete(err);
         };
         block.blockTaskBefore(block, name);
-        if (fn.length < 1) {
-          try {
-            fn();
-            return preComplete();
-          } catch (err) {
-            return preComplete(err);
-          }
-        } else {
-          try {
-            return fn(preComplete);
-          } catch (err) {
-            return preComplete(err);
-          }
-        }
+        return balUtilFlow.fireWithOptionalCallback(fn, [preComplete]);
       });
       return this;
     };

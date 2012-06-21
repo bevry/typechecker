@@ -11,6 +11,42 @@ balUtilFlow =
 	# Flow
 	# Flow based helpers
 
+	# Fire a function with an optional callback
+	fireWithOptionalCallback: (method,args,context) ->
+		# Prepare
+		args or= []
+		callback = args[args.length-1]
+		context or= null
+		result = null
+
+		# We have the callback
+		# assume it is async
+		if method.length is args.length
+			# Fire the function
+			try
+				result = method.apply(context,args)
+			catch caughtError
+				callback(caughtError)
+
+		# We don't have the callback
+		# assume it is sync
+		else
+			# Prepare
+			err = null
+
+			# Fire the function
+			try
+				result = method.apply(context,args)
+				err = result  if result instanceof Error
+			catch caughtError
+				err = caughtError
+
+			# Fire the callback
+			callback(err,result)
+
+		# Return the result
+		return result
+
 	# Is an item a string
 	toString: (obj) ->
 		return Object::toString.call(obj)
@@ -426,19 +462,8 @@ balUtilFlow.Block = class extends balUtilFlow.Group
 			# Event
 			block.blockTaskBefore(block,name)
 
-			# If a callback was not specified, fire the funciton, and complete right away
-			if fn.length < 1
-				try
-					fn()
-					preComplete()
-				catch err
-					preComplete(err)
-			# If a callback was specified, fire the function (user will call complete manually)
-			else
-				try
-					fn(preComplete)
-				catch err
-					preComplete(err)
+			# Fire the task, treating the callback as optional
+			balUtilFlow.fireWithOptionalCallback(fn,[preComplete])
 
 		# Chain
 		@

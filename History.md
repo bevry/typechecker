@@ -1,11 +1,15 @@
 ## History
 
+- v1.9.2 June 21, 2012
+	- `balUtilFlow` changes:
+		- Added `fireWithOptionalCallback`, updated groups and emitters to use this
+
 - v1.9.1 June 21, 2012
-	- `balUtilModule` changes:
+	- `balUtilModules` changes:
 		- `initNodeModules` now supports `output` option
 
 - v1.9.0 June 21, 2012
-	- `balUtilFlow` changes:
+	- `balUtilEvents` changes:
 		- `EventEmitterEnhanced` changes:
 			- `emitSync` and `emitAsync` changes:
 				- The next callback is now optional, if it is not detected then we will automatically mark the listener as completed once we have executed it (in other words, if it doesn't have a next callback, then we treat it as a synchronous listener)
@@ -17,7 +21,8 @@
 	- Defaulted `dependencies` to an empty object, to hopefully fix [npm issue #2540](https://github.com/isaacs/npm/pull/2540)
 
 - v1.8.6 June 19, 2012
-	- Split `emitSync` and `emitAsync` out of `EventSystem` and into new `EventEmitterEnhanced` that `EventSystem` extends
+	- `balUtilEvents` changes:
+		- Split `emitSync` and `emitAsync` out of `EventSystem` and into new `EventEmitterEnhanced` that `EventSystem` extends
 
 - v1.8.5 June 11, 2012
 	- Made next callbacks necessary by default
