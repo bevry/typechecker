@@ -50,7 +50,7 @@
 - v1.8.1 June 9, 2012
 	- Restructured directories
 	- Removed generated docs, use the wiki instead
-	- Now using [Joe](https://github.com/bevry/joe) for tests
+	- Moved tests from Mocha to [Joe](https://github.com/bevry/joe)
 	- Travis now tests against node v0.7
 	- `balUtilPaths` changes:
 		- Added `exists` and `existsSync` to normalize node's 0.6 to 0.8 api differences
