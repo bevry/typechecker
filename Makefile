@@ -6,7 +6,11 @@ dev:
 compile:
 	./node_modules/.bin/coffee -o out/ -c src/
 
+clean:
+	rm -Rf lib node_modules/ npm-debug.log
+	npm install
+
 test:
 	npm test
 
-.PHONY: dev compile test
+.PHONY: dev compile clean test

@@ -1,5 +1,9 @@
 ## History
 
+- v1.9.3 June 22, 2012
+	- `balUtilFlow` changes:
+		- Added `extractOptsAndCallback` and `extend`
+
 - v1.9.2 June 21, 2012
 	- `balUtilFlow` changes:
 		- Added `fireWithOptionalCallback`, updated groups and emitters to use this
