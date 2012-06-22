@@ -230,6 +230,7 @@ balUtilFlow.Group = class
 	complete: (args...) ->
 		# Push the result
 		err = args[0] or undefined
+		# console.log(err)  if err
 		@lastResult = args
 		@errors.push(err)  if err
 		@results.push(args)
@@ -340,10 +341,10 @@ balUtilFlow.Group = class
 			run = ->
 				++me.running
 				task me.completer()
-			# Every hundredth task, fire with an immediate timeout, otherwise node crashes
-			# if we are running with a set that is huge (e.g. ten thousand)
-			# node will throw a segemantion fault / maximum call stack exceeded / range error
-			if @completed and @completed % 100 is 0
+			# Fire with an immediate timeout for async loads, and every hundredth sync task, except for the first
+			# otherwise if we are under a stressful load node will crash with
+			# a segemantion fault / maximum call stack exceeded / range error
+			if @completed isnt 0 and (@mode is 'async' or (@completed % 100) is 0)
 				setTimeout(run,0)
 			# Otherwise run the task right away
 			else

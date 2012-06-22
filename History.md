@@ -1,5 +1,8 @@
 ## History
 
+- v1.9.4 June 22, 2012
+	- Fixed a problem with large asynchronous groups
+
 - v1.9.3 June 22, 2012
 	- `balUtilFlow` changes:
 		- Added `extractOptsAndCallback` and `extend`
@@ -19,7 +22,7 @@
 				- The next callback is now optional, if it is not detected then we will automatically mark the listener as completed once we have executed it (in other words, if it doesn't have a next callback, then we treat it as a synchronous listener)
 
 - v1.8.8 June 19, 2012
-	- Fixed a problem where if we had a group of say ten thousand tasks then it could crash node
+	- Fixed a problem with large synchronous groups
 
 - v1.8.7 June 19, 2012
 	- Defaulted `dependencies` to an empty object, to hopefully fix [npm issue #2540](https://github.com/isaacs/npm/pull/2540)

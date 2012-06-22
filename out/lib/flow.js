@@ -318,7 +318,7 @@
           ++me.running;
           return task(me.completer());
         };
-        if (this.completed && this.completed % 100 === 0) {
+        if (this.completed !== 0 && (this.mode === 'async' || (this.completed % 100) === 0)) {
           setTimeout(run, 0);
         } else {
           run();
