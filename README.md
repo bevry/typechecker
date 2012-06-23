@@ -7,7 +7,7 @@ This project contains several utility functions used and maintained by Benjamin 
 
 
 ## Installing
-1. [Install Node.js](https://github.com/balupton/node/wiki/Installing-Node.js)
+1. [Install Node.js](https://github.com/bevry/community/wiki/Installing-Node)
 
 2. Install it
 
