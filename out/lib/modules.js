@@ -9,15 +9,19 @@
 
   balUtilModules = {
     spawn: function(commands, options, callback) {
-      var command, createHandler, exec, results, spawn, tasks, _i, _len, _ref;
-      _ref = require('child_process'), spawn = _ref.spawn, exec = _ref.exec;
+      var results, spawn, tasks, _ref;
+      _ref = balUtilFlow.extractOptsAndCallback(options, callback), options = _ref[0], callback = _ref[1];
+      spawn = require('child_process').spawn;
       results = [];
       options || (options = {});
       tasks = new balUtilFlow.Group(function(err) {
         return callback.apply(callback, [err, results]);
       });
-      createHandler = function(command) {
-        return function() {
+      if (!(commands instanceof Array)) {
+        commands = [commands];
+      }
+      balUtilFlow.each(commands, function(command) {
+        return tasks.push(function(complete) {
           var err, pid, stderr, stdout;
           pid = null;
           err = null;
@@ -53,45 +57,58 @@
               err = new Error(stderr || 'exited with failure code');
             }
             results.push([err, stdout, stderr, code, signal]);
-            return tasks.complete(err);
+            return complete(err);
           });
-        };
-      };
-      if (!(commands instanceof Array)) {
-        commands = [commands];
-      }
-      for (_i = 0, _len = commands.length; _i < _len; _i++) {
-        command = commands[_i];
-        tasks.push(createHandler(command));
-      }
+        });
+      });
       tasks.sync();
       return this;
     },
     exec: function(commands, options, callback) {
-      var command, createHandler, exec, results, spawn, tasks, _i, _len, _ref;
-      _ref = require('child_process'), spawn = _ref.spawn, exec = _ref.exec;
+      var exec, results, tasks, _ref;
+      _ref = balUtilFlow.extractOptsAndCallback(options, callback), options = _ref[0], callback = _ref[1];
+      exec = require('child_process').exec;
       results = [];
       tasks = new balUtilFlow.Group(function(err) {
         return callback.apply(callback, [err, results]);
       });
-      createHandler = function(command) {
-        return function() {
+      if (!(commands instanceof Array)) {
+        commands = [commands];
+      }
+      balUtilFlow.each(commands, function(command) {
+        return tasks.push(function(complete) {
           return exec(command, options, function() {
             var args, err;
             args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
             err = args[0] || null;
             results.push(args);
-            return tasks.complete(err);
+            return complete(err);
           });
-        };
-      };
-      if (!(commands instanceof Array)) {
-        commands = [commands];
-      }
-      for (_i = 0, _len = commands.length; _i < _len; _i++) {
-        command = commands[_i];
-        tasks.push(createHandler(command));
-      }
+        });
+      });
+      tasks.sync();
+      return this;
+    },
+    getGitPath: function(next) {
+      var foundGitPath, pathUtil, possibleGitPaths, tasks;
+      pathUtil = require('path');
+      foundGitPath = null;
+      possibleGitPaths = process.platform.indexOf('win') !== -1 ? ['git', pathUtil.join('%ProgramFiles%', 'Git', 'bin', 'git'), pathUtil.join('%ProgramFiles(x86)%', 'Git', 'bin', 'git')] : ['git', '/usr/local/bin/git', '/usr/bin/git'];
+      tasks = new balUtilFlow.Group(function(err) {
+        return next(err, foundGitPath);
+      });
+      balUtilFlow.each(possibleGitPaths, function(possibleGitPath) {
+        return tasks.push(function(complete) {
+          return balUtilModules.spawn([[possibleGitPath, '--version']], function(err, results) {
+            if (!err) {
+              foundGitPath = possibleGitPath;
+              return tasks.exit();
+            } else {
+              return complete();
+            }
+          });
+        });
+      });
       tasks.sync();
       return this;
     },

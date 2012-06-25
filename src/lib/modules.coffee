@@ -15,8 +15,9 @@ balUtilModules =
 	# And fires the callback once they have all completed
 	# callback(err,results) where args are the result of the exec
 	spawn: (commands,options,callback) ->
-		# Requires
-		{spawn,exec} = require('child_process')
+		# Prepare
+		[options,callback] = balUtilFlow.extractOptsAndCallback(options,callback)
+		{spawn} = require('child_process')
 
 		# Sync
 		results = []
@@ -26,52 +27,47 @@ balUtilModules =
 		tasks = new balUtilFlow.Group (err) ->
 			return callback.apply(callback,[err,results])
 
-		# Make sure we send back the arguments
-		createHandler = (command) ->
-			return ->
-				# Prepare
-				pid = null
-				err = null
-				stdout = ''
-				stderr = ''
-
-				# Prepare format
-				if typeof command is 'string'
-					command = command.split(' ')
-
-				# Execute command
-				if command instanceof Array
-					pid = spawn(command[0], command.slice(1), options)
-				else
-					pid = spawn(command.command, command.args or [], command.options or options)
-
-				# Fetch
-				pid.stdout.on 'data', (data) ->
-					dataStr = data.toString()
-					if options.output
-						process.stdout.write(dataStr)
-					stdout += dataStr
-				pid.stderr.on 'data', (data) ->
-					dataStr = data.toString()
-					if options.output
-						process.stderr.write(dataStr)
-					stderr += dataStr
-
-				# Wait
-				pid.on 'exit', (code, signal) ->
-					err = null
-					if code is 1
-						err = new Error(stderr or 'exited with failure code')
-					results.push [err,stdout,stderr,code,signal]
-					tasks.complete(err)
-
 		# Prepare tasks
 		unless commands instanceof Array
 			commands = [commands]
 
 		# Add tasks
-		for command in commands
-			tasks.push createHandler command
+		balUtilFlow.each commands, (command) -> tasks.push (complete) ->
+			# Prepare
+			pid = null
+			err = null
+			stdout = ''
+			stderr = ''
+
+			# Prepare format
+			if typeof command is 'string'
+				command = command.split(' ')
+
+			# Execute command
+			if command instanceof Array
+				pid = spawn(command[0], command.slice(1), options)
+			else
+				pid = spawn(command.command, command.args or [], command.options or options)
+
+			# Fetch
+			pid.stdout.on 'data', (data) ->
+				dataStr = data.toString()
+				if options.output
+					process.stdout.write(dataStr)
+				stdout += dataStr
+			pid.stderr.on 'data', (data) ->
+				dataStr = data.toString()
+				if options.output
+					process.stderr.write(dataStr)
+				stderr += dataStr
+
+			# Wait
+			pid.on 'exit', (code, signal) ->
+				err = null
+				if code is 1
+					err = new Error(stderr or 'exited with failure code')
+				results.push [err,stdout,stderr,code,signal]
+				complete(err)
 
 		# Run the tasks synchronously
 		tasks.sync()
@@ -84,8 +80,9 @@ balUtilModules =
 	# And fires the callback once they have all completed
 	# callback(err,results) where args are the result of the exec
 	exec: (commands,options,callback) ->
-		# Requires
-		{spawn,exec} = require('child_process')
+		# Prepare
+		[options,callback] = balUtilFlow.extractOptsAndCallback(options,callback)
+		{exec} = require('child_process')
 
 		# Sync
 		results = []
@@ -94,26 +91,21 @@ balUtilModules =
 		tasks = new balUtilFlow.Group (err) ->
 			return callback.apply(callback,[err,results])
 
-		# Make sure we send back the arguments
-		createHandler = (command) ->
-			return ->
-				exec command, options, (args...) ->
-					# Prepare
-					err = args[0] or null
-
-					# Push args to result list
-					results.push args
-
-					# Complete the task
-					tasks.complete(err)
-
 		# Prepare tasks
 		unless commands instanceof Array
 			commands = [commands]
 
 		# Add tasks
-		for command in commands
-			tasks.push createHandler command
+		balUtilFlow.each commands, (command) -> tasks.push (complete) ->
+			exec command, options, (args...) ->
+				# Prepare
+				err = args[0] or null
+
+				# Push args to result list
+				results.push args
+
+				# Complete the task
+				complete(err)
 
 		# Run the tasks synchronously
 		tasks.sync()
@@ -125,6 +117,47 @@ balUtilModules =
 
 	# =================================
 	# Git
+
+	# Get git path
+	getGitPath: (next) ->
+		# Prepare
+		pathUtil = require('path')
+		foundGitPath = null
+		possibleGitPaths =
+			# Windows
+			if process.platform.indexOf('win') isnt -1
+				[
+					'git'
+					pathUtil.join('%ProgramFiles%','Git','bin','git')
+					pathUtil.join('%ProgramFiles(x86)%','Git','bin','git')
+				]
+			# Everything else
+			else
+				[
+					'git'
+					'/usr/local/bin/git'
+					'/usr/bin/git'
+				]
+
+		# Group
+		tasks = new balUtilFlow.Group (err) ->
+			next(err,foundGitPath)
+
+		# Handle
+		balUtilFlow.each possibleGitPaths, (possibleGitPath) ->
+			tasks.push (complete) ->
+				balUtilModules.spawn [[possibleGitPath, '--version']], (err,results) ->
+					unless err
+						foundGitPath = possibleGitPath
+						tasks.exit()
+					else
+						complete()
+
+		# Fire the tasks synchronously
+		tasks.sync()
+
+		# Chain
+		@
 
 	# Initialize a Git Repository
 	# Requires internet access
