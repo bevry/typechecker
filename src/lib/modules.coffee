@@ -166,10 +166,9 @@ balUtilModules =
 		# Handle
 		balUtilFlow.each possibleGitPaths, (possibleGitPath) ->
 			tasks.push (complete) ->
-				balUtilModules.spawn [possibleGitPath, '--version'], (err,results) ->
-					result = results[0]
+				balUtilModules.spawn [possibleGitPath, '--version'], (err,stdout,stderr,code,signal) ->
 					# Problem
-					if err or result[0] or result[2]
+					if err
 						complete()
 					# Good
 					else
@@ -190,10 +189,9 @@ balUtilModules =
 		possibleNodePath = if /node$/.test(process.execPath) then process.execPath else 'node'
 
 		# Test
-		balUtilModules.spawn [possibleNodePath, '--version'], (err,results) ->
-			result = results[0]
+		balUtilModules.spawn [possibleNodePath, '--version'], (err,stdout,stderr,code,signal) ->
 			# Problem
-			if err or result[0] or result[2]
+			if err
 				# do nothing
 			# Good
 			else

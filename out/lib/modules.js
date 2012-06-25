@@ -116,10 +116,9 @@
       });
       balUtilFlow.each(possibleGitPaths, function(possibleGitPath) {
         return tasks.push(function(complete) {
-          return balUtilModules.spawn([possibleGitPath, '--version'], function(err, results) {
-            var result;
-            result = results[0];
-            if (err || result[0] || result[2]) {
+          return balUtilModules.spawn([possibleGitPath, '--version'], function(err, stdout, stderr, code, signal) {
+            console.log(possibleGitPath, arguments);
+            if (err) {
               return complete();
             } else {
               foundGitPath = possibleGitPath;
@@ -135,10 +134,8 @@
       var nodePath, possibleNodePath;
       nodePath = null;
       possibleNodePath = /node$/.test(process.execPath) ? process.execPath : 'node';
-      balUtilModules.spawn([possibleNodePath, '--version'], function(err, results) {
-        var result;
-        result = results[0];
-        if (err || result[0] || result[2]) {
+      balUtilModules.spawn([possibleNodePath, '--version'], function(err, stdout, stderr, code, signal) {
+        if (err) {
 
         } else {
           nodePath = possibleNodePath;
