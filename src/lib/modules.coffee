@@ -9,87 +9,64 @@ balUtilFlow = require(__dirname+'/flow')
 balUtilModules =
 
 	# =================================
-	# Executing
+	# Spawn
 
-	# Runs multiple commands at the same time
-	# And fires the callback once they have all completed
-	# callback(err,results) where args are the result of the exec
-	spawn: (commands,options,callback) ->
+	# Spawn
+	# Wrapper around node's spawn command for a cleaner and more powerful API
+	# next(err,stdout,stderr,code,signal)
+	spawn: (command,opts,next) ->
 		# Prepare
-		[options,callback] = balUtilFlow.extractOptsAndCallback(options,callback)
 		{spawn} = require('child_process')
+		[opts,next] = balUtilFlow.extractOptsAndCallback(opts,next)
 
-		# Sync
-		results = []
-		options or= {}
-
-		# Make sure we send back the arguments
-		tasks = new balUtilFlow.Group (err) ->
-			return callback.apply(callback,[err,results])
-
-		# Prepare tasks
-		unless commands instanceof Array
-			commands = [commands]
-
-		# Add tasks
-		balUtilFlow.each commands, (command) -> tasks.push (complete) ->
-			# Prepare
-			pid = null
-			err = null
-			stdout = ''
-			stderr = ''
-
-			# Prepare format
-			if typeof command is 'string'
-				command = command.split(' ')
-
-			# Execute command
-			if command instanceof Array
-				pid = spawn(command[0], command.slice(1), options)
-			else
-				pid = spawn(command.command, command.args or [], command.options or options)
-
-			# Fetch
-			pid.stdout.on 'data', (data) ->
-				dataStr = data.toString()
-				if options.output
-					process.stdout.write(dataStr)
-				stdout += dataStr
-			pid.stderr.on 'data', (data) ->
-				dataStr = data.toString()
-				if options.output
-					process.stderr.write(dataStr)
-				stderr += dataStr
-
-			# Wait
-			pid.on 'exit', (code, signal) ->
-				err = null
-				if code is 1
-					err = new Error(stderr or 'exited with failure code')
-				results.push [err,stdout,stderr,code,signal]
-				complete(err)
-
-		# Run the tasks synchronously
-		tasks.sync()
-
-		# Chain
-		@
-
-
-	# Runs multiple commands at the same time
-	# And fires the callback once they have all completed
-	# callback(err,results) where args are the result of the exec
-	exec: (commands,options,callback) ->
 		# Prepare
-		[options,callback] = balUtilFlow.extractOptsAndCallback(options,callback)
-		{exec} = require('child_process')
+		pid = null
+		err = null
+		stdout = ''
+		stderr = ''
 
-		# Sync
+		# Prepare format
+		if typeof command is 'string'
+			command = command.split(' ')
+
+		# Execute command
+		if command instanceof Array
+			pid = spawn(command[0], command.slice(1), opts)
+		else
+			pid = spawn(command.command, command.args or [], command.options or opts)
+
+		# Fetch
+		pid.stdout.on 'data', (data) ->
+			dataStr = data.toString()
+			if opts.output
+				process.stdout.write(dataStr)
+			stdout += dataStr
+		pid.stderr.on 'data', (data) ->
+			dataStr = data.toString()
+			if opts.output
+				process.stderr.write(dataStr)
+			stderr += dataStr
+
+		# Wait
+		pid.on 'exit', (code,signal) ->
+			err = null
+			if code isnt 0
+				err = new Error(stderr or 'exited with a non-zero status code')
+			next(err,stdout,stderr,code,signal)
+
+		# Chain
+		@
+
+	# Spawn Multiple
+	# next(err,results), results = [result...], result = [err,stdout,stderr,code,signal]
+	spawnMultiple: (commands,opts,next) ->
+		# Prepare
+		[opts,next] = balUtilFlow.extractOptsAndCallback(opts,next)
 		results = []
 
 		# Make sure we send back the arguments
 		tasks = new balUtilFlow.Group (err) ->
-			return callback.apply(callback,[err,results])
+			next(err,results)
 
 		# Prepare tasks
 		unless commands instanceof Array
@@ -97,14 +74,9 @@ balUtilModules =
 
 		# Add tasks
 		balUtilFlow.each commands, (command) -> tasks.push (complete) ->
-			exec command, options, (args...) ->
-				# Prepare
+			balUtilModules.spawn command, opts, (args...) ->
 				err = args[0] or null
-
-				# Push args to result list
-				results.push args
-
-				# Complete the task
+				results.push(args)
 				complete(err)
 
 		# Run the tasks synchronously
@@ -112,13 +84,60 @@ balUtilModules =
 
 		# Chain
 		@
-
 
 
 	# =================================
-	# Git
+	# Exec
 
-	# Get git path
+	# Exec
+	# Wrapper around node's exec command for a cleaner and more powerful API
+	# next(err,stdout,stderr)
+	exec: (commands,opts,next) ->
+		# Prepare
+		{exec} = require('child_process')
+		[opts,next] = balUtilFlow.extractOptsAndCallback(opts,next)
+
+		# Execute command
+		exec command, opts, (err,stdout,stderr) ->
+			# Complete the task
+			next(err,stdout,stderr)
+
+		# Chain
+		@
+
+	# Exec Multiple
+	# next(err,results), results = [result...], result = [err,stdout,stderr]
+	execMultiple: (commands,opts,next) ->
+		# Prepare
+		[opts,next] = balUtilFlow.extractOptsAndCallback(opts,next)
+		results = []
+
+		# Make sure we send back the arguments
+		tasks = new balUtilFlow.Group (err) ->
+			next(err,results)
+
+		# Prepare tasks
+		unless commands instanceof Array
+			commands = [commands]
+
+		# Add tasks
+		balUtilFlow.each commands, (command) -> tasks.push (complete) ->
+			balUtilModules.exec command, opts, (args...) ->
+				err = args[0] or null
+				results.push(args)
+				complete(err)
+
+		# Run the tasks synchronously
+		tasks.sync()
+
+		# Chain
+		@
+
+	# =================================
+	# Paths
+
+	# Get Git Path
+	# next(err,gitPath)
 	getGitPath: (next) ->
 		# Prepare
 		pathUtil = require('path')
@@ -128,8 +147,9 @@ balUtilModules =
 			if process.platform.indexOf('win') isnt -1
 				[
 					'git'
-					pathUtil.join('%ProgramFiles%','Git','bin','git')
-					pathUtil.join('%ProgramFiles(x86)%','Git','bin','git')
+					pathUtil.resolve('/Program Files (x64)/Git/bin/git.exe')
+					pathUtil.resolve('/Program Files (x86)/Git/bin/git.exe')
+					pathUtil.resolve('/Program Files/Git/bin/git.exe')
 				]
 			# Everything else
 			else
@@ -146,12 +166,15 @@ balUtilModules =
 		# Handle
 		balUtilFlow.each possibleGitPaths, (possibleGitPath) ->
 			tasks.push (complete) ->
-				balUtilModules.spawn [[possibleGitPath, '--version']], (err,results) ->
-					unless err
+				balUtilModules.spawn [possibleGitPath, '--version'], (err,results) ->
+					result = results[0]
+					# Problem
+					if err or result[0] or result[2]
+						complete()
+					# Good
+					else
 						foundGitPath = possibleGitPath
 						tasks.exit()
-					else
-						complete()
 
 		# Fire the tasks synchronously
 		tasks.sync()
@@ -159,12 +182,40 @@ balUtilModules =
 		# Chain
 		@
 
+	# Get Node Path
+	# next(err,nodePath)
+	getNodePath: (next) ->
+		# Fetch
+		nodePath = null
+		possibleNodePath = if /node$/.test(process.execPath) then process.execPath else 'node'
+
+		# Test
+		balUtilModules.spawn [possibleNodePath, '--version'], (err,results) ->
+			result = results[0]
+			# Problem
+			if err or result[0] or result[2]
+				# do nothing
+			# Good
+			else
+				nodePath = possibleNodePath
+
+			# Forward
+			next(null,nodePath)
+
+		# Chain
+		@
+
+
+	# =================================
+	# Git
+
 	# Initialize a Git Repository
 	# Requires internet access
 	# next(err)
-	initGitRepo: (opts={}) ->
+	initGitRepo: (opts,next) ->
 		# Extract
-		{path,remote,url,branch,gitPath,logger,output,next} = opts
+		[opts,next] = balUtilFlow.extractOptsAndCallback(opts,next)
+		{path,remote,url,branch,gitPath,logger,output} = opts
 		gitPath or= 'git'  # default to global git installation
 
 		# Initialise
@@ -188,29 +239,47 @@ balUtilModules =
 			args: ['submodule', 'update', '--recursive']
 		]
 		logger.log 'debug', "Initializing git repo with url [#{url}] on directory [#{path}]"  if logger
-		balUtilModules.spawn commands, {cwd:path,output:output}, (err,results) ->
-			# Check
-			return next(err,results)  if err
-
-			# Complete
+		balUtilModules.spawnMultiple commands, {cwd:path,output:output}, (args...) ->
+			return next(args...)  if args[0]?
 			logger.log 'debug', "Initialized git repo with url [#{url}] on directory [#{path}]"  if logger
-			return next(err,results)
+			return next(args...)
 
 
 	# =================================
 	# Node
 
+	# Perform NPM Command
+	npmCommand: (command,opts,next) ->
+		# Extract
+		[opts,next] = balUtilFlow.extractOptsAndCallback(opts,next)
+		{nodePath,npmPath,cwd,output} = opts
+		npmPath or= 'npm'  # default to global npm installation
+
+		# Exttract commands
+		if typeof command is 'string'
+			command = command.split(' ')
+		else unless command instanceof Array
+			console.log(command)
+			return next(new Error('unknown command type'))
+
+		# Prefix the node and npm paths
+		command.unshift(nodePath)  if nodePath
+		command.unshift(npmPath)
+
+		# Execute npm install inside the pugin directory
+		balUtilModules.spawn(command, {cwd,output}, next)
+
+
 	# Init Node Modules
 	# with cross platform support
 	# supports linux, heroku, osx, windows
 	# next(err,results)
-	initNodeModules: (opts={}) ->
-		# Requires
+	initNodeModules: (opts,next) ->
+		# Prepare
 		pathUtil = require('path')
-
-		# Extract
-		{path,nodePath,npmPath,force,logger,output,next} = opts
-		npmPath or= 'npm'  # default to global npm installation
+		[opts,next] = balUtilFlow.extractOptsAndCallback(opts,next)
+		{path,logger,force} = opts
+		opts.cwd = path
 
 		# Paths
 		packageJsonPath = pathUtil.join(path,'package.json')
@@ -224,23 +293,12 @@ balUtilModules =
 		unless pathUtil.existsSync(packageJsonPath)
 			return next()
 
-		# Use npm with node
-		if nodePath
-			command =
-				command: nodePath
-				args: [npmPath, 'install']
-		# Use npm standalone
-		else
-			command =
-				command: npmPath
-				args: ['install']
-
 		# Execute npm install inside the pugin directory
 		logger.log 'debug', "Initializing node modules\non:   #{dirPath}\nwith:",command  if logger
-		balUtilModules.spawn command, {cwd:path,output}, (err,results) ->
-			if logger
-				logger.log 'debug', "Initialized node modules\non:   #{dirPath}\nwith:",command  if logger
-			return next(err,results)
+		balUtilModules.npmCommand 'install', opts, (args...) ->
+			return next(args...)  if args[0]?
+			logger.log 'debug', "Initialized node modules\non:   #{dirPath}\nwith:",command  if logger
+			return next(args...)
 
 		# Chain
 		@

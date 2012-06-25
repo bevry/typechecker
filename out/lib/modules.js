@@ -8,55 +8,64 @@
   balUtilFlow = require(__dirname + '/flow');
 
   balUtilModules = {
-    spawn: function(commands, options, callback) {
-      var results, spawn, tasks, _ref;
-      _ref = balUtilFlow.extractOptsAndCallback(options, callback), options = _ref[0], callback = _ref[1];
+    spawn: function(command, opts, next) {
+      var err, pid, spawn, stderr, stdout, _ref;
       spawn = require('child_process').spawn;
+      _ref = balUtilFlow.extractOptsAndCallback(opts, next), opts = _ref[0], next = _ref[1];
+      pid = null;
+      err = null;
+      stdout = '';
+      stderr = '';
+      if (typeof command === 'string') {
+        command = command.split(' ');
+      }
+      if (command instanceof Array) {
+        pid = spawn(command[0], command.slice(1), opts);
+      } else {
+        pid = spawn(command.command, command.args || [], command.options || opts);
+      }
+      pid.stdout.on('data', function(data) {
+        var dataStr;
+        dataStr = data.toString();
+        if (opts.output) {
+          process.stdout.write(dataStr);
+        }
+        return stdout += dataStr;
+      });
+      pid.stderr.on('data', function(data) {
+        var dataStr;
+        dataStr = data.toString();
+        if (opts.output) {
+          process.stderr.write(dataStr);
+        }
+        return stderr += dataStr;
+      });
+      pid.on('exit', function(code, signal) {
+        err = null;
+        if (code !== 0) {
+          err = new Error(stderr || 'exited with a non-zero status code');
+        }
+        return next(err, stdout, stderr, code, signal);
+      });
+      return this;
+    },
+    spawnMultiple: function(commands, opts, next) {
+      var results, tasks, _ref;
+      _ref = balUtilFlow.extractOptsAndCallback(opts, next), opts = _ref[0], next = _ref[1];
       results = [];
-      options || (options = {});
       tasks = new balUtilFlow.Group(function(err) {
-        return callback.apply(callback, [err, results]);
+        return next(err, results);
       });
       if (!(commands instanceof Array)) {
         commands = [commands];
       }
       balUtilFlow.each(commands, function(command) {
         return tasks.push(function(complete) {
-          var err, pid, stderr, stdout;
-          pid = null;
-          err = null;
-          stdout = '';
-          stderr = '';
-          if (typeof command === 'string') {
-            command = command.split(' ');
-          }
-          if (command instanceof Array) {
-            pid = spawn(command[0], command.slice(1), options);
-          } else {
-            pid = spawn(command.command, command.args || [], command.options || options);
-          }
-          pid.stdout.on('data', function(data) {
-            var dataStr;
-            dataStr = data.toString();
-            if (options.output) {
-              process.stdout.write(dataStr);
-            }
-            return stdout += dataStr;
-          });
-          pid.stderr.on('data', function(data) {
-            var dataStr;
-            dataStr = data.toString();
-            if (options.output) {
-              process.stderr.write(dataStr);
-            }
-            return stderr += dataStr;
-          });
-          return pid.on('exit', function(code, signal) {
-            err = null;
-            if (code === 1) {
-              err = new Error(stderr || 'exited with failure code');
-            }
-            results.push([err, stdout, stderr, code, signal]);
+          return balUtilModules.spawn(command, opts, function() {
+            var args, err;
+            args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+            err = args[0] || null;
+            results.push(args);
             return complete(err);
           });
         });
@@ -64,20 +73,28 @@
       tasks.sync();
       return this;
     },
-    exec: function(commands, options, callback) {
-      var exec, results, tasks, _ref;
-      _ref = balUtilFlow.extractOptsAndCallback(options, callback), options = _ref[0], callback = _ref[1];
+    exec: function(commands, opts, next) {
+      var exec, _ref;
       exec = require('child_process').exec;
+      _ref = balUtilFlow.extractOptsAndCallback(opts, next), opts = _ref[0], next = _ref[1];
+      exec(command, opts, function(err, stdout, stderr) {
+        return next(err, stdout, stderr);
+      });
+      return this;
+    },
+    execMultiple: function(commands, opts, next) {
+      var results, tasks, _ref;
+      _ref = balUtilFlow.extractOptsAndCallback(opts, next), opts = _ref[0], next = _ref[1];
       results = [];
       tasks = new balUtilFlow.Group(function(err) {
-        return callback.apply(callback, [err, results]);
+        return next(err, results);
       });
       if (!(commands instanceof Array)) {
         commands = [commands];
       }
       balUtilFlow.each(commands, function(command) {
         return tasks.push(function(complete) {
-          return exec(command, options, function() {
+          return balUtilModules.exec(command, opts, function() {
             var args, err;
             args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
             err = args[0] || null;
@@ -93,18 +110,20 @@
       var foundGitPath, pathUtil, possibleGitPaths, tasks;
       pathUtil = require('path');
       foundGitPath = null;
-      possibleGitPaths = process.platform.indexOf('win') !== -1 ? ['git', pathUtil.join('%ProgramFiles%', 'Git', 'bin', 'git'), pathUtil.join('%ProgramFiles(x86)%', 'Git', 'bin', 'git')] : ['git', '/usr/local/bin/git', '/usr/bin/git'];
+      possibleGitPaths = process.platform.indexOf('win') !== -1 ? ['git', pathUtil.resolve('/Program Files (x64)/Git/bin/git.exe'), pathUtil.resolve('/Program Files (x86)/Git/bin/git.exe'), pathUtil.resolve('/Program Files/Git/bin/git.exe')] : ['git', '/usr/local/bin/git', '/usr/bin/git'];
       tasks = new balUtilFlow.Group(function(err) {
         return next(err, foundGitPath);
       });
       balUtilFlow.each(possibleGitPaths, function(possibleGitPath) {
         return tasks.push(function(complete) {
-          return balUtilModules.spawn([[possibleGitPath, '--version']], function(err, results) {
-            if (!err) {
+          return balUtilModules.spawn([possibleGitPath, '--version'], function(err, results) {
+            var result;
+            result = results[0];
+            if (err || result[0] || result[2]) {
+              return complete();
+            } else {
               foundGitPath = possibleGitPath;
               return tasks.exit();
-            } else {
-              return complete();
             }
           });
         });
@@ -112,12 +131,26 @@
       tasks.sync();
       return this;
     },
-    initGitRepo: function(opts) {
-      var branch, commands, gitPath, logger, next, output, path, remote, url;
-      if (opts == null) {
-        opts = {};
-      }
-      path = opts.path, remote = opts.remote, url = opts.url, branch = opts.branch, gitPath = opts.gitPath, logger = opts.logger, output = opts.output, next = opts.next;
+    getNodePath: function(next) {
+      var nodePath, possibleNodePath;
+      nodePath = null;
+      possibleNodePath = /node$/.test(process.execPath) ? process.execPath : 'node';
+      balUtilModules.spawn([possibleNodePath, '--version'], function(err, results) {
+        var result;
+        result = results[0];
+        if (err || result[0] || result[2]) {
+
+        } else {
+          nodePath = possibleNodePath;
+        }
+        return next(null, nodePath);
+      });
+      return this;
+    },
+    initGitRepo: function(opts, next) {
+      var branch, commands, gitPath, logger, output, path, remote, url, _ref;
+      _ref = balUtilFlow.extractOptsAndCallback(opts, next), opts = _ref[0], next = _ref[1];
+      path = opts.path, remote = opts.remote, url = opts.url, branch = opts.branch, gitPath = opts.gitPath, logger = opts.logger, output = opts.output;
       gitPath || (gitPath = 'git');
       commands = [
         {
@@ -143,27 +176,47 @@
       if (logger) {
         logger.log('debug', "Initializing git repo with url [" + url + "] on directory [" + path + "]");
       }
-      return balUtilModules.spawn(commands, {
+      return balUtilModules.spawnMultiple(commands, {
         cwd: path,
         output: output
-      }, function(err, results) {
-        if (err) {
-          return next(err, results);
+      }, function() {
+        var args;
+        args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+        if (args[0] != null) {
+          return next.apply(null, args);
         }
         if (logger) {
           logger.log('debug', "Initialized git repo with url [" + url + "] on directory [" + path + "]");
         }
-        return next(err, results);
+        return next.apply(null, args);
       });
     },
-    initNodeModules: function(opts) {
-      var command, force, logger, next, nodeModulesPath, nodePath, npmPath, output, packageJsonPath, path, pathUtil;
-      if (opts == null) {
-        opts = {};
-      }
-      pathUtil = require('path');
-      path = opts.path, nodePath = opts.nodePath, npmPath = opts.npmPath, force = opts.force, logger = opts.logger, output = opts.output, next = opts.next;
+    npmCommand: function(command, opts, next) {
+      var cwd, nodePath, npmPath, output, _ref;
+      _ref = balUtilFlow.extractOptsAndCallback(opts, next), opts = _ref[0], next = _ref[1];
+      nodePath = opts.nodePath, npmPath = opts.npmPath, cwd = opts.cwd, output = opts.output;
       npmPath || (npmPath = 'npm');
+      if (typeof command === 'string') {
+        command = command.split(' ');
+      } else if (!(command instanceof Array)) {
+        console.log(command);
+        return next(new Error('unknown command type'));
+      }
+      if (nodePath) {
+        command.unshift(nodePath);
+      }
+      command.unshift(npmPath);
+      return balUtilModules.spawn(command, {
+        cwd: cwd,
+        output: output
+      }, next);
+    },
+    initNodeModules: function(opts, next) {
+      var force, logger, nodeModulesPath, packageJsonPath, path, pathUtil, _ref;
+      pathUtil = require('path');
+      _ref = balUtilFlow.extractOptsAndCallback(opts, next), opts = _ref[0], next = _ref[1];
+      path = opts.path, logger = opts.logger, force = opts.force;
+      opts.cwd = path;
       packageJsonPath = pathUtil.join(path, 'package.json');
       nodeModulesPath = pathUtil.join(path, 'node_modules');
       if (force === false && pathUtil.existsSync(nodeModulesPath)) {
@@ -172,30 +225,19 @@
       if (!pathUtil.existsSync(packageJsonPath)) {
         return next();
       }
-      if (nodePath) {
-        command = {
-          command: nodePath,
-          args: [npmPath, 'install']
-        };
-      } else {
-        command = {
-          command: npmPath,
-          args: ['install']
-        };
-      }
       if (logger) {
         logger.log('debug', "Initializing node modules\non:   " + dirPath + "\nwith:", command);
       }
-      balUtilModules.spawn(command, {
-        cwd: path,
-        output: output
-      }, function(err, results) {
-        if (logger) {
-          if (logger) {
-            logger.log('debug', "Initialized node modules\non:   " + dirPath + "\nwith:", command);
-          }
+      balUtilModules.npmCommand('install', opts, function() {
+        var args;
+        args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+        if (args[0] != null) {
+          return next.apply(null, args);
         }
-        return next(err, results);
+        if (logger) {
+          logger.log('debug', "Initialized node modules\non:   " + dirPath + "\nwith:", command);
+        }
+        return next.apply(null, args);
       });
       return this;
     }
