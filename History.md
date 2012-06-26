@@ -1,5 +1,11 @@
 ## History
 
+- v1.10.0 June 26, 2012
+	- `balUtilModules` changes:
+		- Added `spawnMultiple`, `execMultiple`, `gitGitPath`, `getNodePath`, and `npmCommand`
+		- `spawn` and `exec` are now only for single commands, use the new `spawnMultiple` and `execMultiple` for multiple commands instead
+		- error exit code is now anything that isnt `0`
+
 - v1.9.4 June 22, 2012
 	- Fixed a problem with large asynchronous groups
 

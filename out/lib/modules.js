@@ -117,7 +117,6 @@
       balUtilFlow.each(possibleGitPaths, function(possibleGitPath) {
         return tasks.push(function(complete) {
           return balUtilModules.spawn([possibleGitPath, '--version'], function(err, stdout, stderr, code, signal) {
-            console.log(possibleGitPath, arguments);
             if (err) {
               return complete();
             } else {

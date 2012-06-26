@@ -137,6 +137,8 @@ balUtilModules =
 	# Paths
 
 	# Get Git Path
+	# As `git` is not always available to use, we should check common path locations
+	# and if we find one that works, then we should use it
 	# next(err,gitPath)
 	getGitPath: (next) ->
 		# Prepare
@@ -182,6 +184,8 @@ balUtilModules =
 		@
 
 	# Get Node Path
+	# As `node` is not always available to use, we should check common path locations
+	# and if we find one that works, then we should use it
 	# next(err,nodePath)
 	getNodePath: (next) ->
 		# Fetch
@@ -247,6 +251,7 @@ balUtilModules =
 	# Node
 
 	# Perform NPM Command
+	# next(err,stdout,stderr,code,signal)
 	npmCommand: (command,opts,next) ->
 		# Extract
 		[opts,next] = balUtilFlow.extractOptsAndCallback(opts,next)
