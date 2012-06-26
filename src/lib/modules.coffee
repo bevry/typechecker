@@ -262,12 +262,11 @@ balUtilModules =
 		if typeof command is 'string'
 			command = command.split(' ')
 		else unless command instanceof Array
-			console.log(command)
 			return next(new Error('unknown command type'))
 
 		# Prefix the node and npm paths
-		command.unshift(nodePath)  if nodePath
 		command.unshift(npmPath)
+		command.unshift(nodePath)  if nodePath
 
 		# Execute npm install inside the pugin directory
 		balUtilModules.spawn(command, {cwd,output}, next)

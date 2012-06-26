@@ -195,13 +195,12 @@
       if (typeof command === 'string') {
         command = command.split(' ');
       } else if (!(command instanceof Array)) {
-        console.log(command);
         return next(new Error('unknown command type'));
       }
+      command.unshift(npmPath);
       if (nodePath) {
         command.unshift(nodePath);
       }
-      command.unshift(npmPath);
       return balUtilModules.spawn(command, {
         cwd: cwd,
         output: output

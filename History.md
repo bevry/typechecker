@@ -1,5 +1,9 @@
 ## History
 
+- v1.10.1 June 26, 2012
+	- `balUtilModules` changes:
+		- Fixed `npmCommand` under some situations
+
 - v1.10.0 June 26, 2012
 	- `balUtilModules` changes:
 		- Added `spawnMultiple`, `execMultiple`, `gitGitPath`, `getNodePath`, and `npmCommand`
