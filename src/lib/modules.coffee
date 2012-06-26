@@ -296,7 +296,9 @@ balUtilModules =
 			return next()
 
 		# Prepare command
-		command = ['install','--force']
+		command = ['install']
+		if force
+			command.push('--force')
 
 		# Execute npm install inside the pugin directory
 		logger.log 'debug', "Initializing node modules\non:   #{dirPath}\nwith:",command  if logger

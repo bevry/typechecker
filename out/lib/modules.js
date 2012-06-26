@@ -220,7 +220,10 @@
       if (!pathUtil.existsSync(packageJsonPath)) {
         return next();
       }
-      command = ['install', '--force'];
+      command = ['install'];
+      if (force) {
+        command.push('--force');
+      }
       if (logger) {
         logger.log('debug', "Initializing node modules\non:   " + dirPath + "\nwith:", command);
       }

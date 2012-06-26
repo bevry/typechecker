@@ -1,5 +1,9 @@
 ## History
 
+- v1.10.3 June 26, 2012
+	- `balUtilModules` changes:
+		- `initNodeModules` will now install modules from cache, unless `force` is true
+
 - v1.10.2 June 26, 2012
 	- `balUtilModules` changes:
 		- `initNodeModules` will now never install modules from cache
