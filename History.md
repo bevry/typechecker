@@ -1,5 +1,9 @@
 ## History
 
+- v1.10.2 June 26, 2012
+	- `balUtilModules` changes:
+		- `initNodeModules` will now never install modules from cache
+
 - v1.10.1 June 26, 2012
 	- `balUtilModules` changes:
 		- Fixed `npmCommand` under some situations

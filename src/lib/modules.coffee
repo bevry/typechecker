@@ -295,9 +295,12 @@ balUtilModules =
 		unless pathUtil.existsSync(packageJsonPath)
 			return next()
 
+		# Prepare command
+		command = ['install','--force']
+
 		# Execute npm install inside the pugin directory
 		logger.log 'debug', "Initializing node modules\non:   #{dirPath}\nwith:",command  if logger
-		balUtilModules.npmCommand 'install', opts, (args...) ->
+		balUtilModules.npmCommand command, opts, (args...) ->
 			return next(args...)  if args[0]?
 			logger.log 'debug', "Initialized node modules\non:   #{dirPath}\nwith:",command  if logger
 			return next(args...)
