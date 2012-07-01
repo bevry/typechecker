@@ -6,6 +6,9 @@
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   balUtilFlow = {
+    wait: function(delay, fn) {
+      return setTimeout(fn, delay);
+    },
     extractOptsAndCallback: function(opts, next) {
       if (typeof opts === 'function' && (next != null) === false) {
         next = opts;
@@ -285,13 +288,35 @@
       return this;
     };
 
-    _Class.prototype.push = function(task) {
+    _Class.prototype.push = function() {
+      var args, context, task, _task;
+      args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
       ++this.total;
+      if (args.length === 2) {
+        context = args[0];
+        _task = args[1];
+        task = function(complete) {
+          return balUtilFlow.fireWithOptionalCallback(_task, [complete], context);
+        };
+      } else {
+        task = args[0];
+      }
       this.queue.push(task);
       return this;
     };
 
-    _Class.prototype.pushAndRun = function(task) {
+    _Class.prototype.pushAndRun = function() {
+      var args, context, task, _task;
+      args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+      if (args.length === 2) {
+        context = args[0];
+        _task = args[1];
+        task = function(complete) {
+          return balUtilFlow.fireWithOptionalCallback(_task, [complete], context);
+        };
+      } else {
+        task = args[0];
+      }
       if (this.mode === 'sync' && this.isRunning()) {
         this.push(task);
       } else {
@@ -315,8 +340,10 @@
       me = this;
       try {
         run = function() {
+          var complete;
           ++me.running;
-          return task(me.completer());
+          complete = me.completer();
+          return balUtilFlow.fireWithOptionalCallback(task, [complete]);
         };
         if (this.completed !== 0 && (this.mode === 'async' || (this.completed % 100) === 0)) {
           setTimeout(run, 0);

@@ -1,5 +1,22 @@
 ## History
 
+- v1.11.0 July 1, 2012
+	- Added `balUtilHTML`:
+		- `getAttribute(attributes,attribute)`
+		- `detectIndentation(source)`
+		- `removeIndentation(source)`
+		- `replaceElement(source, elementNameMatcher, replaceElementCallback)`
+		- `replaceElementAsync(source, elementNameMatcher, replaceElementCallback, next)`
+	- `balUtilFlow` changes:
+		- `wait(delay,fn)` introduced as an alternative to `setTimeout`
+		- `Group` changes:
+			- `push` and `pushAndRun` signatures are now `([context], task)`
+				- `context` is optional, and what we should bind to this
+				- it saves us having to often wrap our task pushing into for each scopes
+			- task completion callbacks are now optional, if not specified a task will be completed as soon as it finishes executing
+	- `balUtilEvents`, `balUtilModules` changes:
+		- Now make use of the `balUtilFlow.push|pushAndRun` new `context` argument to simplify some loops
+
 - v1.10.3 June 26, 2012
 	- `balUtilModules` changes:
 		- `initNodeModules` will now install modules from cache, unless `force` is true

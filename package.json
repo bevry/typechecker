@@ -1,11 +1,16 @@
 {
 	"name": "bal-util",
-	"version": "1.10.3",
+	"version": "1.11.0",
 	"description": "Common utility functions for Node.js used and maintained by Benjamin Lupton",
 	"homepage": "https://github.com/balupton/bal-util",
 	"keywords": [
 		"javascript",
 		"flow",
+		"control",
+		"async",
+		"sync",
+		"tasks",
+		"batch",
 		"utility",
 		"util",
 		"utilities",
@@ -16,7 +21,8 @@
 		"module",
 		"modules",
 		"compare",
-		"comparison"
+		"comparison",
+		"html"
 	],
 	"author": "Benjamin Lupton <b@lupton.cc> (http://balupton.com)",
 	"maintainers": [

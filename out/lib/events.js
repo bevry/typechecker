@@ -20,27 +20,33 @@
     }
 
     EventEmitterEnhanced.prototype.emitAsync = function(eventName, data, next) {
-      var listeners, tasks;
+      var listener, listeners, tasks, _i, _len;
       listeners = this.listeners(eventName);
       tasks = new balUtilFlow.Group(next);
-      balUtilFlow.each(listeners, function(listener) {
-        return tasks.push(function(complete) {
-          return balUtilFlow.fireWithOptionalCallback(listener, [data, complete]);
+      for (_i = 0, _len = listeners.length; _i < _len; _i++) {
+        listener = listeners[_i];
+        tasks.push({
+          listener: listener
+        }, function(complete) {
+          return balUtilFlow.fireWithOptionalCallback(this.listener, [data, complete]);
         });
-      });
+      }
       tasks.async();
       return this;
     };
 
     EventEmitterEnhanced.prototype.emitSync = function(eventName, data, next) {
-      var listeners, tasks;
+      var listener, listeners, tasks, _i, _len;
       listeners = this.listeners(eventName);
       tasks = new balUtilFlow.Group(next);
-      balUtilFlow.each(listeners, function(listener) {
-        return tasks.push(function(complete) {
-          return balUtilFlow.fireWithOptionalCallback(listener, [data, complete]);
+      for (_i = 0, _len = listeners.length; _i < _len; _i++) {
+        listener = listeners[_i];
+        tasks.push({
+          listener: listener
+        }, function(complete) {
+          return balUtilFlow.fireWithOptionalCallback(this.listener, [data, complete]);
         });
-      });
+      }
       tasks.sync();
       return this;
     };

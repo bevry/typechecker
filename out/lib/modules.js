@@ -50,7 +50,7 @@
       return this;
     },
     spawnMultiple: function(commands, opts, next) {
-      var results, tasks, _ref;
+      var command, results, tasks, _i, _len, _ref;
       _ref = balUtilFlow.extractOptsAndCallback(opts, next), opts = _ref[0], next = _ref[1];
       results = [];
       tasks = new balUtilFlow.Group(function(err) {
@@ -59,9 +59,12 @@
       if (!(commands instanceof Array)) {
         commands = [commands];
       }
-      balUtilFlow.each(commands, function(command) {
-        return tasks.push(function(complete) {
-          return balUtilModules.spawn(command, opts, function() {
+      for (_i = 0, _len = commands.length; _i < _len; _i++) {
+        command = commands[_i];
+        tasks.push({
+          command: command
+        }, function(complete) {
+          return balUtilModules.spawn(this.command, opts, function() {
             var args, err;
             args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
             err = args[0] || null;
@@ -69,7 +72,7 @@
             return complete(err);
           });
         });
-      });
+      }
       tasks.sync();
       return this;
     },
@@ -83,7 +86,7 @@
       return this;
     },
     execMultiple: function(commands, opts, next) {
-      var results, tasks, _ref;
+      var command, results, tasks, _i, _len, _ref;
       _ref = balUtilFlow.extractOptsAndCallback(opts, next), opts = _ref[0], next = _ref[1];
       results = [];
       tasks = new balUtilFlow.Group(function(err) {
@@ -92,9 +95,12 @@
       if (!(commands instanceof Array)) {
         commands = [commands];
       }
-      balUtilFlow.each(commands, function(command) {
-        return tasks.push(function(complete) {
-          return balUtilModules.exec(command, opts, function() {
+      for (_i = 0, _len = commands.length; _i < _len; _i++) {
+        command = commands[_i];
+        tasks.push({
+          command: command
+        }, function(complete) {
+          return balUtilModules.exec(this.command, opts, function() {
             var args, err;
             args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
             err = args[0] || null;
@@ -102,20 +108,24 @@
             return complete(err);
           });
         });
-      });
+      }
       tasks.sync();
       return this;
     },
     getGitPath: function(next) {
-      var foundGitPath, pathUtil, possibleGitPaths, tasks;
+      var foundGitPath, pathUtil, possibleGitPath, possibleGitPaths, tasks, _i, _len;
       pathUtil = require('path');
       foundGitPath = null;
       possibleGitPaths = process.platform.indexOf('win') !== -1 ? ['git', pathUtil.resolve('/Program Files (x64)/Git/bin/git.exe'), pathUtil.resolve('/Program Files (x86)/Git/bin/git.exe'), pathUtil.resolve('/Program Files/Git/bin/git.exe')] : ['git', '/usr/local/bin/git', '/usr/bin/git'];
       tasks = new balUtilFlow.Group(function(err) {
         return next(err, foundGitPath);
       });
-      balUtilFlow.each(possibleGitPaths, function(possibleGitPath) {
-        return tasks.push(function(complete) {
+      for (_i = 0, _len = possibleGitPaths.length; _i < _len; _i++) {
+        possibleGitPath = possibleGitPaths[_i];
+        tasks.push({
+          possibleGitPath: possibleGitPath
+        }, function(complete) {
+          possibleGitPath = this.possibleGitPath;
           return balUtilModules.spawn([possibleGitPath, '--version'], function(err, stdout, stderr, code, signal) {
             if (err) {
               return complete();
@@ -125,7 +135,7 @@
             }
           });
         });
-      });
+      }
       tasks.sync();
       return this;
     },

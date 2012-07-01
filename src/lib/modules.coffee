@@ -73,11 +73,12 @@ balUtilModules =
 			commands = [commands]
 
 		# Add tasks
-		balUtilFlow.each commands, (command) -> tasks.push (complete) ->
-			balUtilModules.spawn command, opts, (args...) ->
-				err = args[0] or null
-				results.push(args)
-				complete(err)
+		for command in commands
+			tasks.push {command}, (complete) ->
+				balUtilModules.spawn @command, opts, (args...) ->
+					err = args[0] or null
+					results.push(args)
+					complete(err)
 
 		# Run the tasks synchronously
 		tasks.sync()
@@ -121,11 +122,12 @@ balUtilModules =
 			commands = [commands]
 
 		# Add tasks
-		balUtilFlow.each commands, (command) -> tasks.push (complete) ->
-			balUtilModules.exec command, opts, (args...) ->
-				err = args[0] or null
-				results.push(args)
-				complete(err)
+		for command in commands
+			tasks.push {command}, (complete) ->
+				balUtilModules.exec @command, opts, (args...) ->
+					err = args[0] or null
+					results.push(args)
+					complete(err)
 
 		# Run the tasks synchronously
 		tasks.sync()
@@ -166,8 +168,9 @@ balUtilModules =
 			next(err,foundGitPath)
 
 		# Handle
-		balUtilFlow.each possibleGitPaths, (possibleGitPath) ->
-			tasks.push (complete) ->
+		for possibleGitPath in possibleGitPaths
+			tasks.push {possibleGitPath}, (complete) ->
+				possibleGitPath = @possibleGitPath
 				balUtilModules.spawn [possibleGitPath, '--version'], (err,stdout,stderr,code,signal) ->
 					# Problem
 					if err

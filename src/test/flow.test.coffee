@@ -230,6 +230,71 @@ joe.describe 'Group', (describe,it) ->
 			done()
 
 
+	it 'should work with optional completion callbacks', (done) ->
+		# Prepare
+		total = 2
+		finished = false
+
+		# Create our group
+		tasks = new balUtil.Group (err) ->
+			assert.equal(false, finished, 'the group of tasks only finished once')
+			finished = true
+			assert.equal(false, err?, 'no error is present')
+
+		# Add the first task
+		tasks.push (done) -> done()
+
+		# Add the second task
+		tasks.push ->
+
+		# Check no tasks have run
+		assert.equal(0, tasks.completed, 'no tasks should have started yet')
+
+		# Run the tasks
+		tasks.sync()
+
+		# Check all tasks ran
+		wait 5000, ->
+			assert.equal(total, tasks.completed, 'the expected number of tasks ran '+"#{tasks.completed}/#{total}")
+			assert.equal(false, tasks.isRunning(), 'isRunning() returned false')
+			assert.equal(true, tasks.hasCompleted(), 'hasCompleted() returned true')
+			assert.equal(true, tasks.hasExited(), 'hasExited() returned true')
+			done()
+
+	it 'should work when specifying contexts', (done) ->
+		# Prepare
+		total = 2
+		finished = false
+
+		# Create our group
+		tasks = new balUtil.Group (err) ->
+			assert.equal(false, finished, 'the group of tasks only finished once')
+			finished = true
+			assert.equal(false, err?, 'no error is present')
+
+		# Add the first task
+		tasks.push {blah:1}, ->
+			assert.equal(1, @blah, 'context was applied correctly')
+
+		# Add the second task
+		tasks.push {blah:2}, ->
+			assert.equal(2, @blah, 'context was applied correctly')
+
+		# Check no tasks have run
+		assert.equal(0, tasks.completed, 'no tasks should have started yet')
+
+		# Run the tasks
+		tasks.sync()
+
+		# Check all tasks ran
+		wait 5000, ->
+			assert.equal(total, tasks.completed, 'the expected number of tasks ran '+"#{tasks.completed}/#{total}")
+			assert.equal(false, tasks.isRunning(), 'isRunning() returned false')
+			assert.equal(true, tasks.hasCompleted(), 'hasCompleted() returned true')
+			assert.equal(true, tasks.hasExited(), 'hasExited() returned true')
+			done()
+
+
 	it 'should work when running ten thousand tasks synchronously', (done) ->
 		# Prepare
 		total = 10000

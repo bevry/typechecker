@@ -11,6 +11,10 @@ balUtilFlow =
 	# Flow
 	# Flow based helpers
 
+	# Wait a certain amount of milliseconds before firing the function
+	wait: (delay,fn) ->
+		setTimeout(fn,delay)
+
 	# Extract the correct options and completion callback from the passed arguments
 	extractOptsAndCallback: (opts,next) ->
 		if typeof opts is 'function' and next? is false
@@ -22,6 +26,10 @@ balUtilFlow =
 		return [opts,next]
 
 	# Fire a function with an optional callback
+	# The last passed argument in args is considered the completion callback
+	# It is optional, as in, the method we call can either use it (async)
+	# or not (sync). The completion callback expects two arguments (err,result)
+	# if sync, we expect an error object (err) or something else returned (result)
 	fireWithOptionalCallback: (method,args,context) ->
 		# Prepare
 		args or= []
@@ -299,16 +307,36 @@ balUtilFlow.Group = class
 		@
 
 	# Push a new task to the group
-	push: (task) ->
+	push: (args...) ->
 		# Add the task and increment the count
 		++@total
+
+		# Bind
+		if args.length is 2
+			context = args[0]
+			_task = args[1]
+			task = (complete) ->
+				balUtilFlow.fireWithOptionalCallback(_task,[complete],context)
+		else
+			task = args[0]
+
+		# Queue
 		@queue.push(task)
 
 		# Chain
 		@
 
 	# Push and run
-	pushAndRun: (task) ->
+	pushAndRun: (args...) ->
+		# Bind
+		if args.length is 2
+			context = args[0]
+			_task = args[1]
+			task = (complete) ->
+				balUtilFlow.fireWithOptionalCallback(_task,[complete],context)
+		else
+			task = args[0]
+
 		# Check if we are currently running in sync mode
 		if @mode is 'sync' and @isRunning()
 			# push the task for later
@@ -340,7 +368,9 @@ balUtilFlow.Group = class
 		try
 			run = ->
 				++me.running
-				task me.completer()
+				complete = me.completer()
+				balUtilFlow.fireWithOptionalCallback(task,[complete])
+
 			# Fire with an immediate timeout for async loads, and every hundredth sync task, except for the first
 			# otherwise if we are under a stressful load node will crash with
 			# a segemantion fault / maximum call stack exceeded / range error

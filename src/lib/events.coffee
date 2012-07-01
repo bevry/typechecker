@@ -19,10 +19,10 @@ class EventEmitterEnhanced extends EventEmitter
 		# Prepare tasks
 		tasks = new balUtilFlow.Group(next)
 		# Add the tasks for the listeners
-		balUtilFlow.each listeners, (listener) ->
-			tasks.push (complete) ->
+		for listener in listeners
+			tasks.push {listener}, (complete) ->
 				# Fire the listener, treating the callback as optional
-				balUtilFlow.fireWithOptionalCallback(listener,[data,complete])
+				balUtilFlow.fireWithOptionalCallback(@listener,[data,complete])
 		# Trigger asynchronously
 		tasks.async()
 		# Chain
@@ -36,10 +36,10 @@ class EventEmitterEnhanced extends EventEmitter
 		# Prepare tasks
 		tasks = new balUtilFlow.Group(next)
 		# Add the tasks for the listeners
-		balUtilFlow.each listeners, (listener) ->
-			tasks.push (complete) ->
+		for listener in listeners
+			tasks.push {listener}, (complete) ->
 				# Fire the listener, treating the callback as optional
-				balUtilFlow.fireWithOptionalCallback(listener,[data,complete])
+				balUtilFlow.fireWithOptionalCallback(@listener,[data,complete])
 		# Trigger synchronously
 		tasks.sync()
 		# Chain
