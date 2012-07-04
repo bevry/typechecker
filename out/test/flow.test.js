@@ -51,14 +51,17 @@
 
   joe.describe('Group', function(describe, it) {
     it('should work when tasks are specified manually', function(done) {
-      var finished, firstTaskFinished, secondTaskFinished, tasks;
+      var finished, firstTaskFinished, secondTaskFinished, tasks, total;
       firstTaskFinished = false;
       secondTaskFinished = false;
       finished = false;
+      total = 2;
       tasks = new balUtil.Group(function(err) {
+        if (err) {
+          return done(err);
+        }
         assert.equal(false, finished, 'the group of tasks only finished once');
-        finished = true;
-        return assert.equal(false, err != null, 'no error is present');
+        return finished = true;
       });
       tasks.total = 2;
       wait(1000, function() {
@@ -73,7 +76,7 @@
       });
       assert.equal(0, tasks.completed, 'no tasks should have started yet');
       return wait(2000, function() {
-        assert.equal(2, tasks.completed, 'only the expected number of tasks ran');
+        assert.equal(total, tasks.completed, 'the expected number of tasks ran ' + ("" + tasks.completed + "/" + total));
         assert.equal(false, tasks.isRunning(), 'isRunning() returned false');
         assert.equal(true, tasks.hasCompleted(), 'hasCompleted() returned true');
         assert.equal(true, tasks.hasExited(), 'hasExited() returned true');
@@ -81,16 +84,19 @@
       });
     });
     it('should work when run synchronously', function(done) {
-      var finished, firstTaskFinished, firstTaskRun, secondTaskFinished, secondTaskRun, tasks;
+      var finished, firstTaskFinished, firstTaskRun, secondTaskFinished, secondTaskRun, tasks, total;
       firstTaskRun = false;
       secondTaskRun = false;
       firstTaskFinished = false;
       secondTaskFinished = false;
       finished = false;
+      total = 2;
       tasks = new balUtil.Group(function(err) {
+        if (err) {
+          return done(err);
+        }
         assert.equal(false, finished, 'the group of tasks only finished once');
-        finished = true;
-        return assert.equal(false, err != null, 'no error is present');
+        return finished = true;
       });
       tasks.push(function(complete) {
         firstTaskRun = true;
@@ -114,7 +120,7 @@
       tasks.sync();
       assert.equal(true, tasks.isRunning(), 'isRunning() returned true');
       return wait(2000, function() {
-        assert.equal(2, tasks.completed, 'only the expected number of tasks ran');
+        assert.equal(total, tasks.completed, 'the expected number of tasks ran ' + ("" + tasks.completed + "/" + total));
         assert.equal(false, tasks.isRunning(), 'isRunning() returned false');
         assert.equal(true, tasks.hasCompleted(), 'hasCompleted() returned true');
         assert.equal(true, tasks.hasExited(), 'hasExited() returned true');
@@ -122,16 +128,19 @@
       });
     });
     it('should work when run asynchronously', function(done) {
-      var finished, firstTaskFinished, firstTaskRun, secondTaskFinished, secondTaskRun, tasks;
+      var finished, firstTaskFinished, firstTaskRun, secondTaskFinished, secondTaskRun, tasks, total;
       firstTaskRun = false;
       secondTaskRun = false;
       firstTaskFinished = false;
       secondTaskFinished = false;
       finished = false;
+      total = 2;
       tasks = new balUtil.Group(function(err) {
+        if (err) {
+          return done(err);
+        }
         assert.equal(false, finished, 'the group of tasks only finished once');
-        finished = true;
-        return assert.equal(false, err != null, 'no error is present');
+        return finished = true;
       });
       tasks.push(function(complete) {
         firstTaskRun = true;
@@ -155,7 +164,7 @@
       tasks.async();
       assert.equal(true, tasks.isRunning(), 'isRunning() returned true');
       return wait(2000, function() {
-        assert.equal(2, tasks.completed, 'only the expected number of tasks ran');
+        assert.equal(total, tasks.completed, 'the expected number of tasks ran ' + ("" + tasks.completed + "/" + total));
         assert.equal(false, tasks.isRunning(), 'isRunning() returned false');
         assert.equal(true, tasks.hasCompleted(), 'hasCompleted() returned true');
         assert.equal(true, tasks.hasExited(), 'hasExited() returned true');
@@ -163,16 +172,17 @@
       });
     });
     it('should handle errors correctly', function(done) {
-      var finished, firstTaskFinished, firstTaskRun, secondTaskFinished, secondTaskRun, tasks;
+      var finished, firstTaskFinished, firstTaskRun, secondTaskFinished, secondTaskRun, tasks, total;
       firstTaskRun = false;
       secondTaskRun = false;
       firstTaskFinished = false;
       secondTaskFinished = false;
       finished = false;
+      total = 1;
       tasks = new balUtil.Group(function(err) {
+        assert.equal(true, err !== null, 'an error is present');
         assert.equal(false, finished, 'the group of tasks only finished once');
-        finished = true;
-        return assert.equal(true, err != null, 'an error is present');
+        return finished = true;
       });
       tasks.push(function(complete) {
         firstTaskRun = true;
@@ -196,7 +206,7 @@
       tasks.sync();
       assert.equal(true, tasks.isRunning(), 'isRunning() returned true');
       return wait(2000, function() {
-        assert.equal(1, tasks.completed, 'only the expected number of tasks ran');
+        assert.equal(total, tasks.completed, 'the expected number of tasks ran ' + ("" + tasks.completed + "/" + total));
         assert.equal(false, tasks.isRunning(), 'isRunning() returned false');
         assert.equal(false, tasks.hasCompleted(), 'hasCompleted() returned true');
         assert.equal(true, tasks.hasExited(), 'hasExited() returned true');
@@ -205,12 +215,14 @@
     });
     it('should work with optional completion callbacks', function(done) {
       var finished, tasks, total;
-      total = 2;
       finished = false;
+      total = 2;
       tasks = new balUtil.Group(function(err) {
+        if (err) {
+          return done(err);
+        }
         assert.equal(false, finished, 'the group of tasks only finished once');
-        finished = true;
-        return assert.equal(false, err != null, 'no error is present');
+        return finished = true;
       });
       tasks.push(function(done) {
         return done();
@@ -228,12 +240,14 @@
     });
     it('should work when specifying contexts', function(done) {
       var finished, tasks, total;
-      total = 2;
       finished = false;
+      total = 2;
       tasks = new balUtil.Group(function(err) {
+        if (err) {
+          return done(err);
+        }
         assert.equal(false, finished, 'the group of tasks only finished once');
-        finished = true;
-        return assert.equal(false, err != null, 'no error is present');
+        return finished = true;
       });
       tasks.push({
         blah: 1
@@ -255,65 +269,20 @@
         return done();
       });
     });
-    it('should work when running ten thousand tasks synchronously', function(done) {
-      var finished, i, tasks, total, _i;
-      total = 10000;
-      finished = false;
-      tasks = new balUtil.Group(function(err) {
-        assert.equal(false, finished, 'the group of tasks only finished once');
-        finished = true;
-        return assert.equal(false, err != null, 'no error is present');
-      });
-      for (i = _i = 0; 0 <= total ? _i < total : _i > total; i = 0 <= total ? ++_i : --_i) {
-        tasks.push(function(complete) {
-          return complete();
-        });
-      }
-      assert.equal(0, tasks.completed, 'no tasks should have started yet');
-      tasks.sync();
-      return wait(5000, function() {
-        assert.equal(total, tasks.completed, 'the expected number of tasks ran ' + ("" + tasks.completed + "/" + total));
-        assert.equal(false, tasks.isRunning(), 'isRunning() returned false');
-        assert.equal(true, tasks.hasCompleted(), 'hasCompleted() returned true');
-        assert.equal(true, tasks.hasExited(), 'hasExited() returned true');
-        return done();
-      });
-    });
-    it('should work when running ten thousand tasks asynchronously', function(done) {
-      var finished, i, tasks, total, _i;
-      total = 10000;
-      finished = false;
-      tasks = new balUtil.Group(function(err) {
-        assert.equal(false, finished, 'the group of tasks only finished once');
-        finished = true;
-        return assert.equal(false, err != null, 'no error is present');
-      });
-      for (i = _i = 0; 0 <= total ? _i < total : _i > total; i = 0 <= total ? ++_i : --_i) {
-        tasks.push(function(complete) {
-          return setTimeout(complete, 50);
-        });
-      }
-      assert.equal(0, tasks.completed, 'no tasks should have started yet');
-      tasks.async();
-      return wait(5000, function() {
-        assert.equal(total, tasks.completed, 'the expected number of tasks ran ' + ("" + tasks.completed + "/" + total));
-        assert.equal(false, tasks.isRunning(), 'isRunning() returned false');
-        assert.equal(true, tasks.hasCompleted(), 'hasCompleted() returned true');
-        assert.equal(true, tasks.hasExited(), 'hasExited() returned true');
-        return done();
-      });
-    });
     it('should push and run synchronous tasks correctly', function(done) {
-      var finished, firstTaskFinished, firstTaskRun, secondTaskFinished, secondTaskRun, tasks;
+      var finished, firstTaskFinished, firstTaskRun, secondTaskFinished, secondTaskRun, tasks, total;
       firstTaskRun = false;
       secondTaskRun = false;
       firstTaskFinished = false;
       secondTaskFinished = false;
       finished = false;
+      total = 2;
       tasks = new balUtil.Group('sync', function(err) {
+        if (err) {
+          return done(err);
+        }
         assert.equal(false, finished, 'the group of tasks only finished once');
-        finished = true;
-        return assert.equal(false, err != null, 'no error is present');
+        return finished = true;
       });
       assert.equal('sync', tasks.mode, 'mode was correctly set to sync');
       tasks.pushAndRun(function(complete) {
@@ -336,7 +305,7 @@
         });
       });
       return wait(4000, function() {
-        assert.equal(2, tasks.completed, 'only the expected number of tasks ran');
+        assert.equal(total, tasks.completed, 'the expected number of tasks ran ' + ("" + tasks.completed + "/" + total));
         assert.equal(false, tasks.isRunning(), 'isRunning() returned false');
         assert.equal(true, tasks.hasCompleted(), 'hasCompleted() returned true');
         assert.equal(true, tasks.hasExited(), 'hasExited() returned true');
@@ -344,16 +313,19 @@
       });
     });
     it('should push and run asynchronous tasks correctly (queued)', function(done) {
-      var finished, firstTaskFinished, firstTaskRun, secondTaskFinished, secondTaskRun, tasks;
+      var finished, firstTaskFinished, firstTaskRun, secondTaskFinished, secondTaskRun, tasks, total;
       firstTaskRun = false;
       secondTaskRun = false;
       firstTaskFinished = false;
       secondTaskFinished = false;
       finished = false;
+      total = 2;
       tasks = new balUtil.Group('async', function(err) {
+        if (err) {
+          return done(err);
+        }
         assert.equal(false, finished, 'the group of tasks only finished once');
-        finished = true;
-        return assert.equal(false, err != null, 'no error is present');
+        return finished = true;
       });
       assert.equal('async', tasks.mode, 'mode was correctly set to async');
       tasks.pushAndRun(function(complete) {
@@ -376,21 +348,24 @@
         });
       });
       return wait(4000, function() {
-        assert.equal(2, tasks.completed, 'only the expected number of tasks ran');
+        assert.equal(total, tasks.completed, 'the expected number of tasks ran ' + ("" + tasks.completed + "/" + total));
         assert.equal(false, tasks.isRunning(), 'isRunning() returned false');
         assert.equal(true, tasks.hasCompleted(), 'hasCompleted() returned true');
         assert.equal(true, tasks.hasExited(), 'hasExited() returned true');
         return done();
       });
     });
-    return it('should push and run synchronous tasks correctly (multiple times)', function(done) {
-      var finished, tasks;
+    it('should push and run synchronous tasks correctly (multiple times)', function(done) {
+      var finished, tasks, total;
       finished = 0;
+      total = 2;
       tasks = new balUtil.Group('sync', {
         autoClear: true
       }, function(err) {
-        ++finished;
-        return assert.equal(false, err != null, 'no error is present');
+        if (err) {
+          return done(err);
+        }
+        return ++finished;
       });
       assert.equal('sync', tasks.mode, 'mode was correctly set to sync');
       assert.equal(true, tasks.autoClear, 'autoClear was correctly set to true');
@@ -406,10 +381,62 @@
         return assert.equal(true, tasks.isRunning(), 'isRunning() returned true');
       });
       return wait(2000, function() {
-        assert.equal(2, finished, 'it exited the correct number of times');
+        assert.equal(total, finished, 'it exited the correct number of times');
         assert.equal(false, tasks.isRunning(), 'isRunning() returned false');
         assert.equal(false, tasks.hasCompleted(), 'hasCompleted() returned false');
         assert.equal(false, tasks.hasExited(), 'hasExited() returned false');
+        return done();
+      });
+    });
+    it('should work when running ten thousand tasks synchronously', function(done) {
+      var finished, i, tasks, total, _i;
+      finished = false;
+      total = 10000;
+      tasks = new balUtil.Group(function(err) {
+        if (err) {
+          return done(err);
+        }
+        assert.equal(false, finished, 'the group of tasks only finished once');
+        return finished = true;
+      });
+      for (i = _i = 0; 0 <= total ? _i < total : _i > total; i = 0 <= total ? ++_i : --_i) {
+        tasks.push(function(complete) {
+          return complete();
+        });
+      }
+      assert.equal(0, tasks.completed, 'no tasks should have started yet');
+      tasks.sync();
+      return wait(5000, function() {
+        assert.equal(total, tasks.completed, 'the expected number of tasks ran ' + ("" + tasks.completed + "/" + total));
+        assert.equal(false, tasks.isRunning(), 'isRunning() returned false');
+        assert.equal(true, tasks.hasCompleted(), 'hasCompleted() returned true');
+        assert.equal(true, tasks.hasExited(), 'hasExited() returned true');
+        return done();
+      });
+    });
+    return it('should work when running ten thousand tasks asynchronously', function(done) {
+      var finished, i, tasks, total, _i;
+      finished = false;
+      total = 10000;
+      tasks = new balUtil.Group(function(err) {
+        if (err) {
+          return done(err);
+        }
+        assert.equal(false, finished, 'the group of tasks only finished once');
+        return finished = true;
+      });
+      for (i = _i = 0; 0 <= total ? _i < total : _i > total; i = 0 <= total ? ++_i : --_i) {
+        tasks.push(function(complete) {
+          return setTimeout(complete, 50);
+        });
+      }
+      assert.equal(0, tasks.completed, 'no tasks should have started yet');
+      tasks.async();
+      return wait(5000, function() {
+        assert.equal(total, tasks.completed, 'the expected number of tasks ran ' + ("" + tasks.completed + "/" + total));
+        assert.equal(false, tasks.isRunning(), 'isRunning() returned false');
+        assert.equal(true, tasks.hasCompleted(), 'hasCompleted() returned true');
+        assert.equal(true, tasks.hasExited(), 'hasExited() returned true');
         return done();
       });
     });

@@ -1,5 +1,13 @@
 ## History
 
+- v1.11.1 July 4, 2012
+	- `balUtilFlow` changes:
+		- `Group` changes:
+			- Cleaned up the context handling code
+		- `Block` changes:
+			- Block constructor as well as `createSubBlock` arguments is now a single `opts` object, acceping the options `name`, `fn`, `parentBlock` and the new `complete`
+			- Fixed bug introduced in v1.11.0 causing blocks to complete instantly (instead of once their tasks are finished)
+
 - v1.11.0 July 1, 2012
 	- Added `balUtilHTML`:
 		- `getAttribute(attributes,attribute)`

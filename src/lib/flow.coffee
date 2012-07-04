@@ -234,13 +234,20 @@ balUtilFlow.Group = class
 		@exited = value  if value?
 		return @exited is true
 
+	# Log an error
+	logError: (err) ->
+		# Only push the error if we haven't already added it
+		if @errors[@errors.length-1] isnt err
+			@errors.push(err)
+		# Chain
+		@
+
 	# A task has completed
 	complete: (args...) ->
 		# Push the result
 		err = args[0] or undefined
-		# console.log(err)  if err
 		@lastResult = args
-		@errors.push(err)  if err
+		@logError(err)  if err
 		@results.push(args)
 
 		# We are one less running task
@@ -249,7 +256,7 @@ balUtilFlow.Group = class
 
 		# Check if we have already completed
 		if @hasExited()
-			# if so, do nothing
+			# do nothing
 
 		# Otherwise
 		else
@@ -276,6 +283,9 @@ balUtilFlow.Group = class
 
 	# The group has finished
 	exit: (err=null) ->
+		# Push the error if we were passed one
+		@logError(err)  if err
+
 		# Check if we have already exited, if so, ignore
 		if @hasExited()
 			# do nothing
@@ -284,9 +294,17 @@ balUtilFlow.Group = class
 		else
 			# Fetch the results
 			lastResult = @lastResult
-			errors = if @errors.length isnt 0 then @errors else null
-			errors = errors[0]  if @errors.length is 1
 			results = @results
+
+			# If have multiple errors, return an array
+			# If we have one error, return that error
+			# If we have no errors, retur null
+			if @errors.length is 0
+				errors = null
+			else if @errors.length is 1
+				errors = @errors[0]
+			else
+				errors = @errors
 
 			# Clear, and exit with the results
 			if @autoClear
@@ -311,40 +329,22 @@ balUtilFlow.Group = class
 		# Add the task and increment the count
 		++@total
 
-		# Bind
-		if args.length is 2
-			context = args[0]
-			_task = args[1]
-			task = (complete) ->
-				balUtilFlow.fireWithOptionalCallback(_task,[complete],context)
-		else
-			task = args[0]
-
 		# Queue
-		@queue.push(task)
+		@queue.push(args)
 
 		# Chain
 		@
 
 	# Push and run
 	pushAndRun: (args...) ->
-		# Bind
-		if args.length is 2
-			context = args[0]
-			_task = args[1]
-			task = (complete) ->
-				balUtilFlow.fireWithOptionalCallback(_task,[complete],context)
-		else
-			task = args[0]
-
 		# Check if we are currently running in sync mode
 		if @mode is 'sync' and @isRunning()
 			# push the task for later
-			@push(task)
+			@push(args...)
 		else
 			# run the task now
 			++@total
-			@runTask(task)
+			@runTask(args)
 
 		# Chain
 		@
@@ -369,7 +369,18 @@ balUtilFlow.Group = class
 			run = ->
 				++me.running
 				complete = me.completer()
-				balUtilFlow.fireWithOptionalCallback(task,[complete])
+				if balUtilFlow.isArray(task)
+					if task.length is 2
+						_context = task[0]
+						_task = task[1]
+					else if task.length is 1
+						_task = task[0]
+						_context = null
+					else
+						throw new Error('balUtilFlow.Group an invalid task was pushed')
+				else
+					_task = task
+				balUtilFlow.fireWithOptionalCallback(_task,[complete],_context)
 
 			# Fire with an immediate timeout for async loads, and every hundredth sync task, except for the first
 			# otherwise if we are under a stressful load node will crash with
@@ -426,47 +437,53 @@ balUtilFlow.Block = class extends balUtilFlow.Group
 
 	# Create a new block and run it
 	# fn(block.block, block.task, block.exit)
-	constructor: (name, initFunction, parentBlock) ->
+	# complete(err)
+	constructor: (opts) ->
 		# Prepare
 		block = @
+		{name, fn, parentBlock, complete} = opts
 
-		# Apply
-		super (err) ->
-			block.blockAfter(block,err)
-			block.parentBlock?.complete(err)
+		# Apply options
 		block.blockName = name
 		block.parentBlock = parentBlock  if parentBlock?
 		block.mode = 'sync'
-		block.initFunction = initFunction
+		block.fn = fn
+
+		# Create group
+		super (err) ->
+			block.blockAfter(block,err)
+			complete?(err)
 
 		# Event
 		block.blockBefore(block)
 
-		# If we have an initFunction
-		if block.initFunction?
-			# If our initFunction has a completion callback
+		# If we have an fn
+		if block.fn?
+			# If our fn has a completion callback
 			# then set the total tasks to infinity
 			# so we wait for the competion callback instead of completeling automatically
-			if block.initFunction.length is 3
+			if block.fn.length is 3
 				block.total = Infinity
 
 			# Fire the init function
 			try
-				block.initFunction(
+				block.fn(
+					# Create sub block
 					(name,fn) -> block.block(name,fn)
+					# Create sub task
 					(name,fn) -> block.task(name,fn)
+					# Complete
 					(err) -> block.exit(err)
 				)
+
+				# If our fn completion callback is synchronous
+				# then fire our tasks right away
+				if block.fn.length isnt 3
+					block.run()
 			catch err
 				block.exit(err)
-
-			# If our initFunction completion callback
-			# then fire our tasks right away
-			if block.initFunction.length isnt 3
-				block.run()
-
 		else
-			# We don't have an initFunction
+			# We don't have an fn
 			# So lets set our total tasks to infinity
 			block.total = Infinity
 
@@ -478,29 +495,30 @@ balUtilFlow.Block = class extends balUtilFlow.Group
 	block: (name,fn) ->
 		# Push the creation of our subBlock to our block's queue
 		block = @
-		push = (complete) ->
+		pushBlock = (fn) ->
 			if block.total is Infinity
-				block.pushAndRun(complete)
+				block.pushAndRun(fn)
 			else
-				block.push(complete)
-		push ->
-			subBlock = block.createSubBlock(name,fn,block)
+				block.push(fn)
+		pushBlock (complete) ->
+			subBlock = block.createSubBlock({name,fn,complete})
 		@
 
 	# Create a sub block
-	createSubBlock: (name,fn,parentBlock) ->
-		new balUtilFlow.Block(name,fn,parentBlock)
+	createSubBlock: (opts) ->
+		opts.parentBlock = @
+		new balUtilFlow.Block(opts)
 
 	# Create a task for our current block
 	# fn(complete)
 	task: (name,fn) ->
 		# Prepare
 		block = @
-		pushTask = (complete) ->
+		pushTask = (fn) ->
 			if block.total is Infinity
-				block.pushAndRun(complete)
+				block.pushAndRun(fn)
 			else
-				block.push(complete)
+				block.push(fn)
 
 		# Push the task to the correct place
 		pushTask (complete) ->

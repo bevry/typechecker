@@ -217,13 +217,20 @@
       return this.exited === true;
     };
 
+    _Class.prototype.logError = function(err) {
+      if (this.errors[this.errors.length - 1] !== err) {
+        this.errors.push(err);
+      }
+      return this;
+    };
+
     _Class.prototype.complete = function() {
       var args, err;
       args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
       err = args[0] || void 0;
       this.lastResult = args;
       if (err) {
-        this.errors.push(err);
+        this.logError(err);
       }
       this.results.push(args);
       if (this.running !== 0) {
@@ -260,15 +267,21 @@
       if (err == null) {
         err = null;
       }
+      if (err) {
+        this.logError(err);
+      }
       if (this.hasExited()) {
 
       } else {
         lastResult = this.lastResult;
-        errors = this.errors.length !== 0 ? this.errors : null;
-        if (this.errors.length === 1) {
-          errors = errors[0];
-        }
         results = this.results;
+        if (this.errors.length === 0) {
+          errors = null;
+        } else if (this.errors.length === 1) {
+          errors = this.errors[0];
+        } else {
+          errors = this.errors;
+        }
         if (this.autoClear) {
           this.clear();
         } else {
@@ -289,39 +302,21 @@
     };
 
     _Class.prototype.push = function() {
-      var args, context, task, _task;
+      var args;
       args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
       ++this.total;
-      if (args.length === 2) {
-        context = args[0];
-        _task = args[1];
-        task = function(complete) {
-          return balUtilFlow.fireWithOptionalCallback(_task, [complete], context);
-        };
-      } else {
-        task = args[0];
-      }
-      this.queue.push(task);
+      this.queue.push(args);
       return this;
     };
 
     _Class.prototype.pushAndRun = function() {
-      var args, context, task, _task;
+      var args;
       args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
-      if (args.length === 2) {
-        context = args[0];
-        _task = args[1];
-        task = function(complete) {
-          return balUtilFlow.fireWithOptionalCallback(_task, [complete], context);
-        };
-      } else {
-        task = args[0];
-      }
       if (this.mode === 'sync' && this.isRunning()) {
-        this.push(task);
+        this.push.apply(this, args);
       } else {
         ++this.total;
-        this.runTask(task);
+        this.runTask(args);
       }
       return this;
     };
@@ -340,10 +335,23 @@
       me = this;
       try {
         run = function() {
-          var complete;
+          var complete, _context, _task;
           ++me.running;
           complete = me.completer();
-          return balUtilFlow.fireWithOptionalCallback(task, [complete]);
+          if (balUtilFlow.isArray(task)) {
+            if (task.length === 2) {
+              _context = task[0];
+              _task = task[1];
+            } else if (task.length === 1) {
+              _task = task[0];
+              _context = null;
+            } else {
+              throw new Error('balUtilFlow.Group an invalid task was pushed');
+            }
+          } else {
+            _task = task;
+          }
+          return balUtilFlow.fireWithOptionalCallback(_task, [complete], _context);
         };
         if (this.completed !== 0 && (this.mode === 'async' || (this.completed % 100) === 0)) {
           setTimeout(run, 0);
@@ -405,38 +413,38 @@
 
     _Class.prototype.blockTaskAfter = function(block, task, err) {};
 
-    function _Class(name, initFunction, parentBlock) {
-      var block;
+    function _Class(opts) {
+      var block, complete, fn, name, parentBlock;
       block = this;
-      _Class.__super__.constructor.call(this, function(err) {
-        var _ref;
-        block.blockAfter(block, err);
-        return (_ref = block.parentBlock) != null ? _ref.complete(err) : void 0;
-      });
+      name = opts.name, fn = opts.fn, parentBlock = opts.parentBlock, complete = opts.complete;
       block.blockName = name;
       if (parentBlock != null) {
         block.parentBlock = parentBlock;
       }
       block.mode = 'sync';
-      block.initFunction = initFunction;
+      block.fn = fn;
+      _Class.__super__.constructor.call(this, function(err) {
+        block.blockAfter(block, err);
+        return typeof complete === "function" ? complete(err) : void 0;
+      });
       block.blockBefore(block);
-      if (block.initFunction != null) {
-        if (block.initFunction.length === 3) {
+      if (block.fn != null) {
+        if (block.fn.length === 3) {
           block.total = Infinity;
         }
         try {
-          block.initFunction(function(name, fn) {
+          block.fn(function(name, fn) {
             return block.block(name, fn);
           }, function(name, fn) {
             return block.task(name, fn);
           }, function(err) {
             return block.exit(err);
           });
+          if (block.fn.length !== 3) {
+            block.run();
+          }
         } catch (err) {
           block.exit(err);
-        }
-        if (block.initFunction.length !== 3) {
-          block.run();
         }
       } else {
         block.total = Infinity;
@@ -446,34 +454,39 @@
     }
 
     _Class.prototype.block = function(name, fn) {
-      var block, push;
+      var block, pushBlock;
       block = this;
-      push = function(complete) {
+      pushBlock = function(fn) {
         if (block.total === Infinity) {
-          return block.pushAndRun(complete);
+          return block.pushAndRun(fn);
         } else {
-          return block.push(complete);
+          return block.push(fn);
         }
       };
-      push(function() {
+      pushBlock(function(complete) {
         var subBlock;
-        return subBlock = block.createSubBlock(name, fn, block);
+        return subBlock = block.createSubBlock({
+          name: name,
+          fn: fn,
+          complete: complete
+        });
       });
       return this;
     };
 
-    _Class.prototype.createSubBlock = function(name, fn, parentBlock) {
-      return new balUtilFlow.Block(name, fn, parentBlock);
+    _Class.prototype.createSubBlock = function(opts) {
+      opts.parentBlock = this;
+      return new balUtilFlow.Block(opts);
     };
 
     _Class.prototype.task = function(name, fn) {
       var block, pushTask;
       block = this;
-      pushTask = function(complete) {
+      pushTask = function(fn) {
         if (block.total === Infinity) {
-          return block.pushAndRun(complete);
+          return block.pushAndRun(fn);
         } else {
-          return block.push(complete);
+          return block.push(fn);
         }
       };
       pushTask(function(complete) {
