@@ -9,7 +9,7 @@ util = require('util')
 # Tests
 
 # Types
-joe.describe 'type', (describe,it) ->
+joe.describe 'types', (describe,it) ->
 	# Prepare
 	typeTestData = [
 		[false,'boolean']
@@ -17,9 +17,12 @@ joe.describe 'type', (describe,it) ->
 		['','string']
 		[{},'object']
 		[(->),'function']
+		[new Date(),'date']
+		[new Error(),'error']
+		[[],'array']
 		[null,'null']
 		[undefined,'undefined']
-		[/a/,'regex']
+		[/a/,'regexp']
 		[1,'number']
 	]
 
@@ -30,6 +33,6 @@ joe.describe 'type', (describe,it) ->
 
 	# Run
 	for [value,typeExpected] in typeTestData
-		typeActual = balUtil.type.get(value)
+		typeActual = balUtil.getType(value)
 		testType(value,typeExpected,typeActual)
 

@@ -1,3 +1,9 @@
+###
+NOTES:
+Instanceof is often broken and doesn't return the right value
+For instance it does not work in node virtual machines
+###
+
 # Requires
 # none
 
@@ -7,59 +13,82 @@
 # Provides higher level typeof functionality
 
 balUtilTypes =
+
+	# Is an item a string
+	toString: (value) ->
+		return Object::toString.call(value)
+
 	# Get the type
-	get: (value) ->
+	getType: (value) ->
 		# Prepare
 		result = 'object'
 
 		# Cycle
-		for type in ['array','regex','function','boolean','number','string','null','undefined']
-			if balUtilTypes[type](value)
-				result = type
+		for type in ['Array','RegExp','Date','Function','Boolean','Number','Error','String','Null','Undefined']
+			if balUtilTypes['is'+type](value)
+				result = type.toLowerCase()
 				break
 
 		# Return
 		return result
 
-	# Checks to see if a value is an object
-	object: (value) ->
+	# Checks to see if a value is an object and only an object
+	isPlainObject: (value) ->
 		return balUtilTypes.get(value) is 'object'
 
+	# Checks to see if a value is an object
+	isObject: (value) ->
+		return typeof value is 'object'
+
+	# Checks to see if a value is an error
+	isError: (value) ->
+		return value instanceof Error
+
+	# Checks to see if a value is a date
+	isDate: (value) ->
+		return balUtilTypes.toString(value) is '[object Date]'
+
+	# Checks to see if a value is an arguments object
+	isArguments: (value) ->
+		return balUtilTypes.toString(value) is '[object Arguments]'
+
 	# Checks to see if a value is a function
-	function: (value) ->
-		return value instanceof Function
+	isFunction: (value) ->
+		return balUtilTypes.toString(value) is '[object Function]'
 
 	# Checks to see if a value is an regex
-	regex: (value) ->
-		return value instanceof RegExp
+	isRegExp: (value) ->
+		return balUtilTypes.toString(value) is '[object RegExp]'
 
 	# Checks to see if a value is an array
-	array: (value) ->
-		return value instanceof Array
-
-	# Checks to see if a valule is a boolean
-	boolean: (value) ->
-		return typeof value is 'boolean'
-		#return value.toString() in ['false','true']
+	isArray: (value) ->
+		if Array.isArray?
+			return Array.isArray(value)
+		else
+			return balUtilTypes.toString(value) is '[object Array]'
 
 	# Checks to see if a valule is a number
-	number: (value) ->
-		return value? and typeof value.toPrecision isnt 'undefined'
+	isNumber: (value) ->
+		return balUtilTypes.toString(value) is '[object Number]'
 
 	# Checks to see if a value is a string
-	string: (value) ->
-		return value? and typeof value.charAt isnt 'undefined'
+	isString: (value) ->
+		return balUtilTypes.toString(value) is '[object String]'
+
+	# Checks to see if a valule is a boolean
+	isBoolean: (value) ->
+		return value is true or value is false or balUtilTypes.toString(value) is '[object Boolean]'
 
 	# Checks to see if a value is null
-	'null': (value) ->
+	isNull: (value) ->
 		return value is null
 
 	# Checks to see if a value is undefined
-	'undefined': (value) ->
+	isUndefined: (value) ->
 		return typeof value is 'undefined'
 
 	# Checks to see if a value is empty
-	empty: (value) ->
+	isEmpty: (value) ->
 		return value?
 
 

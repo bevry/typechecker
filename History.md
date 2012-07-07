@@ -1,5 +1,11 @@
 ## History
 
+- v1.12.0 July 7, 2012
+	- Rejigged `balUtilTypes` and now top level
+		- Other components now make use of this instead of inline `typeof` and `instanceof` checks
+	- `balUtilFlow` changes:
+		- `isArray` and `toString` moved to `balUtilTypes`
+
 - v1.11.2 July 7, 2012
 	- `balUtilFlow` changes:
 		- Added `clone`

@@ -2,9 +2,7 @@
 fsUtil = require('fs')
 pathUtil = require('path')
 balUtilFlow = require(__dirname+'/flow')
-
-# Optional
-balUtilPaths = null
+balUtilTypes = require(__dirname+'/types')
 
 # Create a counter of all the open files we have
 # As the filesystem will throw a fatal error if we have too many open files
@@ -711,7 +709,7 @@ balUtilPaths =
 			for own fileRelativePath, value of tree
 				++tasks.total
 				fileFullPath = pathUtil.join( dstPath, fileRelativePath.replace(/^\/+/,'') )
-				if typeof value is 'object'
+				if balUtilTypes.isObject(value)
 					balUtilPaths.writetree fileFullPath, value, tasks.completer()
 				else
 					balUtilPaths.writeFile fileFullPath, value, (err) ->
@@ -782,7 +780,7 @@ balUtilPaths =
 	isPathOlderThan: (aPath,bInput,next) ->
 		# Handle mtime
 		bMtime = null
-		if typeof bInput is 'number'
+		if balUtilTypes.isNumber(bInput)
 			mode = 'time'
 			bMtime = new Date(new Date() - bInput)
 		else

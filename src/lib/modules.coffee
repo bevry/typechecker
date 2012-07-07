@@ -2,6 +2,7 @@
 balUtilModules = null
 balUtilFlow = require(__dirname+'/flow')
 balUtilPaths = require(__dirname+'/paths')
+balUtilTypes = require(__dirname+'/types')
 
 
 # =====================================
@@ -27,11 +28,11 @@ balUtilModules =
 		stderr = ''
 
 		# Prepare format
-		if typeof command is 'string'
+		if balUtilTypes.isString(command)
 			command = command.split(' ')
 
 		# Execute command
-		if command instanceof Array
+		if balUtilTypes.isArray(command)
 			pid = spawn(command[0], command.slice(1), opts)
 		else
 			pid = spawn(command.command, command.args or [], command.options or opts)
@@ -70,7 +71,7 @@ balUtilModules =
 			next(err,results)
 
 		# Prepare tasks
-		unless commands instanceof Array
+		unless balUtilTypes.isArray(commands)
 			commands = [commands]
 
 		# Add tasks
@@ -119,7 +120,7 @@ balUtilModules =
 			next(err,results)
 
 		# Prepare tasks
-		unless commands instanceof Array
+		unless balUtilTypes.isArray(command)
 			commands = [commands]
 
 		# Add tasks
@@ -263,9 +264,9 @@ balUtilModules =
 		npmPath or= 'npm'  # default to global npm installation
 
 		# Exttract commands
-		if typeof command is 'string'
+		if balUtilTypes.isString(command)
 			command = command.split(' ')
-		else unless command instanceof Array
+		else unless balUtilTypes.isArray(command)
 			return next(new Error('unknown command type'))
 
 		# Prefix the node and npm paths

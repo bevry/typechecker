@@ -19,11 +19,7 @@
 
   balUtilTypes = require(__dirname + '/types');
 
-  subpackages = [
-    balUtilCompare, balUtilEvents, balUtilFlow, balUtilHTML, balUtilModules, balUtilPaths, {
-      type: balUtilTypes
-    }
-  ];
+  subpackages = [balUtilCompare, balUtilEvents, balUtilFlow, balUtilHTML, balUtilModules, balUtilPaths, balUtilTypes];
 
   for (_i = 0, _len = subpackages.length; _i < _len; _i++) {
     subpackage = subpackages[_i];

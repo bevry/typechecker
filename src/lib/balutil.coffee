@@ -14,7 +14,7 @@ subpackages = [
 	balUtilHTML
 	balUtilModules
 	balUtilPaths
-	{type: balUtilTypes}
+	balUtilTypes
 ]
 
 # Merge in the sub-packages

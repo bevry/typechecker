@@ -1,6 +1,7 @@
 # Require
 EventEmitter = require('events').EventEmitter
 balUtilFlow = require(__dirname+'/flow')
+balUtilTypes = require(__dirname+'/types')
 debug = false
 
 
@@ -233,9 +234,9 @@ class EventSystem extends EventEmitterEnhanced
 	# next(err)
 	block: (eventNames, next) ->
 		# Ensure array
-		if (eventNames instanceof Array) is false
-			if typeof eventNames is 'string'
-				eventNames = eventNames.split /[,\s]+/g
+		unless balUtilTypes.isArray(eventNames)
+			if balUtilTypes.isString(eventNames)
+				eventNames = eventNames.split(/[,\s]+/g)
 			else
 				err = new Error('Unknown eventNames type')
 				return next(err)
@@ -259,8 +260,8 @@ class EventSystem extends EventEmitterEnhanced
 	# next(err)
 	unblock: (eventNames, next) ->
 		# Ensure array
-		if (eventNames instanceof Array) is false
-			if typeof eventNames is 'string'
+		unless balUtilTypes.isArray(eventNames)
+			if balUtilTypes.isString(eventNames)
 				eventNames = eventNames.split /[,\s]+/g
 			else
 				err = new Error('Unknown eventNames type')

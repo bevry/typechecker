@@ -1,5 +1,5 @@
 # Requires
-# none
+balUtilTypes = require?(__dirname+'/types') or @balUtilTypes
 
 # =====================================
 # Flow
@@ -17,7 +17,7 @@ balUtilFlow =
 
 	# Extract the correct options and completion callback from the passed arguments
 	extractOptsAndCallback: (opts,next) ->
-		if typeof opts is 'function' and next? is false
+		if balUtilTypes.isFunction(opts) and next? is false
 			next = opts
 			opts = {}
 		else
@@ -55,7 +55,7 @@ balUtilFlow =
 			# Fire the function
 			try
 				result = method.apply(context,args)
-				err = result  if result instanceof Error
+				err = result  if balUtilTypes.isError(result)
 			catch caughtError
 				err = caughtError
 
@@ -64,14 +64,6 @@ balUtilFlow =
 
 		# Return the result
 		return result
-
-	# Is an item a string
-	toString: (obj) ->
-		return Object::toString.call(obj)
-
-	# Is an item an array
-	isArray: (obj) ->
-		return @toString(obj) is '[object Array]'
 
 	# Extend
 	extend: (target,objs...) ->
@@ -96,7 +88,7 @@ balUtilFlow =
 		context or= obj
 
 		# Handle
-		if @isArray(obj)
+		if balUtilTypes.isArray(obj)
 			for item,key in obj
 				if callback.call(context,item,key,obj) is false
 					broke = true
@@ -196,11 +188,11 @@ balUtilFlow.Group = class
 	constructor: (args...) ->
 		@clear()
 		for arg in args
-			if typeof arg is 'string'
+			if balUtilTypes.isString(arg)
 				@mode = arg
-			else if typeof arg is 'function'
+			else if balUtilTypes.isFunction(arg)
 				@next = arg
-			else if typeof arg is 'object'
+			else if balUtilTypes.isObject(arg)
 				{next,mode,breakOnError,autoClear} = arg
 				@next = next  if next
 				@mode = mode  if mode
@@ -376,7 +368,7 @@ balUtilFlow.Group = class
 			run = ->
 				++me.running
 				complete = me.completer()
-				if balUtilFlow.isArray(task)
+				if balUtilTypes.isArray(task)
 					if task.length is 2
 						_context = task[0]
 						_task = task[1]
