@@ -1,5 +1,15 @@
 ## History
 
+- v1.11.2 July 7, 2012
+	- `balUtilFlow` changes:
+		- Added `clone`
+	- `balUtilModules` changes:
+		- Fixed exists warning on `initNodeModules`
+	- `balUtilPaths` changes:
+		- Added `scanlist`
+		- `scandir` changes:
+			- If `readFiles` is `true`, then we will return the contents into the list entries as well as the tree entries (we weren't doing this for lists before)
+
 - v1.11.1 July 4, 2012
 	- `balUtilFlow` changes:
 		- `Group` changes:

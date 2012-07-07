@@ -211,6 +211,17 @@
       result = path.replace(/[^a-zA-Z0-9]/g, '-').replace(/^-/, '').replace(/-+/, '-');
       return result;
     },
+    scanlist: function(path, next) {
+      balUtilPaths.scandir({
+        path: path,
+        readFiles: true,
+        ignoreHiddenFiles: true,
+        next: function(err, list) {
+          return next(err, list);
+        }
+      });
+      return this;
+    },
     scantree: function(path, next) {
       balUtilPaths.scandir({
         path: path,
@@ -377,16 +388,19 @@
                   if (skip) {
                     return tasks.complete();
                   } else {
-                    list[fileRelativePath] = 'file';
                     if (options.readFiles) {
                       return balUtilPaths.readFile(fileFullPath, function(err, data) {
+                        var dataString;
                         if (err) {
                           return tasks.exit(err);
                         }
-                        tree[file] = data.toString();
+                        dataString = data.toString();
+                        list[fileRelativePath] = dataString;
+                        tree[file] = dataString;
                         return tasks.complete();
                       });
                     } else {
+                      list[fileRelativePath] = 'file';
                       tree[file] = true;
                       return tasks.complete();
                     }

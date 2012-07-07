@@ -82,6 +82,13 @@ balUtilFlow =
 				target[key] = value
 		return target
 
+	# Clone
+	clone: (args...) ->
+		target = {}
+		args.unshift(target)
+		balUtilFlow.extend(args...)
+		return target
+
 	# Cycle through each item in an array or object
 	each: (obj,callback,context) ->
 		# Prepare

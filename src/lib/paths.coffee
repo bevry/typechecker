@@ -263,6 +263,21 @@ balUtilPaths =
 		return result
 
 
+	# Scan a directory into a list
+	# next(err,tree)
+	scanlist: (path,next) ->
+		# Handle
+		balUtilPaths.scandir(
+			path: path
+			readFiles: true
+			ignoreHiddenFiles: true
+			next: (err,list) ->
+				return next(err,list)
+		)
+
+		# Chain
+		@
+
 	# Scan a directory into a tree
 	# next(err,tree)
 	scantree: (path,next) ->
@@ -487,18 +502,20 @@ balUtilPaths =
 								return tasks.complete()
 							else
 								# Append
-								list[fileRelativePath] = 'file'
 								if options.readFiles
 									# Read file
 									balUtilPaths.readFile fileFullPath, (err,data) ->
 										# Error?
 										return tasks.exit(err)  if err
 										# Append
-										tree[file] = data.toString()
+										dataString = data.toString()
+										list[fileRelativePath] = dataString
+										tree[file] = dataString
 										# Done
 										return tasks.complete()
 								else
 									# Append
+									list[fileRelativePath] = 'file'
 									tree[file] = true
 									# Done
 									return tasks.complete()

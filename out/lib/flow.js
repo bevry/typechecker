@@ -66,6 +66,14 @@
       }
       return target;
     },
+    clone: function() {
+      var args, target;
+      args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+      target = {};
+      args.unshift(target);
+      balUtilFlow.extend.apply(balUtilFlow, args);
+      return target;
+    },
     each: function(obj, callback, context) {
       var broke, item, key, _i, _len;
       broke = false;

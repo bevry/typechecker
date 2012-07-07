@@ -1,6 +1,7 @@
 # Requires
 balUtilModules = null
 balUtilFlow = require(__dirname+'/flow')
+balUtilPaths = require(__dirname+'/paths')
 
 
 # =====================================
@@ -291,11 +292,11 @@ balUtilModules =
 		nodeModulesPath = pathUtil.join(path,'node_modules')
 
 		# Check if node modules already exists
-		if force is false and pathUtil.existsSync(nodeModulesPath)
+		if force is false and balUtilPaths.existsSync(nodeModulesPath)
 			return next()
 
 		# If there is no package.json file, then we can't do anything
-		unless pathUtil.existsSync(packageJsonPath)
+		unless balUtilPaths.existsSync(packageJsonPath)
 			return next()
 
 		# Prepare command
