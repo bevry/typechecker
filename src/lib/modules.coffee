@@ -56,6 +56,12 @@ balUtilModules =
 				err = new Error(stderr or 'exited with a non-zero status code')
 			next(err,stdout,stderr,code,signal)
 
+		# Stdin?
+		if opts.stdin
+			# Write the content to stdin
+			pid.stdin.write(opts.stdin)
+			pid.stdin.end()
+
 		# Chain
 		@
 

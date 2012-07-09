@@ -1,5 +1,9 @@
 ## History
 
+- v1.12.1 July 10, 2012
+	- `balUtilModules` changes:
+		- Added `stdin` option to `spawn`
+
 - v1.12.0 July 7, 2012
 	- Rejigged `balUtilTypes` and now top level
 		- Other components now make use of this instead of inline `typeof` and `instanceof` checks

@@ -51,6 +51,10 @@
         }
         return next(err, stdout, stderr, code, signal);
       });
+      if (opts.stdin) {
+        pid.stdin.write(opts.stdin);
+        pid.stdin.end();
+      }
       return this;
     },
     spawnMultiple: function(commands, opts, next) {
