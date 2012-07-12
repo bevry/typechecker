@@ -206,7 +206,7 @@
       });
     },
     npmCommand: function(command, opts, next) {
-      var cwd, nodePath, npmPath, output, _ref;
+      var cwd, nodePath, npmPath, output, partTwo, _ref;
       _ref = balUtilFlow.extractOptsAndCallback(opts, next), opts = _ref[0], next = _ref[1];
       nodePath = opts.nodePath, npmPath = opts.npmPath, cwd = opts.cwd, output = opts.output;
       npmPath || (npmPath = 'npm');
@@ -215,47 +215,69 @@
       } else if (!balUtilTypes.isArray(command)) {
         return next(new Error('unknown command type'));
       }
+      partTwo = function() {
+        return balUtilModules.spawn(command, {
+          cwd: cwd,
+          output: output
+        }, next);
+      };
       command.unshift(npmPath);
       if (nodePath) {
-        command.unshift(nodePath);
+        balUtilPaths.exists(npmPath, function(exists) {
+          if (exists) {
+            command.unshift(nodePath);
+          }
+          return partTwo();
+        });
+      } else {
+        partTwo();
       }
-      return balUtilModules.spawn(command, {
-        cwd: cwd,
-        output: output
-      }, next);
+      return this;
     },
     initNodeModules: function(opts, next) {
-      var command, force, logger, nodeModulesPath, packageJsonPath, path, pathUtil, _ref;
+      var force, logger, nodeModulesPath, packageJsonPath, partTwo, path, pathUtil, _ref;
       pathUtil = require('path');
       _ref = balUtilFlow.extractOptsAndCallback(opts, next), opts = _ref[0], next = _ref[1];
       path = opts.path, logger = opts.logger, force = opts.force;
       opts.cwd = path;
       packageJsonPath = pathUtil.join(path, 'package.json');
       nodeModulesPath = pathUtil.join(path, 'node_modules');
-      if (force === false && balUtilPaths.existsSync(nodeModulesPath)) {
-        return next();
+      partTwo = function() {
+        return balUtilPaths.exists(packageJsonPath, function(exists) {
+          var command;
+          if (!exists) {
+            return next();
+          }
+          command = ['install'];
+          if (force) {
+            command.push('--force');
+          }
+          if (logger) {
+            logger.log('debug', "Initializing node modules\non:   " + dirPath + "\nwith:", command);
+          }
+          return balUtilModules.npmCommand(command, opts, function() {
+            var args;
+            args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+            if (args[0] != null) {
+              return next.apply(null, args);
+            }
+            if (logger) {
+              logger.log('debug', "Initialized node modules\non:   " + dirPath + "\nwith:", command);
+            }
+            return next.apply(null, args);
+          });
+        });
+      };
+      if (force === false) {
+        balUtilPaths.exists(nodeModulesPath, function(exists) {
+          if (exists) {
+            return next();
+          }
+          return partTwo();
+        });
+      } else {
+        partTwo();
       }
-      if (!balUtilPaths.existsSync(packageJsonPath)) {
-        return next();
-      }
-      command = ['install'];
-      if (force) {
-        command.push('--force');
-      }
-      if (logger) {
-        logger.log('debug', "Initializing node modules\non:   " + dirPath + "\nwith:", command);
-      }
-      balUtilModules.npmCommand(command, opts, function() {
-        var args;
-        args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
-        if (args[0] != null) {
-          return next.apply(null, args);
-        }
-        if (logger) {
-          logger.log('debug', "Initialized node modules\non:   " + dirPath + "\nwith:", command);
-        }
-        return next.apply(null, args);
-      });
       return this;
     }
   };

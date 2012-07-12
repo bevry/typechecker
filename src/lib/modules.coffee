@@ -275,13 +275,26 @@ balUtilModules =
 		else unless balUtilTypes.isArray(command)
 			return next(new Error('unknown command type'))
 
-		# Prefix the node and npm paths
+		# Part Two of this command
+		partTwo = ->
+			# Execute npm install inside the pugin directory
+			balUtilModules.spawn(command, {cwd,output}, next)
+
+		# Prefix the npm path
 		command.unshift(npmPath)
-		command.unshift(nodePath)  if nodePath
 
-		# Execute npm install inside the pugin directory
-		balUtilModules.spawn(command, {cwd,output}, next)
+		# If we have a node path, and the npm path actually exists
+		# then prefix the node path too, otherwise don't
+		# once done, execute the command
+		if nodePath
+			balUtilPaths.exists npmPath, (exists) ->
+				command.unshift(nodePath)  if exists
+				partTwo()
+		else
+			partTwo()
 
+		# Chain
+		@
 
 	# Init Node Modules
 	# with cross platform support
@@ -298,25 +311,32 @@ balUtilModules =
 		packageJsonPath = pathUtil.join(path,'package.json')
 		nodeModulesPath = pathUtil.join(path,'node_modules')
 
-		# Check if node modules already exists
-		if force is false and balUtilPaths.existsSync(nodeModulesPath)
-			return next()
+		# Part Two of this command
+		partTwo = ->
+			# If there is no package.json file, then we can't do anything
+			balUtilPaths.exists packageJsonPath, (exists) ->
+				return next()  unless exists
 
-		# If there is no package.json file, then we can't do anything
-		unless balUtilPaths.existsSync(packageJsonPath)
-			return next()
+				# Prepare command
+				command = ['install']
+				if force
+					command.push('--force')
 
-		# Prepare command
-		command = ['install']
-		if force
-			command.push('--force')
+				# Execute npm install inside the pugin directory
+				logger.log 'debug', "Initializing node modules\non:   #{dirPath}\nwith:",command  if logger
+				balUtilModules.npmCommand command, opts, (args...) ->
+					return next(args...)  if args[0]?
+					logger.log 'debug', "Initialized node modules\non:   #{dirPath}\nwith:",command  if logger
+					return next(args...)
 
-		# Execute npm install inside the pugin directory
-		logger.log 'debug', "Initializing node modules\non:   #{dirPath}\nwith:",command  if logger
-		balUtilModules.npmCommand command, opts, (args...) ->
-			return next(args...)  if args[0]?
-			logger.log 'debug', "Initialized node modules\non:   #{dirPath}\nwith:",command  if logger
-			return next(args...)
+		# Check if node_modules already exists
+		if force is false
+			balUtilPaths.exists nodeModulesPath, (exists) ->
+				return next()  if exists
+				partTwo()
+		else
+			partTwo()
+
 
 		# Chain
 		@

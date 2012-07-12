@@ -1,5 +1,10 @@
 ## History
 
+- v1.12.3 July 12, 2012
+	- `balUtilModules` changes:
+		- `npmCommand` will now only prefix with the nodePath if the npmPath exists
+		- `npmCommand` and `initNodeModules` now use async fs calls instead of sync calls
+
 - v1.12.2 July 12, 2012
 	- `balUtilFlow` changes:
 		- Added `dereference`
