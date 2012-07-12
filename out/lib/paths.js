@@ -297,7 +297,6 @@
         if (tasks.exited) {
           return;
         } else if (err) {
-          debugger;
           console.log('balUtilPaths.scandir: readdir has failed on:', options.path);
           return tasks.exit(err);
         }

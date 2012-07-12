@@ -74,6 +74,19 @@ balUtilFlow =
 				target[key] = value
 		return target
 
+
+	# Deep extend plain objects
+	deepExtendPlainObjects: (target,objs...) ->
+		for obj in objs
+			obj or= {}
+			for own key,value of obj
+				if balUtilTypes.isPlainObject(value)
+					target[key] = {}  unless balUtilTypes.isPlainObject(target[key])
+					balUtilFlow.deepExtendPlainObjects(target[key],value)
+				else
+					target[key] = value
+		return target
+
 	# Clone
 	clone: (source) ->
 		target = {}
@@ -90,19 +103,16 @@ balUtilFlow =
 	# Cycle through each item in an array or object
 	each: (obj,callback,context) ->
 		# Prepare
-		broke = false
 		context or= obj
 
 		# Handle
 		if balUtilTypes.isArray(obj)
 			for item,key in obj
 				if callback.call(context,item,key,obj) is false
-					broke = true
 					break
 		else
 			for own key,item of obj
 				if callback.call(context,item,key,obj) is false
-					broke = true
 					break
 
 		# Chain

@@ -1,5 +1,12 @@
 ## History
 
+- v1.12.4 July 12, 2012
+	- `balUtilTypes` changes:
+		- `isObject` now also checks truthyness to avoid `null` and `undefined` from being objects
+		- `isPlainObject` got so good, it can't get better
+	- `balUtilFlow` changes:
+		- added `deepExtendPlainObjects`
+
 - v1.12.3 July 12, 2012
 	- `balUtilModules` changes:
 		- `npmCommand` will now only prefix with the nodePath if the npmPath exists

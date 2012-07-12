@@ -28,10 +28,10 @@ For instance it does not work in node virtual machines
       return result;
     },
     isPlainObject: function(value) {
-      return balUtilTypes.get(value) === 'object';
+      return balUtilTypes.isObject(value) && value.__proto__ === Object.prototype;
     },
     isObject: function(value) {
-      return typeof value === 'object';
+      return value && typeof value === 'object';
     },
     isError: function(value) {
       return value instanceof Error;

@@ -34,11 +34,12 @@ balUtilTypes =
 
 	# Checks to see if a value is an object and only an object
 	isPlainObject: (value) ->
-		return balUtilTypes.get(value) is 'object'
+		return balUtilTypes.isObject(value) and value.__proto__ is Object.prototype
 
 	# Checks to see if a value is an object
 	isObject: (value) ->
-		return typeof value is 'object'
+		# null and undefined are objects, hence the truthy check
+		return value and typeof value is 'object'
 
 	# Checks to see if a value is an error
 	isError: (value) ->

@@ -62,6 +62,27 @@
       }
       return target;
     },
+    deepExtendPlainObjects: function() {
+      var key, obj, objs, target, value, _i, _len;
+      target = arguments[0], objs = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
+      for (_i = 0, _len = objs.length; _i < _len; _i++) {
+        obj = objs[_i];
+        obj || (obj = {});
+        for (key in obj) {
+          if (!__hasProp.call(obj, key)) continue;
+          value = obj[key];
+          if (balUtilTypes.isPlainObject(value)) {
+            if (!balUtilTypes.isPlainObject(target[key])) {
+              target[key] = {};
+            }
+            balUtilFlow.deepExtendPlainObjects(target[key], value);
+          } else {
+            target[key] = value;
+          }
+        }
+      }
+      return target;
+    },
     clone: function(source) {
       var target;
       target = {};
@@ -75,14 +96,12 @@
       return target;
     },
     each: function(obj, callback, context) {
-      var broke, item, key, _i, _len;
-      broke = false;
+      var item, key, _i, _len;
       context || (context = obj);
       if (balUtilTypes.isArray(obj)) {
         for (key = _i = 0, _len = obj.length; _i < _len; key = ++_i) {
           item = obj[key];
           if (callback.call(context, item, key, obj) === false) {
-            broke = true;
             break;
           }
         }
@@ -91,7 +110,6 @@
           if (!__hasProp.call(obj, key)) continue;
           item = obj[key];
           if (callback.call(context, item, key, obj) === false) {
-            broke = true;
             break;
           }
         }
