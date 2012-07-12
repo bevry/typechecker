@@ -62,12 +62,16 @@
       }
       return target;
     },
-    clone: function() {
-      var args, target;
-      args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+    clone: function(source) {
+      var target;
       target = {};
       args.unshift(target);
-      balUtilFlow.extend.apply(balUtilFlow, args);
+      balUtilFlow.extend(target, source);
+      return target;
+    },
+    dereference: function(source) {
+      var target;
+      target = JSON.parse(JSON.stringify(source));
       return target;
     },
     each: function(obj, callback, context) {

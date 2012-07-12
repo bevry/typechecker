@@ -75,10 +75,16 @@ balUtilFlow =
 		return target
 
 	# Clone
-	clone: (args...) ->
+	clone: (source) ->
 		target = {}
 		args.unshift(target)
-		balUtilFlow.extend(args...)
+		balUtilFlow.extend(target,source)
+		return target
+
+	# Return a dereferenced copy of the object
+	# Will not keep functions
+	dereference: (source) ->
+		target = JSON.parse(JSON.stringify(source))
 		return target
 
 	# Cycle through each item in an array or object

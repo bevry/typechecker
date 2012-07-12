@@ -1,5 +1,9 @@
 ## History
 
+- v1.12.2 July 12, 2012
+	- `balUtilFlow` changes:
+		- Added `dereference`
+
 - v1.12.1 July 10, 2012
 	- `balUtilModules` changes:
 		- Added `stdin` option to `spawn`

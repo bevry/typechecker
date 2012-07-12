@@ -12,7 +12,7 @@
     return setTimeout(fn, delay);
   };
 
-  joe.describe('flow', function(describe, it) {
+  joe.describe('misc', function(describe, it) {
     it('should detect arrays', function(done) {
       var arr, obj, str;
       arr = [];
@@ -33,7 +33,7 @@
       assert.deepEqual(arr, out, 'cycling an array produced the expected results');
       return done();
     });
-    return it('should cycle objects', function(done) {
+    it('should cycle objects', function(done) {
       var obj, out;
       obj = {
         'a': 1,
@@ -45,6 +45,27 @@
         return out[key] = value;
       });
       assert.deepEqual(obj, out, 'cycling an object produced the expected results');
+      return done();
+    });
+    return it('should dereference correctly', function(done) {
+      var out, src;
+      src = {
+        a: {
+          b: 2
+        }
+      };
+      out = balUtil.dereference(src);
+      out.a.b = 3;
+      assert.deepEqual({
+        a: {
+          b: 3
+        }
+      }, out, 'out object was as expected');
+      assert.deepEqual({
+        a: {
+          b: 2
+        }
+      }, src, 'src object was not modified');
       return done();
     });
   });

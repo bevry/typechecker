@@ -12,7 +12,7 @@ wait = (delay,fn) -> setTimeout(fn,delay)
 # -------------------------------------
 # Flow
 
-joe.describe 'flow', (describe,it) ->
+joe.describe 'misc', (describe,it) ->
 
 	it 'should detect arrays', (done) ->
 		# Prepare
@@ -30,7 +30,7 @@ joe.describe 'flow', (describe,it) ->
 		out = []
 		balUtil.each arr, (value,key) ->
 			out[key] = value
-		assert.deepEqual(arr,out, 'cycling an array produced the expected results')
+		assert.deepEqual(arr, out, 'cycling an array produced the expected results')
 		done()
 
 	it 'should cycle objects', (done) ->
@@ -39,7 +39,16 @@ joe.describe 'flow', (describe,it) ->
 		out = {}
 		balUtil.each obj, (value,key) ->
 			out[key] = value
-		assert.deepEqual(obj,out, 'cycling an object produced the expected results')
+		assert.deepEqual(obj, out, 'cycling an object produced the expected results')
+		done()
+
+	it 'should dereference correctly', (done) ->
+		# Prepare
+		src = {a:{b:2}}
+		out = balUtil.dereference(src)
+		out.a.b = 3
+		assert.deepEqual({a:{b:3}}, out, 'out object was as expected')
+		assert.deepEqual({a:{b:2}}, src, 'src object was not modified')
 		done()
 
 
