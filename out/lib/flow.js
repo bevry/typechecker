@@ -83,13 +83,6 @@
       }
       return target;
     },
-    clone: function(source) {
-      var target;
-      target = {};
-      args.unshift(target);
-      balUtilFlow.extend(target, source);
-      return target;
-    },
     dereference: function(source) {
       var target;
       target = JSON.parse(JSON.stringify(source));

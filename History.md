@@ -1,5 +1,11 @@
 ## History
 
+- v1.12.5 July 18, 2012
+	- `balUtilTypes` changes:
+		- Better checks for `isString` and `isNumber` under some environments
+	- `balUtilFlow` changes:
+		- Removed ambigious `clone` function, use `dereference` or `extend` or `deepExtendPlainObjects` instead
+
 - v1.12.4 July 12, 2012
 	- `balUtilTypes` changes:
 		- `isObject` now also checks truthyness to avoid `null` and `undefined` from being objects

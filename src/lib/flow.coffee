@@ -87,13 +87,6 @@ balUtilFlow =
 					target[key] = value
 		return target
 
-	# Clone
-	clone: (source) ->
-		target = {}
-		args.unshift(target)
-		balUtilFlow.extend(target,source)
-		return target
-
 	# Return a dereferenced copy of the object
 	# Will not keep functions
 	dereference: (source) ->

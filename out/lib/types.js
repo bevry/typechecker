@@ -56,10 +56,10 @@ For instance it does not work in node virtual machines
       }
     },
     isNumber: function(value) {
-      return balUtilTypes.toString(value) === '[object Number]';
+      return typeof value === 'number' || balUtilTypes.toString(value) === '[object Number]';
     },
     isString: function(value) {
-      return balUtilTypes.toString(value) === '[object String]';
+      return typeof value === 'string' || balUtilTypes.toString(value) === '[object String]';
     },
     isBoolean: function(value) {
       return value === true || value === false || balUtilTypes.toString(value) === '[object Boolean]';

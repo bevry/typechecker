@@ -70,11 +70,11 @@ balUtilTypes =
 
 	# Checks to see if a valule is a number
 	isNumber: (value) ->
-		return balUtilTypes.toString(value) is '[object Number]'
+		return typeof value is 'number' or balUtilTypes.toString(value) is '[object Number]'
 
 	# Checks to see if a value is a string
 	isString: (value) ->
-		return balUtilTypes.toString(value) is '[object String]'
+		return typeof value is 'string' or balUtilTypes.toString(value) is '[object String]'
 
 	# Checks to see if a valule is a boolean
 	isBoolean: (value) ->
