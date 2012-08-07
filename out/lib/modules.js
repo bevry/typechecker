@@ -120,25 +120,26 @@
       tasks.sync();
       return this;
     },
-    getGitPath: function(next) {
-      var foundGitPath, pathUtil, possibleGitPath, possibleGitPaths, tasks, _i, _len;
-      pathUtil = require('path');
-      foundGitPath = null;
-      possibleGitPaths = process.platform.indexOf('win') !== -1 ? ['git', pathUtil.resolve('/Program Files (x64)/Git/bin/git.exe'), pathUtil.resolve('/Program Files (x86)/Git/bin/git.exe'), pathUtil.resolve('/Program Files/Git/bin/git.exe')] : ['git', '/usr/local/bin/git', '/usr/bin/git'];
+    determineExecPath: function(possiblePaths, next) {
+      var foundPath, possiblePath, tasks, _i, _len;
+      foundPath = null;
       tasks = new balUtilFlow.Group(function(err) {
-        return next(err, foundGitPath);
+        return next(err, foundPath);
       });
-      for (_i = 0, _len = possibleGitPaths.length; _i < _len; _i++) {
-        possibleGitPath = possibleGitPaths[_i];
+      for (_i = 0, _len = possiblePaths.length; _i < _len; _i++) {
+        possiblePath = possiblePaths[_i];
+        if (!possiblePath) {
+          continue;
+        }
         tasks.push({
-          possibleGitPath: possibleGitPath
+          possiblePath: possiblePath
         }, function(complete) {
-          possibleGitPath = this.possibleGitPath;
-          return balUtilModules.spawn([possibleGitPath, '--version'], function(err, stdout, stderr, code, signal) {
+          possiblePath = this.possiblePath;
+          return balUtilModules.spawn([possiblePath, '--version'], function(err, stdout, stderr, code, signal) {
             if (err) {
               return complete();
             } else {
-              foundGitPath = possibleGitPath;
+              foundPath = possiblePath;
               return tasks.exit();
             }
           });
@@ -147,90 +148,217 @@
       tasks.sync();
       return this;
     },
-    getNodePath: function(next) {
-      var nodePath, possibleNodePath;
-      nodePath = null;
-      possibleNodePath = /node$/.test(process.execPath) ? process.execPath : 'node';
-      balUtilModules.spawn([possibleNodePath, '--version'], function(err, stdout, stderr, code, signal) {
-        if (err) {
-
-        } else {
-          nodePath = possibleNodePath;
-        }
-        return next(null, nodePath);
+    getHomePath: function(next) {
+      var homePath, pathUtil;
+      if (balUtilModules.cachedHomePath != null) {
+        next(null, balUtilModules.cachedHomePath);
+        return this;
+      }
+      pathUtil = require('path');
+      homePath = process.env.USERPROFILE || process.env.HOME;
+      homePath || (homePath = null);
+      balUtilModules.cachedHomePath = homePath;
+      next(null, homePath);
+      return this;
+    },
+    getTmpPath: function(next) {
+      var isWindows, pathUtil, tmpDirName, tmpPath;
+      if (balUtilModules.cachedTmpPath != null) {
+        next(null, balUtilModules.cachedTmpPath);
+        return this;
+      }
+      pathUtil = require('path');
+      isWindows = process.platform.indexOf('win') !== -1;
+      tmpDirName = isWindows ? 'temp' : 'tmp';
+      tmpPath = process.env.TMPDIR || process.env.TMP || process.env.TEMP;
+      if (!tmpPath) {
+        balUtilModules.getHomePath(function(err, homePath) {
+          if (err) {
+            return next(err);
+          }
+          tmpPath = pathUtil.resolve(homePath, tmpDirName);
+          if (!tmpPath) {
+            return tmpPath = isWindows ? pathUtil.resolve(process.env.windir || 'C:\\Windows', tmpDirName) : '/tmp';
+          }
+        });
+      }
+      tmpPath || (tmpPath = null);
+      balUtilModules.cachedTmpPath = tmpPath;
+      next(null, tmpPath);
+      return this;
+    },
+    getGitPath: function(next) {
+      var pathUtil, possiblePaths;
+      if (balUtilModules.cachedGitPath != null) {
+        next(null, balUtilModules.cachedGitPath);
+        return this;
+      }
+      pathUtil = require('path');
+      possiblePaths = process.platform.indexOf('win') !== -1 ? [process.env.GIT_PATH, process.env.GITPATH, 'git', pathUtil.resolve('/Program Files (x64)/Git/bin/git.exe'), pathUtil.resolve('/Program Files (x86)/Git/bin/git.exe'), pathUtil.resolve('/Program Files/Git/bin/git.exe')] : [process.env.GIT_PATH, process.env.GITPATH, 'git', '/usr/local/bin/git', '/usr/bin/git'];
+      balUtilModules.determineExecPath(possiblePaths, function(err, gitPath) {
+        balUtilModules.cachedGitPath = gitPath;
+        return next(err, gitPath);
       });
       return this;
     },
-    initGitRepo: function(opts, next) {
-      var branch, commands, gitPath, logger, output, path, remote, url, _ref;
-      _ref = balUtilFlow.extractOptsAndCallback(opts, next), opts = _ref[0], next = _ref[1];
-      path = opts.path, remote = opts.remote, url = opts.url, branch = opts.branch, gitPath = opts.gitPath, logger = opts.logger, output = opts.output;
-      gitPath || (gitPath = 'git');
-      commands = [
-        {
-          command: gitPath,
-          args: ['init']
-        }, {
-          command: gitPath,
-          args: ['remote', 'add', remote, url]
-        }, {
-          command: gitPath,
-          args: ['fetch', remote]
-        }, {
-          command: gitPath,
-          args: ['pull', remote, branch]
-        }, {
-          command: gitPath,
-          args: ['submodule', 'init']
-        }, {
-          command: gitPath,
-          args: ['submodule', 'update', '--recursive']
-        }
-      ];
-      if (logger) {
-        logger.log('debug', "Initializing git repo with url [" + url + "] on directory [" + path + "]");
+    getNodePath: function(next) {
+      var pathUtil, possiblePaths;
+      if (balUtilModules.cachedNodePath != null) {
+        next(null, balUtilModules.cachedNodePath);
+        return this;
       }
-      return balUtilModules.spawnMultiple(commands, {
-        cwd: path,
-        output: output
-      }, function() {
-        var args;
-        args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
-        if (args[0] != null) {
-          return next.apply(null, args);
-        }
-        if (logger) {
-          logger.log('debug', "Initialized git repo with url [" + url + "] on directory [" + path + "]");
-        }
-        return next.apply(null, args);
+      pathUtil = require('path');
+      possiblePaths = process.platform.indexOf('win') !== -1 ? [process.env.NODE_PATH, process.env.NODEPATH, (/node(.exe)?$/.test(process.execPath) ? process.execPath : ''), 'node', pathUtil.resolve('/Program Files (x64)/nodejs/node.exe'), pathUtil.resolve('/Program Files (x86)/nodejs/node.exe'), pathUtil.resolve('/Program Files/nodejs/node.exe')] : [process.env.NODE_PATH, process.env.NODEPATH, (/node$/.test(process.execPath) ? process.execPath : ''), 'node', '/usr/local/bin/node', '/usr/bin/node', '~/bin/node'];
+      balUtilModules.determineExecPath(possiblePaths, function(err, nodePath) {
+        balUtilModules.cachedNodePath = nodePath;
+        return next(err, nodePath);
       });
+      return this;
     },
-    npmCommand: function(command, opts, next) {
-      var cwd, nodePath, npmPath, output, partTwo, _ref;
+    getNpmPath: function(next) {
+      var pathUtil, possiblePaths;
+      if (balUtilModules.cachedNpmPath != null) {
+        next(null, balUtilModules.cachedNpmPath);
+        return this;
+      }
+      pathUtil = require('path');
+      possiblePaths = process.platform.indexOf('win') !== -1 ? [process.env.NPM_PATH, process.env.NPMPATH, (/node(.exe)?$/.test(process.execPath) ? process.execPath.replace(/node(.exe)?$/, 'npm') : ''), 'npm', pathUtil.resolve('/Program Files (x64)/nodejs/npm'), pathUtil.resolve('/Program Files (x86)/nodejs/npm'), pathUtil.resolve('/Program Files/nodejs/npm')] : [process.env.NPM_PATH, process.env.NPMPATH, (/node$/.test(process.execPath) ? process.execPath.replace(/node$/, 'npm') : ''), 'npm', '/usr/local/bin/npm', '/usr/bin/npm', '~/node_modules/.bin/npm'];
+      balUtilModules.determineExecPath(possiblePaths, function(err, npmPath) {
+        balUtilModules.cachedNpmPath = npmPath;
+        return next(err, npmPath);
+      });
+      return this;
+    },
+    gitCommand: function(command, opts, next) {
+      var performSpawn, _ref;
       _ref = balUtilFlow.extractOptsAndCallback(opts, next), opts = _ref[0], next = _ref[1];
-      nodePath = opts.nodePath, npmPath = opts.npmPath, cwd = opts.cwd, output = opts.output;
-      npmPath || (npmPath = 'npm');
       if (balUtilTypes.isString(command)) {
         command = command.split(' ');
       } else if (!balUtilTypes.isArray(command)) {
         return next(new Error('unknown command type'));
       }
-      partTwo = function() {
-        return balUtilModules.spawn(command, {
-          cwd: cwd,
-          output: output
-        }, next);
+      performSpawn = function() {
+        command.unshift(opts.gitPath);
+        return balUtilModules.spawn(command, opts, next);
       };
-      command.unshift(npmPath);
-      if (nodePath) {
-        balUtilPaths.exists(npmPath, function(exists) {
-          if (exists) {
-            command.unshift(nodePath);
-          }
-          return partTwo();
-        });
+      if (opts.gitPath) {
+        performSpawn();
       } else {
-        partTwo();
+        balUtilModules.getGitPath(function(err, gitPath) {
+          if (err) {
+            return next(err);
+          }
+          opts.gitPath = gitPath;
+          return performSpawn();
+        });
+      }
+      return this;
+    },
+    nodeCommand: function(command, opts, next) {
+      var performSpawn, _ref;
+      _ref = balUtilFlow.extractOptsAndCallback(opts, next), opts = _ref[0], next = _ref[1];
+      if (balUtilTypes.isString(command)) {
+        command = command.split(' ');
+      } else if (!balUtilTypes.isArray(command)) {
+        return next(new Error('unknown command type'));
+      }
+      performSpawn = function() {
+        command.unshift(opts.nodePath);
+        return balUtilModules.spawn(command, opts, next);
+      };
+      if (opts.nodePath) {
+        performSpawn();
+      } else {
+        balUtilModules.getNodePath(function(err, nodePath) {
+          if (err) {
+            return next(err);
+          }
+          opts.nodePath = nodePath;
+          return performSpawn();
+        });
+      }
+      return this;
+    },
+    npmCommand: function(command, opts, next) {
+      var performSpawn, _ref;
+      _ref = balUtilFlow.extractOptsAndCallback(opts, next), opts = _ref[0], next = _ref[1];
+      if (balUtilTypes.isString(command)) {
+        command = command.split(' ');
+      } else if (!balUtilTypes.isArray(command)) {
+        return next(new Error('unknown command type'));
+      }
+      performSpawn = function() {
+        command.unshift(opts.npmPath);
+        return balUtilModules.spawn(command, opts, next);
+      };
+      if (opts.npmPath) {
+        performSpawn();
+      } else {
+        balUtilModules.getNpmPath(function(err, npmPath) {
+          if (err) {
+            return next(err);
+          }
+          opts.npmPath = npmPath;
+          return performSpawn();
+        });
+      }
+      return this;
+    },
+    initGitRepo: function(opts, next) {
+      var branch, logger, output, path, performSpawn, remote, url, _ref;
+      _ref = balUtilFlow.extractOptsAndCallback(opts, next), opts = _ref[0], next = _ref[1];
+      path = opts.path, remote = opts.remote, url = opts.url, branch = opts.branch, logger = opts.logger, output = opts.output;
+      performSpawn = function() {
+        var commands;
+        commands = [
+          {
+            command: opts.gitPath,
+            args: ['init']
+          }, {
+            command: opts.gitPath,
+            args: ['remote', 'add', remote, url]
+          }, {
+            command: opts.gitPath,
+            args: ['fetch', remote]
+          }, {
+            command: opts.gitPath,
+            args: ['pull', remote, branch]
+          }, {
+            command: opts.gitPath,
+            args: ['submodule', 'init']
+          }, {
+            command: opts.gitPath,
+            args: ['submodule', 'update', '--recursive']
+          }
+        ];
+        if (logger) {
+          logger.log('debug', "Initializing git repo with url [" + url + "] on directory [" + path + "]");
+        }
+        return balUtilModules.spawnMultiple(commands, {
+          cwd: path,
+          output: output
+        }, function() {
+          var args;
+          args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+          if (args[0] != null) {
+            return next.apply(null, args);
+          }
+          if (logger) {
+            logger.log('debug', "Initialized git repo with url [" + url + "] on directory [" + path + "]");
+          }
+          return next.apply(null, args);
+        });
+      };
+      if (opts.gitPath) {
+        performSpawn();
+      } else {
+        balUtilModules.getGitPath(function(err, gitPath) {
+          if (err) {
+            return next(err);
+          }
+          opts.gitPath = gitPath;
+          return performSpawn();
+        });
       }
       return this;
     },

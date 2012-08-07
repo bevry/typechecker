@@ -1,5 +1,10 @@
 ## History
 
+- v1.13.0 August 3, 2012
+	- `balUtilModules` changes:
+		- Added `determineExecPath`, `getNpmPath`, `getTmpPath`, `nodeCommand` and `gitCommand`
+		- `initNodeModules` and `initGitRepo` will now get the determined path of the executable if a path isn't passed
+
 - v1.12.5 July 18, 2012
 	- `balUtilTypes` changes:
 		- Better checks for `isString` and `isNumber` under some environments
