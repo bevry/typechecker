@@ -262,7 +262,7 @@ balUtilPaths =
 
 
 	# Scan a directory into a list
-	# next(err,tree)
+	# next(err,list)
 	scanlist: (path,next) ->
 		# Handle
 		balUtilPaths.scandir(
