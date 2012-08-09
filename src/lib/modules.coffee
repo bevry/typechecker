@@ -359,14 +359,13 @@ balUtilModules =
 			# Windows
 			if isWindows
 				[
-					# Note: the `.cmd` extension is not needed for execution, as `npm` will alias to `npm.cmd`
 					process.env.NPM_PATH
 					process.env.NPMPATH
-					(if /node(.exe)?$/.test(process.execPath) then process.execPath.replace(/node(.exe)?$/,'npm') else '')
-					'npm'
-					pathUtil.resolve('/Program Files (x64)/nodejs/npm')
-					pathUtil.resolve('/Program Files (x86)/nodejs/npm')
-					pathUtil.resolve('/Program Files/nodejs/npm')
+					(if /node(.exe)?$/.test(process.execPath) then process.execPath.replace(/node(.exe)?$/,'npm.cmd') else '')
+					'npm'  # .cmd extension not needed here, as windows will resolve it, for absolute paths, we need the .cmd extension however
+					pathUtil.resolve('/Program Files (x64)/nodejs/npm.cmd')
+					pathUtil.resolve('/Program Files (x86)/nodejs/npm.cmd')
+					pathUtil.resolve('/Program Files/nodejs/npm.cmd')
 				]
 			# Everything else
 			else

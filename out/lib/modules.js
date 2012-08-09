@@ -226,7 +226,7 @@
         return this;
       }
       pathUtil = require('path');
-      possiblePaths = isWindows ? [process.env.NPM_PATH, process.env.NPMPATH, (/node(.exe)?$/.test(process.execPath) ? process.execPath.replace(/node(.exe)?$/, 'npm') : ''), 'npm', pathUtil.resolve('/Program Files (x64)/nodejs/npm'), pathUtil.resolve('/Program Files (x86)/nodejs/npm'), pathUtil.resolve('/Program Files/nodejs/npm')] : [process.env.NPM_PATH, process.env.NPMPATH, (/node$/.test(process.execPath) ? process.execPath.replace(/node$/, 'npm') : ''), 'npm', '/usr/local/bin/npm', '/usr/bin/npm', '~/node_modules/.bin/npm'];
+      possiblePaths = isWindows ? [process.env.NPM_PATH, process.env.NPMPATH, (/node(.exe)?$/.test(process.execPath) ? process.execPath.replace(/node(.exe)?$/, 'npm.cmd') : ''), 'npm', pathUtil.resolve('/Program Files (x64)/nodejs/npm.cmd'), pathUtil.resolve('/Program Files (x86)/nodejs/npm.cmd'), pathUtil.resolve('/Program Files/nodejs/npm.cmd')] : [process.env.NPM_PATH, process.env.NPMPATH, (/node$/.test(process.execPath) ? process.execPath.replace(/node$/, 'npm') : ''), 'npm', '/usr/local/bin/npm', '/usr/bin/npm', '~/node_modules/.bin/npm'];
       balUtilModules.determineExecPath(possiblePaths, function(err, npmPath) {
         balUtilModules.cachedNpmPath = npmPath;
         return next(err, npmPath);
