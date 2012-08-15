@@ -4,11 +4,22 @@ balUtilFlow = require(__dirname+'/flow')
 balUtilPaths = require(__dirname+'/paths')
 balUtilTypes = require(__dirname+'/types')
 
+# Prepare
+isWindows = process? and process.platform.indexOf('win') is 0
+
 
 # =====================================
 # Paths
 
 balUtilModules =
+
+	# =================================
+	# Environments
+
+	# Is Windows
+	# Returns whether or not we are running on a windows machine
+	isWindows: ->
+		return isWindows
 
 	# =================================
 	# Spawn
@@ -210,8 +221,7 @@ balUtilModules =
 
 		# Prepare
 		pathUtil = require('path')
-		isWindows = process.platform.indexOf('win') isnt -1
-		tmpDirName = 
+		tmpDirName =
 			# Windows
 			if isWindows
 				'temp'
@@ -259,7 +269,7 @@ balUtilModules =
 		pathUtil = require('path')
 		possiblePaths =
 			# Windows
-			if process.platform.indexOf('win') isnt -1
+			if isWindows
 				[
 					process.env.GIT_PATH
 					process.env.GITPATH
@@ -299,9 +309,9 @@ balUtilModules =
 
 		# Fetch
 		pathUtil = require('path')
-		possiblePaths = 
+		possiblePaths =
 			# Windows
-			if process.platform.indexOf('win') isnt -1
+			if isWindows
 				[
 					process.env.NODE_PATH
 					process.env.NODEPATH
@@ -345,18 +355,17 @@ balUtilModules =
 
 		# Fetch
 		pathUtil = require('path')
-		possiblePaths = 
+		possiblePaths =
 			# Windows
-			if process.platform.indexOf('win') isnt -1
+			if isWindows
 				[
-					# Note: the `.cmd` extension is not needed for execution, as `npm` will alias to `npm.cmd`
 					process.env.NPM_PATH
 					process.env.NPMPATH
-					(if /node(.exe)?$/.test(process.execPath) then process.execPath.replace(/node(.exe)?$/,'npm') else '')
-					'npm'
-					pathUtil.resolve('/Program Files (x64)/nodejs/npm')
-					pathUtil.resolve('/Program Files (x86)/nodejs/npm')
-					pathUtil.resolve('/Program Files/nodejs/npm')
+					(if /node(.exe)?$/.test(process.execPath) then process.execPath.replace(/node(.exe)?$/,'npm.cmd') else '')
+					'npm'  # .cmd extension not needed here, as windows will resolve it, for absolute paths, we need the .cmd extension however
+					pathUtil.resolve('/Program Files (x64)/nodejs/npm.cmd')
+					pathUtil.resolve('/Program Files (x86)/nodejs/npm.cmd')
+					pathUtil.resolve('/Program Files/nodejs/npm.cmd')
 				]
 			# Everything else
 			else

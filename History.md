@@ -8,6 +8,7 @@
 	- `balUtilModules` changes:
 		- Added `determineExecPath`, `getNpmPath`, `getTmpPath`, `nodeCommand` and `gitCommand`
 		- `initNodeModules` and `initGitRepo` will now get the determined path of the executable if a path isn't passed
+	- Re-added markdown files to npm distribution as they are required for the npm website
 
 - v1.12.5 July 18, 2012
 	- `balUtilTypes` changes:
