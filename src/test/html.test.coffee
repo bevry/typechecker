@@ -17,68 +17,76 @@ joe.suite 'html', (suite,test) ->
 	test 'replaceElement', ->
 		# Prepare
 		source = """
-			start
-			<text>
+			breakfast
+			<title>blah</title>
+			brunch
+			<t>
 				a
 					b
 				c
-			</text>
-			middle
+			</t>
+			lunch
 			<text>
 				one
 					two
 				three
 			</text>
-			finish
+			dinner
 			"""
 		expected = """
-			start
+			breakfast
+			<title>blah</title>
+			brunch
 			A
 				B
 			C
-			middle
+			lunch
 			ONE
 				TWO
 			THREE
-			finish
+			dinner
 			"""
 		replaceElementCallback = (outerHTML, elementNameMatched, attributes, innerHTML) ->
 			return innerHTML.toUpperCase()
-		actual = balUtil.replaceElement(source, "text", replaceElementCallback)
+		actual = balUtil.replaceElement(source, "t(?:ext)?", replaceElementCallback)
 		assert.equal(expected, actual)
 
 	test 'replaceElementAsync', (done) ->
 		# Prepare
 		source = """
-			start
-			<text>
+			breakfast
+			<title>blah</title>
+			brunch
+			<t>
 				a
 					b
 				c
-			</text>
-			middle
+			</t>
+			lunch
 			<text>
 				one
 					two
 				three
 			</text>
-			finish
+			dinner
 			"""
 		expected = """
-			start
+			breakfast
+			<title>blah</title>
+			brunch
 			A
 				B
 			C
-			middle
+			lunch
 			ONE
 				TWO
 			THREE
-			finish
+			dinner
 			"""
 		replaceElementCallback = (outerHTML, elementNameMatched, attributes, innerHTML, callback) ->
 			balUtil.wait 1000, ->
 				callback null, innerHTML.toUpperCase()
-		balUtil.replaceElementAsync source, "text", replaceElementCallback, (err,actual) ->
+		balUtil.replaceElementAsync source, "t(?:ext)?", replaceElementCallback, (err,actual) ->
 			return done(err)  if err
 			assert.equal(expected, actual)
 			done()

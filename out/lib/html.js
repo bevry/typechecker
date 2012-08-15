@@ -30,7 +30,7 @@
     },
     replaceElement: function(source, elementNameMatcher, replaceElementCallback) {
       var regex, result;
-      regex = new RegExp("<(" + elementNameMatcher + "(?:\\:[-:_a-z0-9]+)?)([^>]*)>([\\s\\S]+?)<\\/\\1>", 'ig');
+      regex = new RegExp("<(" + elementNameMatcher + "(?:\\:[-:_a-z0-9]+)?)(\\s+[^>]+)?>([\\s\\S]+?)<\\/\\1>", 'ig');
       result = source.replace(regex, function(outerHTML, elementNameMatched, attributes, innerHTML) {
         innerHTML = balUtilHTML.removeIndentation(innerHTML);
         return replaceElementCallback(outerHTML, elementNameMatched, attributes, innerHTML);

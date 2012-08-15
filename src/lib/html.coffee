@@ -32,7 +32,7 @@ balUtilHTML =
 	# replaceElementCallback(outerHTML, elementNameMatched, attributes, innerHTML)
 	# returns the replace result
 	replaceElement: (source, elementNameMatcher, replaceElementCallback) ->
-		regex = new RegExp("""<(#{elementNameMatcher}(?:\\:[-:_a-z0-9]+)?)([^>]*)>([\\s\\S]+?)<\\/\\1>""",'ig')
+		regex = new RegExp("""<(#{elementNameMatcher}(?:\\:[-:_a-z0-9]+)?)(\\s+[^>]+)?>([\\s\\S]+?)<\\/\\1>""",'ig')
 		result = source.replace regex, (outerHTML, elementNameMatched, attributes, innerHTML) ->
 			# Remove the indentation from the innerHTML
 			innerHTML = balUtilHTML.removeIndentation(innerHTML)

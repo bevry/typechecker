@@ -1,5 +1,9 @@
 ## History
 
+- v1.13.1 August 16, 2012
+	- `balUtilHTML` changes:
+		- Fixed `replaceElement` from mixing up elements that start with our desired selector, instead of being only our desired selector
+
 - v1.13.0 August 3, 2012
 	- `balUtilModules` changes:
 		- Added `determineExecPath`, `getNpmPath`, `getTmpPath`, `nodeCommand` and `gitCommand`
