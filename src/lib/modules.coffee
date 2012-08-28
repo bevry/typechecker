@@ -112,7 +112,7 @@ balUtilModules =
 	# Exec
 	# Wrapper around node's exec command for a cleaner and more powerful API
 	# next(err,stdout,stderr)
-	exec: (commands,opts,next) ->
+	exec: (command,opts,next) ->
 		# Prepare
 		{exec} = require('child_process')
 		[opts,next] = balUtilFlow.extractOptsAndCallback(opts,next)
@@ -137,7 +137,7 @@ balUtilModules =
 			next(err,results)
 
 		# Prepare tasks
-		unless balUtilTypes.isArray(command)
+		unless balUtilTypes.isArray(commands)
 			commands = [commands]
 
 		# Add tasks
@@ -424,6 +424,36 @@ balUtilModules =
 		# Chain
 		@
 
+	# Perform Git Commands
+	# opts = {gitPath,cwd,output}
+	# next(err,results)
+	gitCommands: (commands,opts,next) ->
+		# Extract
+		[opts,next] = balUtilFlow.extractOptsAndCallback(opts,next)
+		results = []
+
+		# Make sure we send back the arguments
+		tasks = new balUtilFlow.Group (err) ->
+			next(err,results)
+
+		# Prepare tasks
+		unless balUtilTypes.isArray(commands)
+			commands = [commands]
+
+		# Add tasks
+		for command in commands
+			tasks.push {command}, (complete) ->
+				balUtilModules.gitCommand @command, opts, (args...) ->
+					err = args[0] or null
+					results.push(args)
+					complete(err)
+
+		# Run the tasks synchronously
+		tasks.sync()
+
+		# Chain
+		@
+
 	# Perform Node Command
 	# opts = {nodePath,cwd,output}
 	# next(err,stdout,stderr,code,signal)
@@ -452,6 +482,36 @@ balUtilModules =
 				return next(err)  if err
 				opts.nodePath = nodePath
 				performSpawn()
+
+		# Chain
+		@
+
+	# Perform Noe Commands
+	# opts = {gitPath,cwd,output}
+	# next(err,results)
+	nodeCommands: (commands,opts,next) ->
+		# Extract
+		[opts,next] = balUtilFlow.extractOptsAndCallback(opts,next)
+		results = []
+
+		# Make sure we send back the arguments
+		tasks = new balUtilFlow.Group (err) ->
+			next(err,results)
+
+		# Prepare tasks
+		unless balUtilTypes.isArray(commands)
+			commands = [commands]
+
+		# Add tasks
+		for command in commands
+			tasks.push {command}, (complete) ->
+				balUtilModules.nodeCommand @command, opts, (args...) ->
+					err = args[0] or null
+					results.push(args)
+					complete(err)
+
+		# Run the tasks synchronously
+		tasks.sync()
 
 		# Chain
 		@
@@ -488,6 +548,36 @@ balUtilModules =
 		# Chain
 		@
 
+	# Perform NPM Commands
+	# opts = {gitPath,cwd,output}
+	# next(err,results)
+	npmCommands: (commands,opts,next) ->
+		# Extract
+		[opts,next] = balUtilFlow.extractOptsAndCallback(opts,next)
+		results = []
+
+		# Make sure we send back the arguments
+		tasks = new balUtilFlow.Group (err) ->
+			next(err,results)
+
+		# Prepare tasks
+		unless balUtilTypes.isArray(commands)
+			commands = [commands]
+
+		# Add tasks
+		for command in commands
+			tasks.push {command}, (complete) ->
+				balUtilModules.npmCommand @command, opts, (args...) ->
+					err = args[0] or null
+					results.push(args)
+					complete(err)
+
+		# Run the tasks synchronously
+		tasks.sync()
+
+		# Chain
+		@
+
 
 	# =================================
 	# Special Commands
@@ -499,46 +589,24 @@ balUtilModules =
 	initGitRepo: (opts,next) ->
 		# Extract
 		[opts,next] = balUtilFlow.extractOptsAndCallback(opts,next)
-		{path,remote,url,branch,logger,output} = opts
+		{path,remote,url,branch,logger,output,gitPath} = opts
 
-		# Perform spawn
-		performSpawn = ->
-			# Prepare commands
-			commands = [
-				command: opts.gitPath
-				args: ['init']
-			,
-				command: opts.gitPath
-				args: ['remote', 'add', remote, url]
-			,
-				command: opts.gitPath
-				args: ['fetch', remote]
-			,
-				command: opts.gitPath
-				args: ['pull', remote, branch]
-			,
-				command: opts.gitPath
-				args: ['submodule', 'init']
-			,
-				command: opts.gitPath
-				args: ['submodule', 'update', '--recursive']
-			]
+		# Prepare commands
+		commands = [
+			['init']
+			['remote', 'add', remote, url]
+			['fetch', remote]
+			['pull', remote, branch]
+			['submodule', 'init']
+			['submodule', 'update', '--recursive']
+		]
 
-			# Fire commands
-			logger.log 'debug', "Initializing git repo with url [#{url}] on directory [#{path}]"  if logger
-			balUtilModules.spawnMultiple commands, {cwd:path,output:output}, (args...) ->
-				return next(args...)  if args[0]?
-				logger.log 'debug', "Initialized git repo with url [#{url}] on directory [#{path}]"  if logger
-				return next(args...)
-
-		# Ensure gitPath
-		if opts.gitPath
-			performSpawn()
-		else
-			balUtilModules.getGitPath (err,gitPath) ->
-				return next(err)  if err
-				opts.gitPath = gitPath
-				performSpawn()
+		# Perform commands
+		logger.log 'debug', "Initializing git repo with url [#{url}] on directory [#{path}]"  if logger
+		balUtilModules.gitCommands commands, {gitPath:gitPath,cwd:path,output:output}, (args...) ->
+			return next(args...)  if args[0]?
+			logger.log 'debug', "Initialized git repo with url [#{url}] on directory [#{path}]"  if logger
+			return next(args...)
 
 		# Chain
 		@
@@ -566,8 +634,7 @@ balUtilModules =
 
 				# Prepare command
 				command = ['install']
-				if force
-					command.push('--force')
+				command.push('--force')  if force
 
 				# Execute npm install inside the pugin directory
 				logger.log 'debug', "Initializing node modules\non:   #{dirPath}\nwith:",command  if logger

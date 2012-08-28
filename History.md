@@ -1,5 +1,11 @@
 ## History
 
+- v1.13.3 August 28, 2012
+	- `balUtilModules` changes:
+		- Fixed `exec` and `execMultiple`
+		- Added `gitCommands`, `nodeCommands` and `npmCommands`
+	- Dropped node v0.4 support, min required version now 0.6
+
 - v1.13.2 August 16, 2012
 	- Repackaged
 

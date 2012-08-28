@@ -89,7 +89,7 @@
       tasks.sync();
       return this;
     },
-    exec: function(commands, opts, next) {
+    exec: function(command, opts, next) {
       var exec, _ref;
       exec = require('child_process').exec;
       _ref = balUtilFlow.extractOptsAndCallback(opts, next), opts = _ref[0], next = _ref[1];
@@ -105,7 +105,7 @@
       tasks = new balUtilFlow.Group(function(err) {
         return next(err, results);
       });
-      if (!balUtilTypes.isArray(command)) {
+      if (!balUtilTypes.isArray(commands)) {
         commands = [commands];
       }
       for (_i = 0, _len = commands.length; _i < _len; _i++) {
@@ -258,6 +258,33 @@
       }
       return this;
     },
+    gitCommands: function(commands, opts, next) {
+      var command, results, tasks, _i, _len, _ref;
+      _ref = balUtilFlow.extractOptsAndCallback(opts, next), opts = _ref[0], next = _ref[1];
+      results = [];
+      tasks = new balUtilFlow.Group(function(err) {
+        return next(err, results);
+      });
+      if (!balUtilTypes.isArray(commands)) {
+        commands = [commands];
+      }
+      for (_i = 0, _len = commands.length; _i < _len; _i++) {
+        command = commands[_i];
+        tasks.push({
+          command: command
+        }, function(complete) {
+          return balUtilModules.gitCommand(this.command, opts, function() {
+            var args, err;
+            args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+            err = args[0] || null;
+            results.push(args);
+            return complete(err);
+          });
+        });
+      }
+      tasks.sync();
+      return this;
+    },
     nodeCommand: function(command, opts, next) {
       var performSpawn, _ref;
       _ref = balUtilFlow.extractOptsAndCallback(opts, next), opts = _ref[0], next = _ref[1];
@@ -281,6 +308,33 @@
           return performSpawn();
         });
       }
+      return this;
+    },
+    nodeCommands: function(commands, opts, next) {
+      var command, results, tasks, _i, _len, _ref;
+      _ref = balUtilFlow.extractOptsAndCallback(opts, next), opts = _ref[0], next = _ref[1];
+      results = [];
+      tasks = new balUtilFlow.Group(function(err) {
+        return next(err, results);
+      });
+      if (!balUtilTypes.isArray(commands)) {
+        commands = [commands];
+      }
+      for (_i = 0, _len = commands.length; _i < _len; _i++) {
+        command = commands[_i];
+        tasks.push({
+          command: command
+        }, function(complete) {
+          return balUtilModules.nodeCommand(this.command, opts, function() {
+            var args, err;
+            args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+            err = args[0] || null;
+            results.push(args);
+            return complete(err);
+          });
+        });
+      }
+      tasks.sync();
       return this;
     },
     npmCommand: function(command, opts, next) {
@@ -308,62 +362,56 @@
       }
       return this;
     },
-    initGitRepo: function(opts, next) {
-      var branch, logger, output, path, performSpawn, remote, url, _ref;
+    npmCommands: function(commands, opts, next) {
+      var command, results, tasks, _i, _len, _ref;
       _ref = balUtilFlow.extractOptsAndCallback(opts, next), opts = _ref[0], next = _ref[1];
-      path = opts.path, remote = opts.remote, url = opts.url, branch = opts.branch, logger = opts.logger, output = opts.output;
-      performSpawn = function() {
-        var commands;
-        commands = [
-          {
-            command: opts.gitPath,
-            args: ['init']
-          }, {
-            command: opts.gitPath,
-            args: ['remote', 'add', remote, url]
-          }, {
-            command: opts.gitPath,
-            args: ['fetch', remote]
-          }, {
-            command: opts.gitPath,
-            args: ['pull', remote, branch]
-          }, {
-            command: opts.gitPath,
-            args: ['submodule', 'init']
-          }, {
-            command: opts.gitPath,
-            args: ['submodule', 'update', '--recursive']
-          }
-        ];
-        if (logger) {
-          logger.log('debug', "Initializing git repo with url [" + url + "] on directory [" + path + "]");
-        }
-        return balUtilModules.spawnMultiple(commands, {
-          cwd: path,
-          output: output
-        }, function() {
-          var args;
-          args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
-          if (args[0] != null) {
-            return next.apply(null, args);
-          }
-          if (logger) {
-            logger.log('debug', "Initialized git repo with url [" + url + "] on directory [" + path + "]");
-          }
-          return next.apply(null, args);
-        });
-      };
-      if (opts.gitPath) {
-        performSpawn();
-      } else {
-        balUtilModules.getGitPath(function(err, gitPath) {
-          if (err) {
-            return next(err);
-          }
-          opts.gitPath = gitPath;
-          return performSpawn();
+      results = [];
+      tasks = new balUtilFlow.Group(function(err) {
+        return next(err, results);
+      });
+      if (!balUtilTypes.isArray(commands)) {
+        commands = [commands];
+      }
+      for (_i = 0, _len = commands.length; _i < _len; _i++) {
+        command = commands[_i];
+        tasks.push({
+          command: command
+        }, function(complete) {
+          return balUtilModules.npmCommand(this.command, opts, function() {
+            var args, err;
+            args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+            err = args[0] || null;
+            results.push(args);
+            return complete(err);
+          });
         });
       }
+      tasks.sync();
+      return this;
+    },
+    initGitRepo: function(opts, next) {
+      var branch, commands, gitPath, logger, output, path, remote, url, _ref;
+      _ref = balUtilFlow.extractOptsAndCallback(opts, next), opts = _ref[0], next = _ref[1];
+      path = opts.path, remote = opts.remote, url = opts.url, branch = opts.branch, logger = opts.logger, output = opts.output, gitPath = opts.gitPath;
+      commands = [['init'], ['remote', 'add', remote, url], ['fetch', remote], ['pull', remote, branch], ['submodule', 'init'], ['submodule', 'update', '--recursive']];
+      if (logger) {
+        logger.log('debug', "Initializing git repo with url [" + url + "] on directory [" + path + "]");
+      }
+      balUtilModules.gitCommands(commands, {
+        gitPath: gitPath,
+        cwd: path,
+        output: output
+      }, function() {
+        var args;
+        args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+        if (args[0] != null) {
+          return next.apply(null, args);
+        }
+        if (logger) {
+          logger.log('debug', "Initialized git repo with url [" + url + "] on directory [" + path + "]");
+        }
+        return next.apply(null, args);
+      });
       return this;
     },
     initNodeModules: function(opts, next) {
