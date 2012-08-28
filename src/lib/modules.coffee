@@ -290,9 +290,15 @@ balUtilModules =
 
 		# Determine the right path
 		balUtilModules.determineExecPath possiblePaths, (err,gitPath) ->
-			# Forward
+			# Cache
 			balUtilModules.cachedGitPath = gitPath
-			next(err,gitPath)
+
+			# Check
+			return next(err)  if err
+			return next(new Error('Could not locate git binary'))  unless gitPath
+
+			# Forward
+			return next(null,gitPath)
 
 		# Chain
 		@
@@ -335,9 +341,15 @@ balUtilModules =
 
 		# Determine the right path
 		balUtilModules.determineExecPath possiblePaths, (err,nodePath) ->
-			# Forward
+			# Cache
 			balUtilModules.cachedNodePath = nodePath
-			next(err,nodePath)
+
+			# Check
+			return next(err)  if err
+			return next(new Error('Could not locate node binary'))  unless nodePath
+
+			# Forward
+			return next(null,nodePath)
 
 		# Chain
 		@
@@ -381,9 +393,15 @@ balUtilModules =
 
 		# Determine the right path
 		balUtilModules.determineExecPath possiblePaths, (err,npmPath) ->
-			# Forward
+			# Cache
 			balUtilModules.cachedNpmPath = npmPath
-			next(err,npmPath)
+
+			# Check
+			return next(err)  if err
+			return next(new Error('Could not locate npm binary'))  unless npmPath
+
+			# Forward
+			return next(null,npmPath)
 
 		# Chain
 		@

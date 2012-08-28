@@ -201,7 +201,13 @@
       possiblePaths = isWindows ? [process.env.GIT_PATH, process.env.GITPATH, 'git', pathUtil.resolve('/Program Files (x64)/Git/bin/git.exe'), pathUtil.resolve('/Program Files (x86)/Git/bin/git.exe'), pathUtil.resolve('/Program Files/Git/bin/git.exe')] : [process.env.GIT_PATH, process.env.GITPATH, 'git', '/usr/local/bin/git', '/usr/bin/git'];
       balUtilModules.determineExecPath(possiblePaths, function(err, gitPath) {
         balUtilModules.cachedGitPath = gitPath;
-        return next(err, gitPath);
+        if (err) {
+          return next(err);
+        }
+        if (!gitPath) {
+          return next(new Error('Could not locate git binary'));
+        }
+        return next(null, gitPath);
       });
       return this;
     },
@@ -215,7 +221,13 @@
       possiblePaths = isWindows ? [process.env.NODE_PATH, process.env.NODEPATH, (/node(.exe)?$/.test(process.execPath) ? process.execPath : ''), 'node', pathUtil.resolve('/Program Files (x64)/nodejs/node.exe'), pathUtil.resolve('/Program Files (x86)/nodejs/node.exe'), pathUtil.resolve('/Program Files/nodejs/node.exe')] : [process.env.NODE_PATH, process.env.NODEPATH, (/node$/.test(process.execPath) ? process.execPath : ''), 'node', '/usr/local/bin/node', '/usr/bin/node', '~/bin/node'];
       balUtilModules.determineExecPath(possiblePaths, function(err, nodePath) {
         balUtilModules.cachedNodePath = nodePath;
-        return next(err, nodePath);
+        if (err) {
+          return next(err);
+        }
+        if (!nodePath) {
+          return next(new Error('Could not locate node binary'));
+        }
+        return next(null, nodePath);
       });
       return this;
     },
@@ -229,7 +241,13 @@
       possiblePaths = isWindows ? [process.env.NPM_PATH, process.env.NPMPATH, (/node(.exe)?$/.test(process.execPath) ? process.execPath.replace(/node(.exe)?$/, 'npm.cmd') : ''), 'npm', pathUtil.resolve('/Program Files (x64)/nodejs/npm.cmd'), pathUtil.resolve('/Program Files (x86)/nodejs/npm.cmd'), pathUtil.resolve('/Program Files/nodejs/npm.cmd')] : [process.env.NPM_PATH, process.env.NPMPATH, (/node$/.test(process.execPath) ? process.execPath.replace(/node$/, 'npm') : ''), 'npm', '/usr/local/bin/npm', '/usr/bin/npm', '~/node_modules/.bin/npm'];
       balUtilModules.determineExecPath(possiblePaths, function(err, npmPath) {
         balUtilModules.cachedNpmPath = npmPath;
-        return next(err, npmPath);
+        if (err) {
+          return next(err);
+        }
+        if (!npmPath) {
+          return next(new Error('Could not locate npm binary'));
+        }
+        return next(null, npmPath);
       });
       return this;
     },

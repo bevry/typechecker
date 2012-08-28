@@ -1,5 +1,9 @@
 ## History
 
+- v1.13.4 August 28, 2012
+	- `balUtilModules` changes:
+		- Failing to retrieve the path on `getGitPath`, `getNodePath` and `getNpmPath` will now result in an error
+
 - v1.13.3 August 28, 2012
 	- `balUtilModules` changes:
 		- Fixed `exec` and `execMultiple`
