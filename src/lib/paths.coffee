@@ -174,6 +174,44 @@ balUtilPaths =
 	# =====================================
 	# Our Extensions
 
+	# Get the encoding of a buffer
+	# We fetch 128 chars from the middle of the buffer
+	# as the start and the end may be some text meta data
+	# but the middle of the file is much more reliable for the actual content
+	getEncodingSync: (buffer,opts={}) ->
+		# Prepare
+		{chunkLength,chunkBegin,chunkEnd} = opts
+		chunkLength ?= 128
+		chunkBegin ?= Math.max(0, Math.floor(buffer.length/2)-chunkLength)
+		chunkEnd ?= Math.min(buffer.length, chunkBegin+chunkLength)
+		contentChunkUTF8 = buffer.toString('utf8',chunkBegin,chunkEnd)
+		encoding = 'utf8'
+
+		# Detect encoding
+		for i in [0...contentChunkUTF8.length]
+			charCode = contentChunkUTF8.charCodeAt(i)
+			if charCode is 65533 or charCode <= 8
+				# 8 and below are control characters (e.g. backspace, null, eof, etc.)
+				# 65533 is the unknown character
+				encoding = 'binary'
+				break
+
+		# Return encoding
+		return encoding
+
+	# Get the encoding of a buffer
+	getEncoding: (buffer,opts,next) ->
+		# Fetch and wrap result
+		result = @getEncodingSync(buffer,opts)
+		if result instanceof Error
+			next(err)
+		else
+			next(null,result)
+
+		# Chain
+		@
+
+
 	# Copy a file
 	# Or rather overwrite a file, regardless of whether or not it was existing before
 	# next(err)

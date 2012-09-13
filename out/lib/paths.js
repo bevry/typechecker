@@ -143,6 +143,42 @@
       result = existsSync(path);
       return result;
     },
+    getEncodingSync: function(buffer, opts) {
+      var charCode, chunkBegin, chunkEnd, chunkLength, contentChunkUTF8, encoding, i, _i, _ref3;
+      if (opts == null) {
+        opts = {};
+      }
+      chunkLength = opts.chunkLength, chunkBegin = opts.chunkBegin, chunkEnd = opts.chunkEnd;
+      if (chunkLength == null) {
+        chunkLength = 128;
+      }
+      if (chunkBegin == null) {
+        chunkBegin = Math.max(0, Math.floor(buffer.length / 2) - chunkLength);
+      }
+      if (chunkEnd == null) {
+        chunkEnd = Math.min(buffer.length, chunkBegin + chunkLength);
+      }
+      contentChunkUTF8 = buffer.toString('utf8', chunkBegin, chunkEnd);
+      encoding = 'utf8';
+      for (i = _i = 0, _ref3 = contentChunkUTF8.length; 0 <= _ref3 ? _i < _ref3 : _i > _ref3; i = 0 <= _ref3 ? ++_i : --_i) {
+        charCode = contentChunkUTF8.charCodeAt(i);
+        if (charCode === 65533 || charCode <= 8) {
+          encoding = 'binary';
+          break;
+        }
+      }
+      return encoding;
+    },
+    getEncoding: function(buffer, opts, next) {
+      var result;
+      result = this.getEncodingSync(buffer, opts);
+      if (result instanceof Error) {
+        next(err);
+      } else {
+        next(null, result);
+      }
+      return this;
+    },
     cp: function(src, dst, next) {
       balUtilPaths.readFile(src, 'binary', function(err, data) {
         if (err) {

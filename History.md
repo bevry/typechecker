@@ -1,5 +1,9 @@
 ## History
 
+- v1.13.5 September 13, 2012
+	- `balUtilPaths` changes:
+		- Added `getEncoding` and `getEncodingSync`
+
 - v1.13.4 August 28, 2012
 	- `balUtilModules` changes:
 		- Failing to retrieve the path on `getGitPath`, `getNodePath` and `getNpmPath` will now result in an error
