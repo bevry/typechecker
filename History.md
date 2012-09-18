@@ -1,5 +1,10 @@
 ## History
 
+- v1.13.6 September 18, 2012
+	- `balUtilPaths` changes:
+		- Improved `getEncoding`/`getEncodingSync` detection
+			- Will now scan start, middle and end, instead of just middle
+
 - v1.13.5 September 13, 2012
 	- `balUtilPaths` changes:
 		- Added `getEncoding` and `getEncodingSync`

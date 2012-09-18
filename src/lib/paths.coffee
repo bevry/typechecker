@@ -175,26 +175,40 @@ balUtilPaths =
 	# Our Extensions
 
 	# Get the encoding of a buffer
-	# We fetch 128 chars from the middle of the buffer
-	# as the start and the end may be some text meta data
-	# but the middle of the file is much more reliable for the actual content
-	getEncodingSync: (buffer,opts={}) ->
+	# We fetch a bunch chars from the start, middle and end of the buffer
+	# we check all three, as doing only start was not enough, and doing only middle was not enough
+	# so better safe than sorry
+	getEncodingSync: (buffer,opts) ->
 		# Prepare
-		{chunkLength,chunkBegin,chunkEnd} = opts
-		chunkLength ?= 128
-		chunkBegin ?= Math.max(0, Math.floor(buffer.length/2)-chunkLength)
-		chunkEnd ?= Math.min(buffer.length, chunkBegin+chunkLength)
-		contentChunkUTF8 = buffer.toString('utf8',chunkBegin,chunkEnd)
-		encoding = 'utf8'
+		unless opts?
+			# Start
+			chunkLength = 24
+			encoding = balUtilPaths.getEncodingSync(buffer,{chunkLength,chunkBegin})
+			if encoding is 'utf8'
+				# Middle
+				chunkBegin = Math.max(0, Math.floor(buffer.length/2)-chunkLength)
+				encoding = balUtilPaths.getEncodingSync(buffer,{chunkLength,chunkBegin})
+				if encoding is 'utf8'
+					# End
+					chunkBegin = Math.max(0, buffer.length-chunkLength)
+					encoding = balUtilPaths.getEncodingSync(buffer,{chunkLength,chunkBegin})
+		else
+			# Extract
+			{chunkLength,chunkBegin} = opts
+			chunkLength ?= 24
+			chunkBegin ?= 0
+			chunkEnd = Math.min(buffer.length, chunkBegin+chunkLength)
+			contentChunkUTF8 = buffer.toString('utf8',chunkBegin,chunkEnd)
+			encoding = 'utf8'
 
-		# Detect encoding
-		for i in [0...contentChunkUTF8.length]
-			charCode = contentChunkUTF8.charCodeAt(i)
-			if charCode is 65533 or charCode <= 8
-				# 8 and below are control characters (e.g. backspace, null, eof, etc.)
-				# 65533 is the unknown character
-				encoding = 'binary'
-				break
+			# Detect encoding
+			for i in [0...contentChunkUTF8.length]
+				charCode = contentChunkUTF8.charCodeAt(i)
+				if charCode is 65533 or charCode <= 8
+					# 8 and below are control characters (e.g. backspace, null, eof, etc.)
+					# 65533 is the unknown character
+					encoding = 'binary'
+					break
 
 		# Return encoding
 		return encoding
