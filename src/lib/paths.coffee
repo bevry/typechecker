@@ -172,7 +172,99 @@ balUtilPaths =
 
 
 	# =====================================
-	# Our Extensions
+	# Encoding
+
+	textExtensions: [
+		'c'
+		'coffee'
+		'coffeekup'
+		'cson'
+		'css'
+		'eco'
+		'haml'
+		'hbs'
+		'htaccess'
+		'htm'
+		'html'
+		'jade'
+		'js'
+		'json'
+		'less'
+		'md'
+		'php'
+		'phtml'
+		'py'
+		'rb'
+		'rtf'
+		'sass'
+		'scss'
+		'styl'
+		'stylus'
+		'text'
+		'txt'
+		'xml'
+		'yaml'
+	].concat (process.env.TEXT_EXTENSIONS or '').split(/[\s,]+/)
+
+	binaryExtensions: [
+		'dds'
+		'eot'
+		'gif'
+		'ico'
+		'jar'
+		'jpeg'
+		'jpg'
+		'pdf'
+		'png'
+		'swf'
+		'tga'
+		'ttf'
+		'zip'
+	].concat (process.env.BINARY_EXTENSIONS or '').split(/[\s,]+/)
+
+
+	# Is Text
+	# Determine whether or not a file is a text or binary file
+	# determined by extension checks first
+	# if unknown extension, then fallback on encoding detection
+	# we do this as encoding detection cannot guarantee everything
+	# especially for chars between utf8 and utf16
+	isTextSync: (filename,buffer) ->
+		# Prepare
+		isText = null
+
+		# Test extensions
+		if filename
+			# Extract filename
+			filename = pathUtil.basename(filename).split('.')
+			# Cycle extensions
+			for extension in filename
+				if extension in balUtilPaths.textExtensions
+					isText = true
+					break
+				if extension in balUtilPaths.binaryExtensions
+					isText = false
+					break
+
+		# Fallback to encoding if extension check was not enough
+		if buffer and isText is null
+			isText = balUtilPaths.getEncodingSync(buffer) is 'utf8'
+
+		# Return our result
+		return isText
+
+	# Get the encoding of a buffer
+	isText: (filename,buffer,next) ->
+		# Fetch and wrap result
+		result = @isTextSync(filename,buffer)
+		if result instanceof Error
+			next(err)
+		else
+			next(null,result)
+
+		# Chain
+		@
+
 
 	# Get the encoding of a buffer
 	# We fetch a bunch chars from the start, middle and end of the buffer
@@ -180,15 +272,19 @@ balUtilPaths =
 	# so better safe than sorry
 	getEncodingSync: (buffer,opts) ->
 		# Prepare
+		textEncoding = 'utf8'
+		binaryEncoding = 'binary'
+
+		# Discover
 		unless opts?
 			# Start
 			chunkLength = 24
 			encoding = balUtilPaths.getEncodingSync(buffer,{chunkLength,chunkBegin})
-			if encoding is 'utf8'
+			if encoding is textEncoding
 				# Middle
 				chunkBegin = Math.max(0, Math.floor(buffer.length/2)-chunkLength)
 				encoding = balUtilPaths.getEncodingSync(buffer,{chunkLength,chunkBegin})
-				if encoding is 'utf8'
+				if encoding is textEncoding
 					# End
 					chunkBegin = Math.max(0, buffer.length-chunkLength)
 					encoding = balUtilPaths.getEncodingSync(buffer,{chunkLength,chunkBegin})
@@ -198,8 +294,8 @@ balUtilPaths =
 			chunkLength ?= 24
 			chunkBegin ?= 0
 			chunkEnd = Math.min(buffer.length, chunkBegin+chunkLength)
-			contentChunkUTF8 = buffer.toString('utf8',chunkBegin,chunkEnd)
-			encoding = 'utf8'
+			contentChunkUTF8 = buffer.toString(textEncoding,chunkBegin,chunkEnd)
+			encoding = textEncoding
 
 			# Detect encoding
 			for i in [0...contentChunkUTF8.length]
@@ -207,7 +303,8 @@ balUtilPaths =
 				if charCode is 65533 or charCode <= 8
 					# 8 and below are control characters (e.g. backspace, null, eof, etc.)
 					# 65533 is the unknown character
-					encoding = 'binary'
+					# console.log(charCode, contentChunkUTF8[i])
+					encoding = binaryEncoding
 					break
 
 		# Return encoding
@@ -225,6 +322,10 @@ balUtilPaths =
 		# Chain
 		@
 
+
+
+	# =====================================
+	# Our Extensions
 
 	# Copy a file
 	# Or rather overwrite a file, regardless of whether or not it was existing before

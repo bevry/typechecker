@@ -1,5 +1,11 @@
 ## History
 
+- v1.13.7 September 24, 2012
+	- `balUtilPaths` changes:
+		- Added `textExtensions` and `binaryExtensions`
+			- The environment variables `TEXT_EXTENSIONS` and `BINARY_EXTENSIONS` will append to these arrays
+		- Added `isText` and `isTextSync`
+
 - v1.13.6 September 18, 2012
 	- `balUtilPaths` changes:
 		- Improved `getEncoding`/`getEncodingSync` detection
