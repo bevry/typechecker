@@ -1,5 +1,12 @@
 ## History
 
+- v1.13.8 October 2, 2012
+	- `balUtilModules` changes:
+		- Added `openProcess` and `closeProcess`, and using them in `spawn` and `exec`, used to prevent `EMFILE` errors when there are too many open processes
+		- Max number of open processes is configurable via the `NODE_MAX_OPEN_PROCESSES` environment variable
+	` balUtilPaths` changes:
+		- Max number of open files is now configurable via the`NODE_MAX_OPEN_FILES` environment variable
+
 - v1.13.7 September 24, 2012
 	- `balUtilPaths` changes:
 		- Added `textExtensions` and `binaryExtensions`

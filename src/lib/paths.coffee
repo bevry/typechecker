@@ -7,7 +7,7 @@ balUtilTypes = require(__dirname+'/types')
 # Create a counter of all the open files we have
 # As the filesystem will throw a fatal error if we have too many open files
 global.numberOfOpenFiles ?= 0
-global.maxNumberOfOpenFiles ?= 100
+global.maxNumberOfOpenFiles ?= process.env.NODE_MAX_OPEN_FILES ? 100
 global.waitingToOpenFileDelay ?= 100
 
 

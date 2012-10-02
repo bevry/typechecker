@@ -7,6 +7,12 @@ balUtilTypes = require(__dirname+'/types')
 # Prepare
 isWindows = process? and process.platform.indexOf('win') is 0
 
+# Create a counter of all the open files we have
+# As the filesystem will throw a fatal error if we have too many open files
+global.numberOfOpenProcesses ?= 0
+global.maxNumberOfOpenProcesses ?= process.env.NODE_MAX_OPEN_PROCESSES ? 30
+global.waitingToOpenProcessDelay ?= 100
+
 
 # =====================================
 # Paths
@@ -21,6 +27,36 @@ balUtilModules =
 	isWindows: ->
 		return isWindows
 
+
+	# =====================================
+	# Open and Close Process
+
+	# Allows us to open processes safely
+	# by tracking the amount of open processes we have
+
+	# Open a process
+	# Pass your callback to fire when it is safe to open the process
+	openProcess: (next) ->
+		if global.numberOfOpenProcesses < 0
+			throw new Error("balUtilModules.openProcess: the numberOfOpenProcesses is [#{global.numberOfOpenProcesses}] which should be impossible...")
+		if global.numberOfOpenProcesses >= global.maxNumberOfOpenProcesses
+			setTimeout(
+				-> balUtilModules.openProcess(next)
+				global.waitingToOpenProcessDelay
+			)
+		else
+			++global.numberOfOpenProcesses
+			next()
+		@
+
+	# Close a process
+	# Call this once you are done with that process
+	closeProcess: (next) ->
+		--global.numberOfOpenProcesses
+		next?()
+		@
+
+
 	# =================================
 	# Spawn
 
@@ -28,50 +64,53 @@ balUtilModules =
 	# Wrapper around node's spawn command for a cleaner and more powerful API
 	# next(err,stdout,stderr,code,signal)
 	spawn: (command,opts,next) ->
-		# Prepare
-		{spawn} = require('child_process')
-		[opts,next] = balUtilFlow.extractOptsAndCallback(opts,next)
+		# Patience
+		balUtilModules.openProcess ->
+			# Prepare
+			{spawn} = require('child_process')
+			[opts,next] = balUtilFlow.extractOptsAndCallback(opts,next)
 
-		# Prepare
-		pid = null
-		err = null
-		stdout = ''
-		stderr = ''
-
-		# Prepare format
-		if balUtilTypes.isString(command)
-			command = command.split(' ')
-
-		# Execute command
-		if balUtilTypes.isArray(command)
-			pid = spawn(command[0], command.slice(1), opts)
-		else
-			pid = spawn(command.command, command.args or [], command.options or opts)
-
-		# Fetch
-		pid.stdout.on 'data', (data) ->
-			dataStr = data.toString()
-			if opts.output
-				process.stdout.write(dataStr)
-			stdout += dataStr
-		pid.stderr.on 'data', (data) ->
-			dataStr = data.toString()
-			if opts.output
-				process.stderr.write(dataStr)
-			stderr += dataStr
-
-		# Wait
-		pid.on 'exit', (code,signal) ->
+			# Prepare
+			pid = null
 			err = null
-			if code isnt 0
-				err = new Error(stderr or 'exited with a non-zero status code')
-			next(err,stdout,stderr,code,signal)
+			stdout = ''
+			stderr = ''
 
-		# Stdin?
-		if opts.stdin
-			# Write the content to stdin
-			pid.stdin.write(opts.stdin)
-			pid.stdin.end()
+			# Prepare format
+			if balUtilTypes.isString(command)
+				command = command.split(' ')
+
+			# Execute command
+			if balUtilTypes.isArray(command)
+				pid = spawn(command[0], command.slice(1), opts)
+			else
+				pid = spawn(command.command, command.args or [], command.options or opts)
+
+			# Fetch
+			pid.stdout.on 'data', (data) ->
+				dataStr = data.toString()
+				if opts.output
+					process.stdout.write(dataStr)
+				stdout += dataStr
+			pid.stderr.on 'data', (data) ->
+				dataStr = data.toString()
+				if opts.output
+					process.stderr.write(dataStr)
+				stderr += dataStr
+
+			# Wait
+			pid.on 'exit', (code,signal) ->
+				err = null
+				if code isnt 0
+					err = new Error(stderr or 'exited with a non-zero status code')
+				balUtilModules.closeProcess()
+				next(err,stdout,stderr,code,signal)
+
+			# Stdin?
+			if opts.stdin
+				# Write the content to stdin
+				pid.stdin.write(opts.stdin)
+				pid.stdin.end()
 
 		# Chain
 		@
@@ -113,14 +152,17 @@ balUtilModules =
 	# Wrapper around node's exec command for a cleaner and more powerful API
 	# next(err,stdout,stderr)
 	exec: (command,opts,next) ->
-		# Prepare
-		{exec} = require('child_process')
-		[opts,next] = balUtilFlow.extractOptsAndCallback(opts,next)
+		# Patience
+		balUtilModules.openProcess ->
+			# Prepare
+			{exec} = require('child_process')
+			[opts,next] = balUtilFlow.extractOptsAndCallback(opts,next)
 
-		# Execute command
-		exec command, opts, (err,stdout,stderr) ->
-			# Complete the task
-			next(err,stdout,stderr)
+			# Execute command
+			exec command, opts, (err,stdout,stderr) ->
+				# Complete the task
+				balUtilModules.closeProcess()
+				next(err,stdout,stderr)
 
 		# Chain
 		@
