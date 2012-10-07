@@ -1,5 +1,10 @@
 ## History
 
+- v1.13.9 October 7, 2012
+	- `balUtilPaths` changes:
+		- VIM swap files now added to `commonIgnorePatterns`
+			- Thanks to [Sean Fridman](https://github.com/sfrdmn) for [pull request #4](https://github.com/balupton/bal-util/pull/4)
+
 - v1.13.8 October 2, 2012
 	- `balUtilModules` changes:
 		- Added `openProcess` and `closeProcess`, and using them in `spawn` and `exec`, used to prevent `EMFILE` errors when there are too many open processes
