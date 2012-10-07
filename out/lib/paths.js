@@ -323,7 +323,7 @@
       });
       return this;
     },
-    commonIgnorePatterns: /^(\~|(\.(svn|git|hg|DS_Store))|node_modules|CVS|thumbs\.db|desktop\.ini)$/i,
+    commonIgnorePatterns: /^(\~|(\.(svn|git|hg|DS_Store))|node_modules|CVS|thumbs\.db|desktop\.ini|.+\.swp)$/i,
     scandir: function() {
       var args, err, list, options, tasks, tree, _ref4, _ref5, _ref6, _ref7, _ref8, _ref9;
       args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];

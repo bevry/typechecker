@@ -446,7 +446,7 @@ balUtilPaths =
 
 	# Common Ignore Patterns
 	# These are files are directories commonly ignored when it comes with dealing with paths
-	commonIgnorePatterns: /^(\~|(\.(svn|git|hg|DS_Store))|node_modules|CVS|thumbs\.db|desktop\.ini)$/i
+	commonIgnorePatterns: /^(\~|(\.(svn|git|hg|DS_Store))|node_modules|CVS|thumbs\.db|desktop\.ini|.+\.swp)$/i
 
 	# Recursively scan a directory
 	# Usage:
