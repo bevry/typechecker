@@ -74,6 +74,13 @@ balUtilFlow =
 				target[key] = value
 		return target
 
+	# Shallow extend plain objects
+	shallowExtendPlainObjects: (target,objs...) ->
+		for obj in objs
+			obj or= {}
+			for own key,value of obj
+				target[key] = value
+		return target
 
 	# Deep extend plain objects
 	deepExtendPlainObjects: (target,objs...) ->

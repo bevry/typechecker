@@ -47,6 +47,48 @@
       assert.deepEqual(obj, out, 'cycling an object produced the expected results');
       return done();
     });
+    it('should shallow extend correctly', function(done) {
+      var out, src;
+      src = {
+        a: {
+          b: 2
+        }
+      };
+      out = balUtil.shallowExtendPlainObjects({}, src);
+      out.a.b = 3;
+      assert.deepEqual({
+        a: {
+          b: 3
+        }
+      }, out, 'out object was as expected');
+      assert.deepEqual({
+        a: {
+          b: 3
+        }
+      }, src, 'src object was modified');
+      return done();
+    });
+    it('should deep extend correctly', function(done) {
+      var out, src;
+      src = {
+        a: {
+          b: 2
+        }
+      };
+      out = balUtil.deepExtendPlainObjects({}, src);
+      out.a.b = 3;
+      assert.deepEqual({
+        a: {
+          b: 3
+        }
+      }, out, 'out object was as expected');
+      assert.deepEqual({
+        a: {
+          b: 2
+        }
+      }, src, 'src object was not modified');
+      return done();
+    });
     return it('should dereference correctly', function(done) {
       var out, src;
       src = {

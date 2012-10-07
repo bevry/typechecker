@@ -1,5 +1,9 @@
 ## History
 
+- v1.13.10 October 7, 2012
+	- `balUtilPaths` changes:
+		- Added `shallowExtendPlainObjects`
+
 - v1.13.9 October 7, 2012
 	- `balUtilPaths` changes:
 		- VIM swap files now added to `commonIgnorePatterns`
