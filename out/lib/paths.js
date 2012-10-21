@@ -258,13 +258,13 @@
       balUtilPaths.exists(path, function(exists) {
         var parentPath;
         if (exists) {
-          return next();
+          return next(null, true);
         }
         parentPath = balUtilPaths.getParentPathSync(path);
         return balUtilPaths.ensurePath(parentPath, function(err) {
           if (err) {
             console.log("balUtilPaths.ensurePath: failed to ensure the path: " + parentPath);
-            return next(err);
+            return next(err, false);
           }
           return balUtilPaths.mkdir(path, '700', function(err) {
             return balUtilPaths.exists(path, function(exists) {
@@ -272,7 +272,7 @@
                 console.log("balUtilPaths.ensurePath: failed to create the directory: " + path);
                 return next(new Error("Failed to create the directory: " + path));
               }
-              return next();
+              return next(null, false);
             });
           });
         });

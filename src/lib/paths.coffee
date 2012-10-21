@@ -355,19 +355,19 @@ balUtilPaths =
 
 
 	# Ensure path exists
-	# next(err)
+	# next(err,exists)
 	ensurePath: (path,next) ->
-		path = path.replace(/[\/\\]$/, '')
+		path = path.replace(/[\/\\]$/, '') # remove trailing slashes
 		balUtilPaths.exists path, (exists) ->
 			# Error
-			return next()  if exists
+			return next(null,true)  if exists
 			# Success
 			parentPath = balUtilPaths.getParentPathSync(path)
 			balUtilPaths.ensurePath parentPath, (err) ->
 				# Error
 				if err
 					console.log "balUtilPaths.ensurePath: failed to ensure the path: #{parentPath}"
-					return next(err)
+					return next(err,false)
 				# Success
 				balUtilPaths.mkdir path, '700', (err) ->
 					balUtilPaths.exists path, (exists) ->
@@ -376,7 +376,7 @@ balUtilPaths =
 							console.log "balUtilPaths.ensurePath: failed to create the directory: #{path}"
 							return next(new Error "Failed to create the directory: #{path}")
 						# Success
-						next()
+						next(null,false)
 		# Chain
 		@
 

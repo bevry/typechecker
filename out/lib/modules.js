@@ -450,6 +450,8 @@
       var branch, commands, gitPath, logger, output, path, remote, url, _ref4;
       _ref4 = balUtilFlow.extractOptsAndCallback(opts, next), opts = _ref4[0], next = _ref4[1];
       path = opts.path, remote = opts.remote, url = opts.url, branch = opts.branch, logger = opts.logger, output = opts.output, gitPath = opts.gitPath;
+      remote || (remote = 'origin');
+      branch || (branch = 'master');
       commands = [['init'], ['remote', 'add', remote, url], ['fetch', remote], ['pull', remote, branch], ['submodule', 'init'], ['submodule', 'update', '--recursive']];
       if (logger) {
         logger.log('debug', "Initializing git repo with url [" + url + "] on directory [" + path + "]");
@@ -468,6 +470,26 @@
           logger.log('debug', "Initialized git repo with url [" + url + "] on directory [" + path + "]");
         }
         return next.apply(null, args);
+      });
+      return this;
+    },
+    initOrPullGitRepo: function(opts, next) {
+      var branch, path, remote, _ref4,
+        _this = this;
+      _ref4 = balUtilFlow.extractOptsAndCallback(opts, next), opts = _ref4[0], next = _ref4[1];
+      path = opts.path, remote = opts.remote, branch = opts.branch;
+      remote || (remote = 'origin');
+      branch || (branch = 'master');
+      balUtilPaths.ensurePath(path, function(err, exists) {
+        if (err) {
+          return complete(err);
+        }
+        if (exists) {
+          opts.cwd = path;
+          return balUtilModules.gitCommand(['pull', remote, branch], opts, next);
+        } else {
+          return balUtilModules.initGitRepo(opts, next);
+        }
       });
       return this;
     },

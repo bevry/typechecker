@@ -1,5 +1,12 @@
 ## History
 
+- v1.13.11 October 22, 2012
+	- `balUtilPaths` changes:
+		- `ensurePath` now returns `err` and `exists` instead of just `err`
+	- `balUtilModules` changes:
+		- `initGitRepo` will now default `remote` to `origin` and `branch` to `master`
+		- Added `initOrPullGitRepo`
+
 - v1.13.10 October 7, 2012
 	- `balUtilPaths` changes:
 		- Added `shallowExtendPlainObjects`

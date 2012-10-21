@@ -650,6 +650,8 @@ balUtilModules =
 		# Extract
 		[opts,next] = balUtilFlow.extractOptsAndCallback(opts,next)
 		{path,remote,url,branch,logger,output,gitPath} = opts
+		remote or= 'origin'
+		branch or= 'master'
 
 		# Prepare commands
 		commands = [
@@ -668,6 +670,26 @@ balUtilModules =
 			logger.log 'debug', "Initialized git repo with url [#{url}] on directory [#{path}]"  if logger
 			return next(args...)
 
+		# Chain
+		@
+
+	# Initialize or Pull a Git Repo
+	initOrPullGitRepo: (opts,next) ->
+		# Extract
+		[opts,next] = balUtilFlow.extractOptsAndCallback(opts,next)
+		{path,remote,branch} = opts
+		remote or= 'origin'
+		branch or= 'master'
+
+		# Check if it exists
+		balUtilPaths.ensurePath path, (err,exists) =>
+			return complete(err)  if err
+			if exists
+				opts.cwd = path
+				balUtilModules.gitCommand(['pull',remote,branch], opts, next)
+			else
+				balUtilModules.initGitRepo(opts, next)
+		
 		# Chain
 		@
 
