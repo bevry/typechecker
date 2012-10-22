@@ -29,40 +29,60 @@ balUtilHTML =
 		return result
 
 	# Replace Element
-	# replaceElementCallback(outerHTML, elementNameMatched, attributes, innerHTML)
+	# replaceElementCallback(outerHTML, element, attributes, innerHTML)
 	# returns the replace result
-	replaceElement: (source, elementNameMatcher, replaceElementCallback) ->
-		regex = new RegExp("""<(#{elementNameMatcher}(?:\\:[-:_a-z0-9]+)?)(\\s+[^>]+)?>([\\s\\S]+?)<\\/\\1>""",'ig')
-		result = source.replace regex, (outerHTML, elementNameMatched, attributes, innerHTML) ->
+	replaceElement: (args...) ->
+		# Extract
+		if args.length is 1
+			{html, element, removeIndentation, replace} = args[0]
+		else
+			[html, element, replace] = args
+
+		# Replace
+		regex = new RegExp("""<(#{element}(?:\\:[-:_a-z0-9]+)?)(\\s+[^>]+)?>([\\s\\S]+?)<\\/\\1>""",'ig')
+		result = html.replace regex, (outerHTML, element, attributes, innerHTML) ->
 			# Remove the indentation from the innerHTML
-			innerHTML = balUtilHTML.removeIndentation(innerHTML)
+			innerHTML = balUtilHTML.removeIndentation(innerHTML)  if removeIndentation isnt false
 			# Fetch the result
-			return replaceElementCallback(outerHTML, elementNameMatched, attributes, innerHTML)
+			return replace(outerHTML, element, attributes, innerHTML)
+
+		# Return
 		return result
 
 	# Replace Element Async
-	# replaceElementCallback(outerHTML, elementNameMatched, attributes, innerHTML, replaceElementCompleteCallback), replaceElementCompleteCallback(err,replaceElementResult)
+	# replaceElementCallback(outerHTML, element, attributes, innerHTML, replaceElementCompleteCallback), replaceElementCompleteCallback(err,replaceElementResult)
 	# next(err,result)
-	replaceElementAsync: (source, elementNameMatcher, replaceElementCallback, next) ->
+	replaceElementAsync: (args...) ->
+		# Extract
+		if args.length is 1
+			{html, element, removeIndentation, replace, next} = args[0]
+		else
+			[html, element, replace, next] = args
+
 		# Prepare
 		tasks = new balUtilFlow.Group (err) ->
 			return next(err)  if err
 			return next(null,result)
 
 		# Replace
-		result = balUtilHTML.replaceElement source, elementNameMatcher, (outerHTML, elementNameMatched, attributes, innerHTML) ->
-			# Generate a temporary random number to replace the text with in the meantime
-			random = Math.random()
+		result = balUtilHTML.replaceElement(
+			html: html
+			element: element
+			removeIndentation: removeIndentation
+			replace: (outerHTML, element, attributes, innerHTML) ->
+				# Generate a temporary random number to replace the text with in the meantime
+				random = Math.random()
 
-			# Push the actual replace task
-			tasks.push (complete) ->
-				replaceElementCallback outerHTML, elementNameMatched, attributes, innerHTML, (err,replaceElementResult) ->
-					return complete(err)  if err
-					result = result.replace(random,replaceElementResult)
-					return complete()
+				# Push the actual replace task
+				tasks.push (complete) ->
+					replace outerHTML, element, attributes, innerHTML, (err,replaceElementResult) ->
+						return complete(err)  if err
+						result = result.replace(random,replaceElementResult)
+						return complete()
 
-			# Return the random to the replace
-			return random
+				# Return the random to the replace
+				return random
+		)
 
 		# Run the tasks synchronously
 		tasks.sync()

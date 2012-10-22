@@ -66,13 +66,9 @@ balUtilFlow =
 		return result
 
 	# Extend
-	extend: (target,objs...) ->
-		target or= {}
-		for obj in objs
-			obj or= {}
-			for own key,value of obj
-				target[key] = value
-		return target
+	# Alias for Shallow Extend
+	extend: (args...) ->
+		return @shallowExtendPlainObjects(args...)
 
 	# Shallow extend plain objects
 	shallowExtendPlainObjects: (target,objs...) ->

@@ -1,5 +1,13 @@
 ## History
 
+- v1.13.12 October 22, 2012
+	- `balUtilFlow` changes:
+		- `extend` is now an alias of `shallowExtendPlainObjects` as they were exactly the same
+	- `balUtilHTML` changes:
+		- `replaceElement` and `replaceElementAsync` changes:
+			- now accept arguments in object form as well
+			- accept a `removeIndentation` argument that defaults to `true`
+
 - v1.13.11 October 22, 2012
 	- `balUtilPaths` changes:
 		- `ensurePath` now returns `err` and `exists` instead of just `err`
