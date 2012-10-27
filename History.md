@@ -1,5 +1,9 @@
 ## History
 
+- v1.13.13 October 26, 2012
+	- `balUtilPaths` changes:
+		- Files that start with `~` are now correctly ignored in `commonIgnorePatterns`
+
 - v1.13.12 October 22, 2012
 	- `balUtilFlow` changes:
 		- `extend` is now an alias of `shallowExtendPlainObjects` as they were exactly the same

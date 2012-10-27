@@ -42,6 +42,58 @@ scantree =
 
 joe.describe 'paths', (describe,it) ->
 
+	# commonIgnorePatterns
+	describe 'commonIgnorePatterns', (describe,it) ->
+		ignoreExpected = {
+			"~": true
+			"~something": true
+			"something~": false
+			"something~something": false
+
+			".swp": true
+			"aswp": false
+			"something.swp": true
+			".swpsomething": false
+
+			".svn": true
+			"asvn": false
+			"something.svn": false
+			"something.svnsomething": false
+
+			".git": true
+			"agit": false
+			"something.git": false
+			"something.gitsomething": false
+
+			".hg": true
+			"ahg": false
+			"something.hg": false
+			"something.hgsomething": false
+
+			".DS_Store": true
+			"something.DS_Store": false
+			"something.DS_Storesomething": false
+
+			"node_modules": true
+			"somethingnode_modules": false
+			"somethingnode_modulessomething": false
+
+			"CVS": true
+			"somethingCVS": false
+			"somethingCVSsomething": false
+
+			"thumbs.db": true
+			"thumbsadb": false
+
+			"desktop.ini": true
+			"desktopaini": false
+		}
+		for own str,resultExpected of ignoreExpected
+			testName = "#{if resultExpected then "should" else "should not"} ignore [#{str}]"
+			it testName, ->
+				resultActual = balUtil.commonIgnorePatterns.test(str)
+				assert.equal(resultActual, resultExpected)
+
 	# Test rmdir
 	describe 'rmdir', (describe,it) ->
 		it 'should fail gracefully when the directory does not exist', (done) ->
