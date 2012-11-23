@@ -147,3 +147,4 @@ joe.describe 'paths', (describe,it) ->
 				exists = balUtil.existsSync(outPath)
 				assert.equal(exists,false)
 				done()
+

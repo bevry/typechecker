@@ -1,5 +1,9 @@
 ## History
 
+- v1.14.0 November 23, 2012
+	- `balUtilPaths` changes:
+		- `readPath` will now follow url redirects
+
 - v1.13.13 October 26, 2012
 	- `balUtilPaths` changes:
 		- Files that start with `~` are now correctly ignored in `commonIgnorePatterns`

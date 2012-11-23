@@ -682,7 +682,13 @@
             return data += chunk;
           });
           return res.on('end', function() {
-            return next(null, data);
+            var locationHeader, _ref4;
+            locationHeader = ((_ref4 = res.headers) != null ? _ref4.location : void 0) || null;
+            if (locationHeader && locationHeader !== requestOptions.href) {
+              return balUtilPaths.readPath(locationHeader, next);
+            } else {
+              return next(null, data);
+            }
           });
         }).on('error', function(err) {
           return next(err);

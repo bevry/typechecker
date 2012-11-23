@@ -916,7 +916,13 @@ balUtilPaths =
 					res.on 'data', (chunk) ->
 						data += chunk
 					res.on 'end', ->
-						return next(null,data)
+						locationHeader = res.headers?.location or null
+						if locationHeader and locationHeader isnt requestOptions.href
+							# Follow the redirect
+							return balUtilPaths.readPath(locationHeader,next)
+						else
+							# All done
+							return next(null,data)
 				.on 'error', (err) ->
 					return next(err)
 		else
