@@ -1,5 +1,10 @@
 ## History
 
+- v1.14.1 December 14, 2012
+	- `balUtilModules` changes:
+		- Added `getExecPath` that will fetch an executable path based on the paths within the environment `PATH` variable
+	- Rebuilt with CoffeeScript 1.4.x
+
 - v1.14.0 November 23, 2012
 	- `balUtilPaths` changes:
 		- `readPath` will now follow url redirects
