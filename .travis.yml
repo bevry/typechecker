@@ -1,11 +1,12 @@
 language: node_js
-before_script: "make compile"
+before_script: "make test-prepare"
 node_js:
   - 0.6
   - 0.8
 notifications:
   irc:
-    - "irc.freenode.org#bevry"
+    - "irc.freenode.org#bevry-dev"
+    - "irc.freenode.org#docpad-dev"
   email:
     recipients:
       - balutil@bevry.me
