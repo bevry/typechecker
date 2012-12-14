@@ -229,6 +229,33 @@ balUtilModules =
 		# Chain
 		@
 
+	# Get an Exec Path
+	# next(err,foundPath)
+	getExecPath: (executableName,next) ->
+		# Prepare
+		pathUtil = require('path')
+
+		# Fetch system include paths
+		if balUtilModules.isWindows()
+			paths = process.env.PATH.split(/;/g)
+		else
+			paths = process.env.PATH.split(/:/g)
+
+		# Add our cwd as the first path
+		paths.unshift(process.cwd())
+		
+		# Add our executable to them
+		for path,key in paths
+			paths[key] = pathUtil.join(path,executableName)
+
+		# Forward onto determineExecPath
+		# Which will determine which path it is out of the possible paths
+		# Then return to our callback
+		balUtilModules.determineExecPath(paths,next)
+
+		# Chain
+		@
+
 	# Get Home Path
 	# Based upon home function from: https://github.com/isaacs/osenv
 	# next(err,homePath)

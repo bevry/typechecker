@@ -50,3 +50,11 @@ joe.describe 'modules', (describe,it) ->
 				console.log('npm:',path)
 				assert.ok(path)
 				done()
+
+	describe 'getExecPath', (describe,it) ->
+		it 'should fetch something', (done) ->
+			balUtil.getExecPath 'ruby', (err,path) ->
+				assert.equal(err||null, null)
+				console.log('npm:',path)
+				assert.ok(path)
+				done()
