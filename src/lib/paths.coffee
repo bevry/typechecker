@@ -570,10 +570,6 @@ balUtilPaths =
 			options.fileAction ?= options.action
 			options.dirAction ?= options.action
 
-		# Ignore Patterns
-		if options.ignoreCommonPatterns is true
-			options.ignoreCommonPatterns = balUtilPaths.ignoreCommonPatterns
-
 		# Check needed
 		if options.parentPath and !options.path
 			options.path = options.parentPath
@@ -665,8 +661,9 @@ balUtilPaths =
 										fileAction: options.fileAction
 										dirAction: options.dirAction
 										readFiles: options.readFiles
-										ignorePatterns: options.ignorePatterns
 										ignoreHiddenFiles: options.ignoreHiddenFiles
+										ignoreCommonPatterns: options.ignoreCommonPatterns
+										ignoreCustomPatterns: options.ignoreCustomPatterns
 										recurse: options.recurse
 										stat: options.fileStat
 										# Completed

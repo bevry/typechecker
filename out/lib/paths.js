@@ -389,9 +389,6 @@
           options.dirAction = options.action;
         }
       }
-      if (options.ignoreCommonPatterns === true) {
-        options.ignoreCommonPatterns = balUtilPaths.ignoreCommonPatterns;
-      }
       if (options.parentPath && !options.path) {
         options.path = options.parentPath;
       }
@@ -456,8 +453,9 @@
                         fileAction: options.fileAction,
                         dirAction: options.dirAction,
                         readFiles: options.readFiles,
-                        ignorePatterns: options.ignorePatterns,
                         ignoreHiddenFiles: options.ignoreHiddenFiles,
+                        ignoreCommonPatterns: options.ignoreCommonPatterns,
+                        ignoreCustomPatterns: options.ignoreCustomPatterns,
                         recurse: options.recurse,
                         stat: options.fileStat,
                         next: function(err, _list, _tree) {

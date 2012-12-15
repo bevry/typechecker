@@ -1,5 +1,9 @@
 ## History
 
+- v1.15.2 December 16, 2012
+	- `balUtilPaths` changes:
+		- Fixed `scandir` not inheriting ignore patterns when recursing
+
 - v1.15.1 December 15, 2012
 	- `balUtilPaths` changes:
 		- Fixed `testIgnorePatterns` when `ignoreCommonPatterns` is set to `true`
