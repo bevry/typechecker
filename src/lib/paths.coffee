@@ -16,6 +16,91 @@ global.waitingToOpenFileDelay ?= 100
 
 balUtilPaths =
 
+	# =================================
+	# Locals
+
+	# Common Ignore Patterns
+	# These are files are directories commonly ignored when it comes with dealing with paths
+	ignoreCommonPatterns:  process.env.NODE_IGNORE_COMMON_PATTERNS ? ///
+		^(
+			# Paths that start with something
+			(
+				~|          # vim, gedit, etc
+				\.\#        # emacs
+			).*|
+			# Paths that end with something
+			.*(
+				\.swp       # vi
+			)|
+			# Paths that start with a dot and end with something
+			\.(
+				svn|
+				git|
+				hg|
+				DS_Store
+			)|
+			# Paths that match any of the following
+			node_modules|
+			CVS|
+			thumbs\.db|
+			desktop\.ini
+		)$
+		///i
+
+	# Allow the user to add their own custom ignore patterns
+	ignoreCustomPatterns: process.env.NODE_IGNORE_CUSTOM_PATTERNS ? null
+
+	# Text Extensions
+	textExtensions: [
+		'c'
+		'coffee'
+		'coffeekup'
+		'cson'
+		'css'
+		'eco'
+		'haml'
+		'hbs'
+		'htaccess'
+		'htm'
+		'html'
+		'jade'
+		'js'
+		'json'
+		'less'
+		'md'
+		'php'
+		'phtml'
+		'py'
+		'rb'
+		'rtf'
+		'sass'
+		'scss'
+		'styl'
+		'stylus'
+		'text'
+		'txt'
+		'xml'
+		'yaml'
+	].concat (process.env.TEXT_EXTENSIONS or '').split(/[\s,]+/)
+
+	# Binary Extensions
+	binaryExtensions: [
+		'dds'
+		'eot'
+		'gif'
+		'ico'
+		'jar'
+		'jpeg'
+		'jpg'
+		'pdf'
+		'png'
+		'swf'
+		'tga'
+		'ttf'
+		'zip'
+	].concat (process.env.BINARY_EXTENSIONS or '').split(/[\s,]+/)
+
+
 	# =====================================
 	# Open and Close Files
 
@@ -173,55 +258,6 @@ balUtilPaths =
 
 	# =====================================
 	# Encoding
-
-	textExtensions: [
-		'c'
-		'coffee'
-		'coffeekup'
-		'cson'
-		'css'
-		'eco'
-		'haml'
-		'hbs'
-		'htaccess'
-		'htm'
-		'html'
-		'jade'
-		'js'
-		'json'
-		'less'
-		'md'
-		'php'
-		'phtml'
-		'py'
-		'rb'
-		'rtf'
-		'sass'
-		'scss'
-		'styl'
-		'stylus'
-		'text'
-		'txt'
-		'xml'
-		'yaml'
-	].concat (process.env.TEXT_EXTENSIONS or '').split(/[\s,]+/)
-
-	binaryExtensions: [
-		'dds'
-		'eot'
-		'gif'
-		'ico'
-		'jar'
-		'jpeg'
-		'jpg'
-		'pdf'
-		'png'
-		'swf'
-		'tga'
-		'ttf'
-		'zip'
-	].concat (process.env.BINARY_EXTENSIONS or '').split(/[\s,]+/)
-
 
 	# Is Text
 	# Determine whether or not a file is a text or binary file
@@ -390,16 +426,22 @@ balUtilPaths =
 
 
 	# Is it a directory?
+	# path can also be a stat object
 	# next(err,isDirectory,fileStat)
 	isDirectory: (path,next) ->
-		# Stat
-		balUtilPaths.stat path, (err,stat) ->
-			# Error
-			if err
-				console.log "balUtilPaths.isDirectory: stat failed on: #{path}"
-				return next(err)
-			# Success
-			return next(null, stat.isDirectory(), stat)
+		# Check if path is a stat object
+		if path?.isDirectory?
+			return next(null, path.isDirectory(), path)
+
+		# Otherwise fetch the stat and do the check
+		else
+			balUtilPaths.stat path, (err,stat) ->
+				# Error
+				if err
+					console.log "balUtilPaths.isDirectory: stat failed on: #{path}"
+					return next(err)
+				# Success
+				return next(null, stat.isDirectory(), stat)
 
 		# Chain
 		@
@@ -444,32 +486,23 @@ balUtilPaths =
 		# Chain
 		@
 
-	# Common Ignore Patterns
-	# These are files are directories commonly ignored when it comes with dealing with paths
-	commonIgnorePatterns: ///
-		^(
-			# Paths that start with something
-			(
-				~
-			).*|
-			# Paths that end with something
-			.*(
-				\.swp
-			)|
-			# Paths that start with a dot and end with something
-			\.(
-				svn|
-				git|
-				hg|
-				DS_Store
-			)|
-			# Paths that match any of the following
-			node_modules|
-			CVS|
-			thumbs\.db|
-			desktop\.ini
-		)$
-		///i
+	# Test Ignore Patterns
+	# opts={ignoreCommonPatterns,ignoreCustomPatterns}
+	testIgnorePatterns: (path,opts={}) ->
+		# Prepare
+		basename = pathUtil.basename(path)
+		opts.ignoreCommonPatterns ?= balUtilPaths.ignoreCommonPatterns
+		opts.ignoreCustomPatterns ?= null
+
+		# Test
+		result =
+			(opts.ignoreCommonPatterns and opts.ignoreCommonPatterns.test(basename)) or
+			(opts.ignoreCustomPatterns and opts.ignoreCustomPatterns.test(basename)) or
+			false
+
+		# Return
+		return result
+
 
 	# Recursively scan a directory
 	# Usage:
@@ -477,19 +510,23 @@ balUtilPaths =
 	#	scandir({path,action,fileAction,dirAction,next,stat,recurse,readFiles,ignoreHiddenFiles,ignorePatterns})
 	# Options:
 	#	path: the path you want to read
-	#	action: null, or a function to use for both the fileAction and dirACtion
-	#	fileAction: null, or a function to run against each file, in the following format:
+	#	action: (default null) null, or a function to use for both the fileAction and dirACtion
+	#	fileAction: (default null) null, or a function to run against each file, in the following format:
 	#		fileAction(fileFullPath,fileRelativePath,next(err,skip),fileStat)
-	#	dirAction: null, or a function to run against each directory, in the following format:
+	#	dirAction: (default null) null, or a function to run against each directory, in the following format:
 	#		dirAction(fileFullPath,fileRelativePath,next(err,skip),fileStat)
-	#	next: null, or a function to run after the entire directory has been scanned, in the following format:
+	#	next: (default null) null, or a function to run after the entire directory has been scanned, in the following format:
 	#		next(err,list,tree)
-	#	stat: null, or a file stat object for the path if we already have one
-	#	recurse: null, or a boolean for whether or not to scan subdirectories too
-	#	readFiles: null, or a boolean for whether or not we should read the file contents
-	#	ignoreHiddenFiles: null, or a boolean for if we should ignore files starting with a dot
-	#	ignorePatterns: null, or true (if true will use balUtilPaths.commonIgnorePatterns),
-	#		or a regex to match paths against to determine if we should ignore them
+	#	stat: (default null) null, or a file stat object for the path if we already have one (not actually used yet)
+	#	recurse: (default true) null, or a boolean for whether or not to scan subdirectories too
+	#	readFiles: (default false) null, or a boolean for whether or not we should read the file contents
+	#	ignoreHiddenFiles: (default false) null, or a boolean for if we should ignore files starting with a dot
+	#	ignoreCommonPatterns: (default false) null, boolean, or regex
+	#		if null, becomes true
+	#		if false, does not do any ignore patterns
+	#		if true, defaults to balUtilPaths.ignoreCommonPatterns
+	#		if regex, uses this value instead of balUtilPaths.ignoreCommonPatterns
+	#	ignoreCustomPatterns: (default false) null, boolean, or regex (same as ignorePatterns but for ignoreCustomPatterns instead)
 	# Next Callback Arguments:
 	#	err: null, or an error that has occured
 	#	list: a collection of all the child nodes in a list/object format:
@@ -522,7 +559,7 @@ balUtilPaths =
 		options.recurse ?= true
 		options.readFiles ?= false
 		options.ignoreHiddenFiles ?= false
-		options.ignorePatterns ?= false
+		options.ignoreCommonPatterns ?= false
 
 		# Action
 		if options.action?
@@ -530,8 +567,8 @@ balUtilPaths =
 			options.dirAction ?= options.action
 
 		# Ignore Patterns
-		if options.ignorePatterns is true
-			options.ignorePatterns = balUtilPaths.commonIgnorePatterns
+		if options.ignoreCommonPatterns is true
+			options.ignoreCommonPatterns = balUtilPaths.ignoreCommonPatterns
 
 		# Check needed
 		if options.parentPath and !options.path
@@ -568,7 +605,10 @@ balUtilPaths =
 			else files.forEach (file) ->
 				# Check
 				isHiddenFile = options.ignoreHiddenFiles and /^\./.test(file)
-				isIgnoredFile = options.ignorePatterns and options.ignorePatterns.test(file)
+				isIgnoredFile = balUtilPaths.testIgnorePatterns(file,{
+					ignoreCommonPatterns: options.ignoreCommonPatterns
+					ignoreCustomPatterns: options.ignoreCustomPatterns
+				})
 				if isHiddenFile or isIgnoredFile
 					return tasks.complete()
 

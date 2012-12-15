@@ -1,5 +1,12 @@
 ## History
 
+- v1.15.0 December 15, 2012
+	- `balUtilPaths` changes:
+		- Added `testIgnorePatterns`
+		- Renamed `ignorePatterns` to `ignoreCommonPatterns`, and added new `ignoreCustomPatterns`
+			- Affects `scandir` options
+		- Added emac cache files to `ignoreCommonPatterns`
+
 - v1.14.1 December 14, 2012
 	- `balUtilModules` changes:
 		- Added `getExecPath` that will fetch an executable path based on the paths within the environment `PATH` variable

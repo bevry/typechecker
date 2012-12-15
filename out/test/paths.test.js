@@ -48,13 +48,17 @@
 
 
   joe.describe('paths', function(describe, it) {
-    describe('commonIgnorePatterns', function(describe, it) {
+    describe('ignoreCommonPatterns', function(describe, it) {
       var ignoreExpected, resultExpected, str, testName, _results;
       ignoreExpected = {
         "~": true,
         "~something": true,
         "something~": false,
         "something~something": false,
+        ".#": true,
+        ".#something": true,
+        "something.#": false,
+        "something.#something": false,
         ".swp": true,
         "aswp": false,
         "something.swp": true,
@@ -92,7 +96,7 @@
         testName = "" + (resultExpected ? "should" : "should not") + " ignore [" + str + "]";
         _results.push(it(testName, function() {
           var resultActual;
-          resultActual = balUtil.commonIgnorePatterns.test(str);
+          resultActual = balUtil.testIgnorePatterns(str);
           return assert.equal(resultActual, resultExpected);
         }));
       }
