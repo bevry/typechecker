@@ -1,5 +1,9 @@
 ## History
 
+- v1.15.1 December 15, 2012
+	- `balUtilPaths` changes:
+		- Fixed `testIgnorePatterns` when `ignoreCommonPatterns` is set to `true`
+
 - v1.15.0 December 15, 2012
 	- `balUtilPaths` changes:
 		- Added `testIgnorePatterns`

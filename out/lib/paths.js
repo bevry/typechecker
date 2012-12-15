@@ -336,10 +336,13 @@
       }
       basename = pathUtil.basename(path);
       if ((_ref6 = opts.ignoreCommonPatterns) == null) {
-        opts.ignoreCommonPatterns = balUtilPaths.ignoreCommonPatterns;
+        opts.ignoreCommonPatterns = true;
       }
       if ((_ref7 = opts.ignoreCustomPatterns) == null) {
         opts.ignoreCustomPatterns = null;
+      }
+      if (opts.ignoreCommonPatterns === true) {
+        opts.ignoreCommonPatterns = balUtilPaths.ignoreCommonPatterns;
       }
       result = (opts.ignoreCommonPatterns && opts.ignoreCommonPatterns.test(basename)) || (opts.ignoreCustomPatterns && opts.ignoreCustomPatterns.test(basename)) || false;
       return result;

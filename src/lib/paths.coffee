@@ -491,8 +491,12 @@ balUtilPaths =
 	testIgnorePatterns: (path,opts={}) ->
 		# Prepare
 		basename = pathUtil.basename(path)
-		opts.ignoreCommonPatterns ?= balUtilPaths.ignoreCommonPatterns
+		opts.ignoreCommonPatterns ?= true
 		opts.ignoreCustomPatterns ?= null
+
+		# Alias
+		if opts.ignoreCommonPatterns is true
+			opts.ignoreCommonPatterns = balUtilPaths.ignoreCommonPatterns
 
 		# Test
 		result =
