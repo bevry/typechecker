@@ -20,6 +20,19 @@ global.waitingToOpenProcessDelay ?= 100
 balUtilModules =
 
 	# =================================
+	# Require
+
+	# Require Fresh
+	# Require the file without adding it into the cache
+	requireFresh: (path) ->
+		path = require('path').resolve(path)
+		delete require.cache[path]  # clear require cache for the config file
+		result = require(path)
+		delete require.cache[path]  # clear require cache for the config file
+		return result
+
+
+	# =================================
 	# Environments
 
 	# Is Windows
@@ -243,7 +256,7 @@ balUtilModules =
 
 		# Add our cwd as the first path
 		paths.unshift(process.cwd())
-		
+
 		# Add our executable to them
 		for path,key in paths
 			paths[key] = pathUtil.join(path,executableName)
@@ -716,7 +729,7 @@ balUtilModules =
 				balUtilModules.gitCommand(['pull',remote,branch], opts, next)
 			else
 				balUtilModules.initGitRepo(opts, next)
-		
+
 		# Chain
 		@
 

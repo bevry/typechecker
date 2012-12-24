@@ -26,6 +26,14 @@
   }
 
   balUtilModules = {
+    requireFresh: function(path) {
+      var result;
+      path = require('path').resolve(path);
+      delete require.cache[path];
+      result = require(path);
+      delete require.cache[path];
+      return result;
+    },
     isWindows: function() {
       return isWindows;
     },

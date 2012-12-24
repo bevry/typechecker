@@ -1,5 +1,9 @@
 ## History
 
+- v1.15.3 December 24, 2012
+	- `balUtilModules` changes:
+		- Added `requireFresh`
+
 - v1.15.2 December 16, 2012
 	- `balUtilPaths` changes:
 		- Fixed `scandir` not inheriting ignore patterns when recursing
