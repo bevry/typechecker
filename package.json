@@ -1,6 +1,6 @@
 {
 	"name": "bal-util",
-	"version": "1.15.3",
+	"version": "1.15.4",
 	"description": "Common utility functions for Node.js used and maintained by Benjamin Lupton",
 	"homepage": "https://github.com/balupton/bal-util",
 	"keywords": [
@@ -40,12 +40,12 @@
 		"url": "http://github.com/balupton/bal-util.git"
 	},
 	"engines" : {
-		"node": ">=0.6.0"
+		"node": ">=0.6"
 	},
 	"dependencies": {},
 	"devDependencies": {
-		"coffee-script": "1.4.x",
-		"joe": "1.1.x"
+		"coffee-script": "~1.4.0",
+		"joe": "~1.1.1"
 	},
 	"directories": {
 		"lib": "./out/lib"

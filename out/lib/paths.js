@@ -329,33 +329,55 @@
       });
       return this;
     },
-    testIgnorePatterns: function(path, opts) {
-      var basename, result, _ref6, _ref7;
+    testIgnorePatterns: function() {
+      var args;
+      args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+      return this.isIgnoredPath.apply(this, args);
+    },
+    isIgnoredPath: function(path, opts) {
+      var basename, ignorePath, result, _i, _len, _ref10, _ref6, _ref7, _ref8, _ref9;
       if (opts == null) {
         opts = {};
       }
+      result = false;
       basename = pathUtil.basename(path);
-      if ((_ref6 = opts.ignoreCommonPatterns) == null) {
+      if ((_ref6 = opts.ignorePaths) == null) {
+        opts.ignorePaths = false;
+      }
+      if ((_ref7 = opts.ignoreHiddenFiles) == null) {
+        opts.ignoreHiddenFiles = false;
+      }
+      if ((_ref8 = opts.ignoreCommonPatterns) == null) {
         opts.ignoreCommonPatterns = true;
       }
-      if ((_ref7 = opts.ignoreCustomPatterns) == null) {
-        opts.ignoreCustomPatterns = null;
+      if ((_ref9 = opts.ignoreCustomPatterns) == null) {
+        opts.ignoreCustomPatterns = false;
       }
       if (opts.ignoreCommonPatterns === true) {
         opts.ignoreCommonPatterns = balUtilPaths.ignoreCommonPatterns;
       }
-      result = (opts.ignoreCommonPatterns && opts.ignoreCommonPatterns.test(basename)) || (opts.ignoreCustomPatterns && opts.ignoreCustomPatterns.test(basename)) || false;
+      if (opts.ignorePaths) {
+        _ref10 = opts.ignorePaths;
+        for (_i = 0, _len = _ref10.length; _i < _len; _i++) {
+          ignorePath = _ref10[_i];
+          if (path.indexOf(ignorePath) === 0) {
+            result = true;
+            break;
+          }
+        }
+      }
+      result = result || (opts.ignoreHiddenFiles && /^\./.test(basename)) || (opts.ignoreCommonPatterns && opts.ignoreCommonPatterns.test(basename)) || (opts.ignoreCustomPatterns && opts.ignoreCustomPatterns.test(basename)) || false;
       return result;
     },
     scandir: function() {
-      var args, err, list, options, tasks, tree, _ref10, _ref11, _ref6, _ref7, _ref8, _ref9;
+      var args, err, list, opts, tasks, tree, _ref10, _ref11, _ref12, _ref6, _ref7, _ref8, _ref9;
       args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
       list = {};
       tree = {};
       if (args.length === 1) {
-        options = args[0];
+        opts = args[0];
       } else if (args.length >= 4) {
-        options = {
+        opts = {
           path: args[0],
           fileAction: args[1] || null,
           dirAction: args[2] || null,
@@ -369,30 +391,33 @@
           throw err;
         }
       }
-      if ((_ref6 = options.recurse) == null) {
-        options.recurse = true;
+      if ((_ref6 = opts.recurse) == null) {
+        opts.recurse = true;
       }
-      if ((_ref7 = options.readFiles) == null) {
-        options.readFiles = false;
+      if ((_ref7 = opts.readFiles) == null) {
+        opts.readFiles = false;
       }
-      if ((_ref8 = options.ignoreHiddenFiles) == null) {
-        options.ignoreHiddenFiles = false;
+      if ((_ref8 = opts.ignorePaths) == null) {
+        opts.ignorePaths = false;
       }
-      if ((_ref9 = options.ignoreCommonPatterns) == null) {
-        options.ignoreCommonPatterns = false;
+      if ((_ref9 = opts.ignoreHiddenFiles) == null) {
+        opts.ignoreHiddenFiles = false;
       }
-      if (options.action != null) {
-        if ((_ref10 = options.fileAction) == null) {
-          options.fileAction = options.action;
+      if ((_ref10 = opts.ignoreCommonPatterns) == null) {
+        opts.ignoreCommonPatterns = false;
+      }
+      if (opts.action != null) {
+        if ((_ref11 = opts.fileAction) == null) {
+          opts.fileAction = opts.action;
         }
-        if ((_ref11 = options.dirAction) == null) {
-          options.dirAction = options.action;
+        if ((_ref12 = opts.dirAction) == null) {
+          opts.dirAction = opts.action;
         }
       }
-      if (options.parentPath && !options.path) {
-        options.path = options.parentPath;
+      if (opts.parentPath && !opts.path) {
+        opts.path = opts.parentPath;
       }
-      if (!options.path) {
+      if (!opts.path) {
         err = new Error('balUtilPaths.scandir: path is needed');
         if (next) {
           return next(err);
@@ -401,13 +426,13 @@
         }
       }
       tasks = new balUtilFlow.Group(function(err) {
-        return options.next(err, list, tree);
+        return opts.next(err, list, tree);
       });
-      balUtilPaths.readdir(options.path, function(err, files) {
+      balUtilPaths.readdir(opts.path, function(err, files) {
         if (tasks.exited) {
           return;
         } else if (err) {
-          console.log('balUtilPaths.scandir: readdir has failed on:', options.path);
+          console.log('balUtilPaths.scandir: readdir has failed on:', opts.path);
           return tasks.exit(err);
         }
         tasks.total += files.length;
@@ -415,17 +440,18 @@
           return tasks.exit();
         } else {
           return files.forEach(function(file) {
-            var fileFullPath, fileRelativePath, isHiddenFile, isIgnoredFile;
-            isHiddenFile = options.ignoreHiddenFiles && /^\./.test(file);
-            isIgnoredFile = balUtilPaths.testIgnorePatterns(file, {
-              ignoreCommonPatterns: options.ignoreCommonPatterns,
-              ignoreCustomPatterns: options.ignoreCustomPatterns
+            var fileFullPath, fileRelativePath, isIgnoredFile;
+            fileFullPath = pathUtil.join(opts.path, file);
+            fileRelativePath = opts.relativePath ? pathUtil.join(opts.relativePath, file) : file;
+            isIgnoredFile = balUtilPaths.isIgnoredPath(fileFullPath, {
+              ignorePaths: opts.ignorePaths,
+              ignoreHiddenFiles: opts.ignoreHiddenFiles,
+              ignoreCommonPatterns: opts.ignoreCommonPatterns,
+              ignoreCustomPatterns: opts.ignoreCustomPatterns
             });
-            if (isHiddenFile || isIgnoredFile) {
+            if (isIgnoredFile) {
               return tasks.complete();
             }
-            fileFullPath = pathUtil.join(options.path, file);
-            fileRelativePath = options.relativePath ? pathUtil.join(options.relativePath, file) : file;
             return balUtilPaths.isDirectory(fileFullPath, function(err, isDirectory, fileStat) {
               var complete;
               if (tasks.exited) {
@@ -444,20 +470,21 @@
                   if (skip !== true) {
                     list[fileRelativePath] = 'dir';
                     tree[file] = {};
-                    if (!options.recurse) {
+                    if (!opts.recurse) {
                       return tasks.complete();
                     } else {
                       return balUtilPaths.scandir({
                         path: fileFullPath,
                         relativePath: fileRelativePath,
-                        fileAction: options.fileAction,
-                        dirAction: options.dirAction,
-                        readFiles: options.readFiles,
-                        ignoreHiddenFiles: options.ignoreHiddenFiles,
-                        ignoreCommonPatterns: options.ignoreCommonPatterns,
-                        ignoreCustomPatterns: options.ignoreCustomPatterns,
-                        recurse: options.recurse,
-                        stat: options.fileStat,
+                        fileAction: opts.fileAction,
+                        dirAction: opts.dirAction,
+                        readFiles: opts.readFiles,
+                        ignorePaths: opts.ignorePaths,
+                        ignoreHiddenFiles: opts.ignoreHiddenFiles,
+                        ignoreCommonPatterns: opts.ignoreCommonPatterns,
+                        ignoreCustomPatterns: opts.ignoreCustomPatterns,
+                        recurse: opts.recurse,
+                        stat: opts.fileStat,
                         next: function(err, _list, _tree) {
                           var filePath, fileType;
                           tree[file] = _tree;
@@ -483,9 +510,9 @@
                     return tasks.complete();
                   }
                 };
-                if (options.dirAction) {
-                  return options.dirAction(fileFullPath, fileRelativePath, complete, fileStat);
-                } else if (options.dirAction === false) {
+                if (opts.dirAction) {
+                  return opts.dirAction(fileFullPath, fileRelativePath, complete, fileStat);
+                } else if (opts.dirAction === false) {
                   return complete(err, true);
                 } else {
                   return complete(err, false);
@@ -501,7 +528,7 @@
                   if (skip) {
                     return tasks.complete();
                   } else {
-                    if (options.readFiles) {
+                    if (opts.readFiles) {
                       return balUtilPaths.readFile(fileFullPath, function(err, data) {
                         var dataString;
                         if (err) {
@@ -519,9 +546,9 @@
                     }
                   }
                 };
-                if (options.fileAction) {
-                  return options.fileAction(fileFullPath, fileRelativePath, complete, fileStat);
-                } else if (options.fileAction === false) {
+                if (opts.fileAction) {
+                  return opts.fileAction(fileFullPath, fileRelativePath, complete, fileStat);
+                } else if (opts.fileAction === false) {
                   return complete(err, true);
                 } else {
                   return complete(err, false);
@@ -534,10 +561,11 @@
       return this;
     },
     cpdir: function() {
-      var args, err, ignoreHiddenFiles, ignorePatterns, next, outPath, scandirOptions, srcPath, _ref6;
+      var args, err, next, opt, opts, outPath, scandirOpts, srcPath, _i, _len, _ref6, _ref7;
       args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+      opts = {};
       if (args.length === 1) {
-        _ref6 = args[0], srcPath = _ref6.srcPath, outPath = _ref6.outPath, next = _ref6.next, ignoreHiddenFiles = _ref6.ignoreHiddenFiles, ignorePatterns = _ref6.ignorePatterns;
+        _ref6 = opts = args[0], srcPath = _ref6.srcPath, outPath = _ref6.outPath, next = _ref6.next;
       } else if (args.length >= 3) {
         srcPath = args[0], outPath = args[1], next = args[2];
       } else {
@@ -548,7 +576,7 @@
           throw err;
         }
       }
-      scandirOptions = {
+      scandirOpts = {
         path: srcPath,
         fileAction: function(fileSrcPath, fileRelativePath, next) {
           var fileOutPath;
@@ -568,20 +596,20 @@
         },
         next: next
       };
-      if (ignoreHiddenFiles != null) {
-        scandirOptions.ignoreHiddenFiles = ignoreHiddenFiles;
+      _ref7 = ['ignorePaths', 'ignoreHiddenFiles', 'ignoreCommonPatterns', 'ignoreCustomPatterns'];
+      for (_i = 0, _len = _ref7.length; _i < _len; _i++) {
+        opt = _ref7[_i];
+        scandirOpts[opt] = opts[opt];
       }
-      if (ignorePatterns != null) {
-        scandirOptions.ignorePatterns = ignorePatterns;
-      }
-      balUtilPaths.scandir(scandirOptions);
+      balUtilPaths.scandir(scandirOpts);
       return this;
     },
     rpdir: function() {
-      var args, err, ignoreHiddenFiles, ignorePatterns, next, outPath, scandirOptions, srcPath, _ref6;
+      var args, err, next, opt, opts, outPath, scandirOpts, srcPath, _i, _len, _ref6, _ref7;
       args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+      opts = {};
       if (args.length === 1) {
-        _ref6 = args[0], srcPath = _ref6.srcPath, outPath = _ref6.outPath, next = _ref6.next, ignoreHiddenFiles = _ref6.ignoreHiddenFiles, ignorePatterns = _ref6.ignorePatterns;
+        _ref6 = opts = args[0], srcPath = _ref6.srcPath, outPath = _ref6.outPath, next = _ref6.next;
       } else if (args.length >= 3) {
         srcPath = args[0], outPath = args[1], next = args[2];
       } else {
@@ -592,7 +620,7 @@
           throw err;
         }
       }
-      scandirOptions = {
+      scandirOpts = {
         path: srcPath,
         fileAction: function(fileSrcPath, fileRelativePath, next) {
           var fileOutPath;
@@ -618,13 +646,12 @@
         },
         next: next
       };
-      if (ignoreHiddenFiles != null) {
-        scandirOptions.ignoreHiddenFiles = ignoreHiddenFiles;
+      _ref7 = ['ignorePaths', 'ignoreHiddenFiles', 'ignoreCommonPatterns', 'ignoreCustomPatterns'];
+      for (_i = 0, _len = _ref7.length; _i < _len; _i++) {
+        opt = _ref7[_i];
+        scandirOpts[opt] = opts[opt];
       }
-      if (ignorePatterns != null) {
-        scandirOptions.ignorePatterns = ignorePatterns;
-      }
-      balUtilPaths.scandir(scandirOptions);
+      balUtilPaths.scandir(scandirOpts);
       return this;
     },
     rmdirDeep: function(parentPath, next) {
@@ -695,11 +722,11 @@
       return this;
     },
     readPath: function(filePath, next) {
-      var http, requestOptions;
+      var http, requestOpts;
       if (/^http/.test(filePath)) {
-        requestOptions = require('url').parse(filePath);
-        http = requestOptions.protocol === 'https:' ? require('https') : require('http');
-        http.get(requestOptions, function(res) {
+        requestOpts = require('url').parse(filePath);
+        http = requestOpts.protocol === 'https:' ? require('https') : require('http');
+        http.get(requestOpts, function(res) {
           var data;
           data = '';
           res.on('data', function(chunk) {
@@ -708,7 +735,7 @@
           return res.on('end', function() {
             var locationHeader, _ref6;
             locationHeader = ((_ref6 = res.headers) != null ? _ref6.location : void 0) || null;
-            if (locationHeader && locationHeader !== requestOptions.href) {
+            if (locationHeader && locationHeader !== requestOpts.href) {
               return balUtilPaths.readPath(locationHeader, next);
             } else {
               return next(null, data);

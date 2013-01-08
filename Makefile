@@ -5,8 +5,8 @@
 # -----------------
 # Variables
 
-BIN=node_modules/.bin/
-COFFEE=$(BIN)coffee
+BIN=node_modules/.bin
+COFFEE=$(BIN)/coffee
 OUT=out
 SRC=src
 
@@ -19,6 +19,9 @@ SRC=src
 # -c, --compile      compile to JavaScript and save as .js files
 # -o, --output       set the output directory for compiled JavaScript
 # -w, --watch        watch scripts for changes and rerun commands
+
+# Can't compile bar for bal-util as we are used in the browser
+# instead of just node
 
 
 # -----------------
@@ -49,8 +52,6 @@ reset:
 # Ensure everything is ready for our tests (used by things like travis)
 test-prepare:
 	make reset
-	rm -Rf test/node_modules test/*out test/*.log
-	cd test; npm install
 
 # Run our tests
 test:

@@ -487,19 +487,36 @@ balUtilPaths =
 		@
 
 	# Test Ignore Patterns
-	# opts={ignoreCommonPatterns,ignoreCustomPatterns}
-	testIgnorePatterns: (path,opts={}) ->
-		# Prepare
-		basename = pathUtil.basename(path)
-		opts.ignoreCommonPatterns ?= true
-		opts.ignoreCustomPatterns ?= null
+	# alias for isIgnoredPath
+	testIgnorePatterns: (args...) ->
+		return @isIgnoredPath(args...)
 
-		# Alias
+	# Is Ignored Path
+	# opts={ignorePaths,ignoreHiddenFiles,ignoreCommonPatterns,ignoreCustomPatterns}
+	isIgnoredPath: (path,opts={}) ->
+		# Prepare
+		result = false
+		basename = pathUtil.basename(path)
+		opts.ignorePaths ?= false
+		opts.ignoreHiddenFiles ?= false
+		opts.ignoreCommonPatterns ?= true
+		opts.ignoreCustomPatterns ?= false
+
+		# Fetch the common patterns to ignore
 		if opts.ignoreCommonPatterns is true
 			opts.ignoreCommonPatterns = balUtilPaths.ignoreCommonPatterns
 
-		# Test
+		# Test Ignore Paths
+		if opts.ignorePaths
+			for ignorePath in opts.ignorePaths
+				if path.indexOf(ignorePath) is 0
+					result = true
+					break
+
+		# Test Ignore Patterns
 		result =
+			result or
+			(opts.ignoreHiddenFiles    and /^\./.test(basename)) or
 			(opts.ignoreCommonPatterns and opts.ignoreCommonPatterns.test(basename)) or
 			(opts.ignoreCustomPatterns and opts.ignoreCustomPatterns.test(basename)) or
 			false
@@ -511,7 +528,7 @@ balUtilPaths =
 	# Recursively scan a directory
 	# Usage:
 	#	scandir(path,action,fileAction,dirAction,next)
-	#	scandir({path,action,fileAction,dirAction,next,stat,recurse,readFiles,ignoreHiddenFiles,ignorePatterns})
+	#	scandir(options)
 	# Options:
 	#	path: the path you want to read
 	#	action: (default null) null, or a function to use for both the fileAction and dirACtion
@@ -524,13 +541,14 @@ balUtilPaths =
 	#	stat: (default null) null, or a file stat object for the path if we already have one (not actually used yet)
 	#	recurse: (default true) null, or a boolean for whether or not to scan subdirectories too
 	#	readFiles: (default false) null, or a boolean for whether or not we should read the file contents
+	#   ignorePaths: (default false) null, or an array of paths that we should ignore
 	#	ignoreHiddenFiles: (default false) null, or a boolean for if we should ignore files starting with a dot
 	#	ignoreCommonPatterns: (default false) null, boolean, or regex
 	#		if null, becomes true
 	#		if false, does not do any ignore patterns
 	#		if true, defaults to balUtilPaths.ignoreCommonPatterns
 	#		if regex, uses this value instead of balUtilPaths.ignoreCommonPatterns
-	#	ignoreCustomPatterns: (default false) null, boolean, or regex (same as ignorePatterns but for ignoreCustomPatterns instead)
+	#	ignoreCustomPatterns: (default false) null, boolean, or regex (same as ignoreCommonPatterns but for ignoreCustomPatterns instead)
 	# Next Callback Arguments:
 	#	err: null, or an error that has occured
 	#	list: a collection of all the child nodes in a list/object format:
@@ -545,9 +563,9 @@ balUtilPaths =
 
 		# Arguments
 		if args.length is 1
-			options = args[0]
+			opts = args[0]
 		else if args.length >= 4
-			options =
+			opts =
 				path: args[0]
 				fileAction: args[1] or null
 				dirAction: args[2] or null
@@ -560,20 +578,21 @@ balUtilPaths =
 				throw err
 
 		# Prepare defaults
-		options.recurse ?= true
-		options.readFiles ?= false
-		options.ignoreHiddenFiles ?= false
-		options.ignoreCommonPatterns ?= false
+		opts.recurse ?= true
+		opts.readFiles ?= false
+		opts.ignorePaths ?= false
+		opts.ignoreHiddenFiles ?= false
+		opts.ignoreCommonPatterns ?= false
 
 		# Action
-		if options.action?
-			options.fileAction ?= options.action
-			options.dirAction ?= options.action
+		if opts.action?
+			opts.fileAction ?= opts.action
+			opts.dirAction ?= opts.action
 
 		# Check needed
-		if options.parentPath and !options.path
-			options.path = options.parentPath
-		if !options.path
+		if opts.parentPath and !opts.path
+			opts.path = opts.parentPath
+		if !opts.path
 			err = new Error('balUtilPaths.scandir: path is needed')
 			if next
 				return next(err)
@@ -582,16 +601,16 @@ balUtilPaths =
 
 		# Group
 		tasks = new balUtilFlow.Group (err) ->
-			return options.next(err, list, tree)
+			return opts.next(err, list, tree)
 
 		# Cycle
-		balUtilPaths.readdir options.path, (err,files) ->
+		balUtilPaths.readdir opts.path, (err,files) ->
 			# Checks
 			if tasks.exited
 				return
 			# Error
 			else if err
-				console.log 'balUtilPaths.scandir: readdir has failed on:', options.path
+				console.log 'balUtilPaths.scandir: readdir has failed on:', opts.path
 				return tasks.exit(err)
 
 			# Totals
@@ -603,22 +622,22 @@ balUtilPaths =
 
 			# Cycle
 			else files.forEach (file) ->
-				# Check
-				isHiddenFile = options.ignoreHiddenFiles and /^\./.test(file)
-				isIgnoredFile = balUtilPaths.testIgnorePatterns(file,{
-					ignoreCommonPatterns: options.ignoreCommonPatterns
-					ignoreCustomPatterns: options.ignoreCustomPatterns
-				})
-				if isHiddenFile or isIgnoredFile
-					return tasks.complete()
-
 				# Prepare
-				fileFullPath = pathUtil.join(options.path,file)
+				fileFullPath = pathUtil.join(opts.path,file)
 				fileRelativePath =
-					if options.relativePath
-						pathUtil.join(options.relativePath,file)
+					if opts.relativePath
+						pathUtil.join(opts.relativePath,file)
 					else
 						file
+
+				# Check
+				isIgnoredFile = balUtilPaths.isIgnoredPath(fileFullPath,{
+					ignorePaths: opts.ignorePaths
+					ignoreHiddenFiles: opts.ignoreHiddenFiles
+					ignoreCommonPatterns: opts.ignoreCommonPatterns
+					ignoreCustomPatterns: opts.ignoreCustomPatterns
+				})
+				return tasks.complete()  if isIgnoredFile
 
 				# IsDirectory
 				balUtilPaths.isDirectory fileFullPath, (err,isDirectory,fileStat) ->
@@ -648,7 +667,7 @@ balUtilPaths =
 								tree[file] = {}
 
 								# No Recurse
-								unless options.recurse
+								unless opts.recurse
 									return tasks.complete()
 
 								# Recurse
@@ -657,15 +676,16 @@ balUtilPaths =
 										# Path
 										path: fileFullPath
 										relativePath: fileRelativePath
-										# Options
-										fileAction: options.fileAction
-										dirAction: options.dirAction
-										readFiles: options.readFiles
-										ignoreHiddenFiles: options.ignoreHiddenFiles
-										ignoreCommonPatterns: options.ignoreCommonPatterns
-										ignoreCustomPatterns: options.ignoreCustomPatterns
-										recurse: options.recurse
-										stat: options.fileStat
+										# opts
+										fileAction: opts.fileAction
+										dirAction: opts.dirAction
+										readFiles: opts.readFiles
+										ignorePaths: opts.ignorePaths
+										ignoreHiddenFiles: opts.ignoreHiddenFiles
+										ignoreCommonPatterns: opts.ignoreCommonPatterns
+										ignoreCustomPatterns: opts.ignoreCustomPatterns
+										recurse: opts.recurse
+										stat: opts.fileStat
 										# Completed
 										next: (err,_list,_tree) ->
 											# Merge in children of the parent directory
@@ -693,9 +713,9 @@ balUtilPaths =
 								return tasks.complete()
 
 						# Action
-						if options.dirAction
-							return options.dirAction(fileFullPath, fileRelativePath, complete, fileStat)
-						else if options.dirAction is false
+						if opts.dirAction
+							return opts.dirAction(fileFullPath, fileRelativePath, complete, fileStat)
+						else if opts.dirAction is false
 							return complete(err,true)
 						else
 							return complete(err,false)
@@ -716,7 +736,7 @@ balUtilPaths =
 								return tasks.complete()
 							else
 								# Append
-								if options.readFiles
+								if opts.readFiles
 									# Read file
 									balUtilPaths.readFile fileFullPath, (err,data) ->
 										# Error?
@@ -735,9 +755,9 @@ balUtilPaths =
 									return tasks.complete()
 
 						# Action
-						if options.fileAction
-							return options.fileAction(fileFullPath, fileRelativePath, complete, fileStat)
-						else if options.fileAction is false
+						if opts.fileAction
+							return opts.fileAction(fileFullPath, fileRelativePath, complete, fileStat)
+						else if opts.fileAction is false
 							return complete(err,true)
 						else
 							return complete(err,false)
@@ -749,14 +769,15 @@ balUtilPaths =
 	# Copy a directory
 	# If the same file already exists, we will keep the source one
 	# Usage:
-	# 	cpdir({srcPath,outPath,next,[ignoreHiddenFiles],[ignorePatterns]})
+	# 	cpdir({srcPath,outPath,next})
 	# 	cpdir(srcPath,outPath,next)
 	# Callbacks:
 	# 	next(err)
 	cpdir: (args...) ->
 		# Prepare
+		opts = {}
 		if args.length is 1
-			{srcPath,outPath,next,ignoreHiddenFiles,ignorePatterns} = args[0]
+			{srcPath,outPath,next} = opts = args[0]
 		else if args.length >= 3
 			[srcPath,outPath,next] = args
 		else
@@ -766,8 +787,8 @@ balUtilPaths =
 			else
 				throw err
 
-		# Create options
-		scandirOptions = {
+		# Create opts
+		scandirOpts = {
 			path: srcPath
 			fileAction: (fileSrcPath,fileRelativePath,next) ->
 				# Prepare
@@ -788,14 +809,12 @@ balUtilPaths =
 			next: next
 		}
 
-		# Extra options
-		if ignoreHiddenFiles?
-			scandirOptions.ignoreHiddenFiles = ignoreHiddenFiles
-		if ignorePatterns?
-			scandirOptions.ignorePatterns = ignorePatterns
+		# Passed Scandir Opts
+		for opt in ['ignorePaths','ignoreHiddenFiles','ignoreCommonPatterns','ignoreCustomPatterns']
+			scandirOpts[opt] = opts[opt]
 
 		# Scan all the files in the diretory and copy them over asynchronously
-		balUtilPaths.scandir(scandirOptions)
+		balUtilPaths.scandir(scandirOpts)
 
 		# Chain
 		@
@@ -804,14 +823,15 @@ balUtilPaths =
 	# Replace a directory
 	# If the same file already exists, we will keep the newest one
 	# Usage:
-	# 	rpdir({srcPath,outPath,next,[ignoreHiddenFiles],[ignorePatterns]})
+	# 	rpdir({srcPath,outPath,next})
 	# 	rpdir(srcPath,outPath,next)
 	# Callbacks:
 	# 	next(err)
 	rpdir: (args...) ->
 		# Prepare
+		opts = {}
 		if args.length is 1
-			{srcPath,outPath,next,ignoreHiddenFiles,ignorePatterns} = args[0]
+			{srcPath,outPath,next} = opts = args[0]
 		else if args.length >= 3
 			[srcPath,outPath,next] = args
 		else
@@ -821,8 +841,8 @@ balUtilPaths =
 			else
 				throw err
 
-		# Create options
-		scandirOptions = {
+		# Create opts
+		scandirOpts = {
 			path: srcPath
 			fileAction: (fileSrcPath,fileRelativePath,next) ->
 				# Prepare
@@ -850,14 +870,12 @@ balUtilPaths =
 			next: next
 		}
 
-		# Extra options
-		if ignoreHiddenFiles?
-			scandirOptions.ignoreHiddenFiles = ignoreHiddenFiles
-		if ignorePatterns?
-			scandirOptions.ignorePatterns = ignorePatterns
+		# Passed Scandir Opts
+		for opt in ['ignorePaths','ignoreHiddenFiles','ignoreCommonPatterns','ignoreCustomPatterns']
+			scandirOpts[opt] = opts[opt]
 
 		# Scan all the files in the diretory and copy them over asynchronously
-		balUtilPaths.scandir(scandirOptions)
+		balUtilPaths.scandir(scandirOpts)
 
 		# Chain
 		@
@@ -949,16 +967,16 @@ balUtilPaths =
 	# next(err,data)
 	readPath: (filePath,next) ->
 		if /^http/.test(filePath)
-			requestOptions = require('url').parse(filePath)
-			http = if requestOptions.protocol is 'https:' then require('https') else require('http')
+			requestOpts = require('url').parse(filePath)
+			http = if requestOpts.protocol is 'https:' then require('https') else require('http')
 			http
-				.get requestOptions, (res) ->
+				.get requestOpts, (res) ->
 					data = ''
 					res.on 'data', (chunk) ->
 						data += chunk
 					res.on 'end', ->
 						locationHeader = res.headers?.location or null
-						if locationHeader and locationHeader isnt requestOptions.href
+						if locationHeader and locationHeader isnt requestOpts.href
 							# Follow the redirect
 							return balUtilPaths.readPath(locationHeader,next)
 						else

@@ -1,5 +1,11 @@
 ## History
 
+- v1.15.4 January 8, 2013
+	- `balUtilPaths` changes:
+		- Renamed `testIgnorePatterns` to `isIgnoredPath`
+			- Added aliases for b/c compatibility
+		- Added new `ignorePaths` option
+
 - v1.15.3 December 24, 2012
 	- `balUtilModules` changes:
 		- Added `requireFresh`
