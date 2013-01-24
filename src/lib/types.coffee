@@ -92,6 +92,14 @@ balUtilTypes =
 	isEmpty: (value) ->
 		return value?
 
+	# Is empty object
+	isEmptyObject: (value) ->
+		empty = true
+		for own key,value of value
+			empty = false
+			break
+		return empty
+
 
 # =====================================
 # Export

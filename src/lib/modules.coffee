@@ -101,15 +101,11 @@ balUtilModules =
 
 			# Fetch
 			pid.stdout.on 'data', (data) ->
-				dataStr = data.toString()
-				if opts.output
-					process.stdout.write(dataStr)
-				stdout += dataStr
+				process.stdout.write(data)  if opts.output
+				stdout += data.toString()
 			pid.stderr.on 'data', (data) ->
-				dataStr = data.toString()
-				if opts.output
-					process.stderr.write(dataStr)
-				stderr += dataStr
+				process.stderr.write(data)  if opts.output
+				stderr += data.toString()
 
 			# Wait
 			pid.on 'exit', (code,signal) ->
@@ -171,6 +167,11 @@ balUtilModules =
 			{exec} = require('child_process')
 			[opts,next] = balUtilFlow.extractOptsAndCallback(opts,next)
 
+			# Output
+			if opts.output
+				opts.stdio = 'inherit'
+				delete opts.output
+
 			# Execute command
 			exec command, opts, (err,stdout,stderr) ->
 				# Complete the task
@@ -213,28 +214,40 @@ balUtilModules =
 	# Paths
 
 	# Determine an executable path
-	# next(err,foundPath)
-	determineExecPath: (possiblePaths,next) ->
+	# next(err,execPath)
+	determineExecPath: (possibleExecPaths,next) ->
 		# Prepare
-		foundPath = null
+		pathUtil = require('path')
+		execPath = null
 
 		# Group
 		tasks = new balUtilFlow.Group (err) ->
-			next(err,foundPath)
+			next(err,execPath)
 
 		# Handle
-		for possiblePath in possiblePaths
-			continue  unless possiblePath
-			tasks.push {possiblePath}, (complete) ->
-				{possiblePath} = @
-				balUtilModules.spawn [possiblePath, '--version'], (err,stdout,stderr,code,signal) ->
-					# Problem
-					if err
-						complete()
-					# Good
-					else
-						foundPath = possiblePath
-						tasks.exit()
+		for possibleExecPath in possibleExecPaths
+			continue  unless possibleExecPath
+			tasks.push {possibleExecPath}, (complete) ->
+				{possibleExecPath} = @
+
+				# Resolve the path as it may be a virtual or relative path
+				possibleExecPath = pathUtil.resolve(possibleExecPath)
+
+				# Check if the path exists
+				balUtilPaths.exists possibleExecPath, (exists) ->
+					# Skip if the path doesn't exist
+					return complete()  unless exists
+
+					# Check to see if the path is an executable
+					balUtilModules.spawn [possibleExecPath, '--version'], (err,stdout,stderr,code,signal) ->
+						# Problem
+						if err
+							complete()
+
+						# Good
+						else
+							execPath = possibleExecPath
+							tasks.exit()
 
 		# Fire the tasks synchronously
 		tasks.sync()
@@ -242,29 +255,40 @@ balUtilModules =
 		# Chain
 		@
 
-	# Get an Exec Path
-	# next(err,foundPath)
-	getExecPath: (executableName,next) ->
-		# Prepare
-		pathUtil = require('path')
-
+	# Get Environment Paths
+	getEnvironmentPaths: ->
 		# Fetch system include paths
 		if balUtilModules.isWindows()
-			paths = process.env.PATH.split(/;/g)
+			environmentPaths = process.env.PATH.split(/;/g)
 		else
-			paths = process.env.PATH.split(/:/g)
+			environmentPaths = process.env.PATH.split(/:/g)
 
-		# Add our cwd as the first path
-		paths.unshift(process.cwd())
+		# Return
+		return environmentPaths
 
-		# Add our executable to them
-		for path,key in paths
-			paths[key] = pathUtil.join(path,executableName)
+	# Get standard exec paths
+	getStandardExecPaths: (execName) ->
+		# Prepare
+		possibleExecPaths = [process.cwd()].concat(balUtilModules.getEnvironmentPaths())
+
+		# Get the possible exec paths
+		possibleExecPaths = balUtilFlow.suffixArray("/#{execName}", possibleExecPaths)  if execName
+
+		# Return
+		return possibleExecPaths
+
+	# Get an Exec Path
+	# next(err,foundPath)
+	getExecPath: (execName,next) ->
+		# If we are for windows add the paths for .exe as well
+		if isWindows and execName.indexOf('.') is -1
+			possibleExecPaths = balUtilModules.getStandardExecPaths(execName+'.exe').concat(balUtilModules.getStandardExecPaths(execName))
+		else
+			possibleExecPaths = balUtilModules.getStandardExecPaths(execName)
 
 		# Forward onto determineExecPath
 		# Which will determine which path it is out of the possible paths
-		# Then return to our callback
-		balUtilModules.determineExecPath(paths,next)
+		balUtilModules.determineExecPath(possibleExecPaths, next)
 
 		# Chain
 		@
@@ -277,9 +301,6 @@ balUtilModules =
 		if balUtilModules.cachedHomePath?
 			next(null,balUtilModules.cachedHomePath)
 			return @
-
-		# Prepare
-		pathUtil = require('path')
 
 		# Fetch
 		homePath = process.env.USERPROFILE or process.env.HOME
@@ -348,39 +369,39 @@ balUtilModules =
 			return @
 
 		# Prepare
-		pathUtil = require('path')
-		possiblePaths =
-			# Windows
-			if isWindows
-				[
-					process.env.GIT_PATH
-					process.env.GITPATH
-					'git'
-					pathUtil.resolve('/Program Files (x64)/Git/bin/git.exe')
-					pathUtil.resolve('/Program Files (x86)/Git/bin/git.exe')
-					pathUtil.resolve('/Program Files/Git/bin/git.exe')
-				]
-			# Everything else
-			else
-				[
-					process.env.GIT_PATH
-					process.env.GITPATH
-					'git'
-					'/usr/local/bin/git'
-					'/usr/bin/git'
-				]
+		execName = if isWindows then 'git.exe' else 'git'
+		possibleExecPaths =
+			[
+				process.env.GIT_PATH
+				process.env.GITPATH
+			]
+			.concat(balUtilModules.getStandardExecPaths(execName))
+			.concat(
+				if isWindows
+					[
+						"/Program Files (x64)/Git/bin/#{execName}"
+						"/Program Files (x86)/Git/bin/#{execName}"
+						"/Program Files/Git/bin/#{execName}"
+					]
+				else
+					[
+						"/usr/local/bin/#{execName}"
+						"/usr/bin/#{execName}"
+						"~/bin/#{execName}"  # Rare occasion
+					]
+			)
 
 		# Determine the right path
-		balUtilModules.determineExecPath possiblePaths, (err,gitPath) ->
+		balUtilModules.determineExecPath possibleExecPaths, (err,execPath) ->
 			# Cache
-			balUtilModules.cachedGitPath = gitPath
+			balUtilModules.cachedGitPath = execPath
 
 			# Check
 			return next(err)  if err
-			return next(new Error('Could not locate git binary'))  unless gitPath
+			return next(new Error('Could not locate git binary'))  unless execPath
 
 			# Forward
-			return next(null,gitPath)
+			return next(null,execPath)
 
 		# Chain
 		@
@@ -395,43 +416,41 @@ balUtilModules =
 			next(null,balUtilModules.cachedNodePath)
 			return @
 
-		# Fetch
-		pathUtil = require('path')
-		possiblePaths =
-			# Windows
-			if isWindows
-				[
-					process.env.NODE_PATH
-					process.env.NODEPATH
-					(if /node(.exe)?$/.test(process.execPath) then process.execPath else '')
-					'node'
-					pathUtil.resolve('/Program Files (x64)/nodejs/node.exe')
-					pathUtil.resolve('/Program Files (x86)/nodejs/node.exe')
-					pathUtil.resolve('/Program Files/nodejs/node.exe')
-				]
-			# Everything else
-			else
-				[
-					process.env.NODE_PATH
-					process.env.NODEPATH
-					(if /node$/.test(process.execPath) then process.execPath else '')
-					'node'
-					'/usr/local/bin/node'
-					'/usr/bin/node'
-					'~/bin/node'  # Heroku
-				]
+		# Prepare
+		execName = if isWindows then 'node.exe' else 'node'
+		possibleExecPaths =
+			[
+				process.env.NODE_PATH
+				process.env.NODEPATH
+				(if /node(.exe)?$/.test(process.execPath) then process.execPath else '')
+			]
+			.concat(balUtilModules.getStandardExecPaths(execName))
+			.concat(
+				if isWindows
+					[
+						"/Program Files (x64)/nodejs/#{execName}"
+						"/Program Files (x86)/nodejs/#{execName}"
+						"/Program Files/nodejs/#{execName}"
+					]
+				else
+					[
+						"/usr/local/bin/#{execName}"
+						"/usr/bin/#{execName}"
+						"~/bin/#{execName}"  # Heroku
+					]
+			)
 
 		# Determine the right path
-		balUtilModules.determineExecPath possiblePaths, (err,nodePath) ->
+		balUtilModules.determineExecPath possibleExecPaths, (err,execPath) ->
 			# Cache
-			balUtilModules.cachedNodePath = nodePath
+			balUtilModules.cachedNodePath = execPath
 
 			# Check
 			return next(err)  if err
-			return next(new Error('Could not locate node binary'))  unless nodePath
+			return next(new Error('Could not locate node binary'))  unless execPath
 
 			# Forward
-			return next(null,nodePath)
+			return next(null,execPath)
 
 		# Chain
 		@
@@ -447,43 +466,41 @@ balUtilModules =
 			next(null,balUtilModules.cachedNpmPath)
 			return @
 
-		# Fetch
-		pathUtil = require('path')
-		possiblePaths =
-			# Windows
-			if isWindows
-				[
-					process.env.NPM_PATH
-					process.env.NPMPATH
-					(if /node(.exe)?$/.test(process.execPath) then process.execPath.replace(/node(.exe)?$/,'npm.cmd') else '')
-					'npm'  # .cmd extension not needed here, as windows will resolve it, for absolute paths, we need the .cmd extension however
-					pathUtil.resolve('/Program Files (x64)/nodejs/npm.cmd')
-					pathUtil.resolve('/Program Files (x86)/nodejs/npm.cmd')
-					pathUtil.resolve('/Program Files/nodejs/npm.cmd')
-				]
-			# Everything else
-			else
-				[
-					process.env.NPM_PATH
-					process.env.NPMPATH
-					(if /node$/.test(process.execPath) then process.execPath.replace(/node$/,'npm') else '')
-					'npm'
-					'/usr/local/bin/npm'
-					'/usr/bin/npm'
-					'~/node_modules/.bin/npm'  # Heroku
-				]
+		# Prepare
+		execName = if isWindows then 'npm.cmd' else 'npm'
+		possibleExecPaths =
+			[
+				process.env.NPM_PATH
+				process.env.NPMPATH
+				(if /node(.exe)?$/.test(process.execPath) then process.execPath.replace(/node(.exe)?$/,execName) else '')
+			]
+			.concat(balUtilModules.getStandardExecPaths(execName))
+			.concat(
+				if isWindows
+					[
+						"/Program Files (x64)/nodejs/#{execName}"
+						"/Program Files (x86)/nodejs/#{execName}"
+						"/Program Files/nodejs/#{execName}"
+					]
+				else
+					[
+						"/usr/local/bin/#{execName}"
+						"/usr/bin/#{execName}"
+						"~/node_modules/.bin/#{execName}" # Heroku
+					]
+			)
 
 		# Determine the right path
-		balUtilModules.determineExecPath possiblePaths, (err,npmPath) ->
+		balUtilModules.determineExecPath possibleExecPaths, (err,execPath) ->
 			# Cache
-			balUtilModules.cachedNpmPath = npmPath
+			balUtilModules.cachedNpmPath = execPath
 
 			# Check
 			return next(err)  if err
-			return next(new Error('Could not locate npm binary'))  unless npmPath
+			return next(new Error('Could not locate npm binary'))  unless execPath
 
 			# Forward
-			return next(null,npmPath)
+			return next(null,execPath)
 
 		# Chain
 		@

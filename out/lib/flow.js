@@ -113,25 +113,75 @@
       }
       return this;
     },
-    flow: function(opts) {
-      var action, actions, args, next, object, tasks;
-      object = opts.object, action = opts.action, args = opts.args, tasks = opts.tasks, next = opts.next;
-      if (!action) {
+    flow: function() {
+      var action, actions, args, next, object, tasks, _ref, _ref1, _ref2;
+      args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+      if (args.length === 1) {
+        _ref = args[0], object = _ref.object, actions = _ref.actions, action = _ref.action, args = _ref.args, tasks = _ref.tasks, next = _ref.next;
+      } else if (args.length === 4) {
+        _ref1 = args, object = _ref1[0], action = _ref1[1], args = _ref1[2], next = _ref1[3];
+      } else if (args.length === 3) {
+        _ref2 = args, actions = _ref2[0], args = _ref2[1], next = _ref2[2];
+      }
+      if ((action != null) === false && (actions != null) === false) {
         throw new Error('balUtilFlow.flow called without any action');
       }
-      actions = action.split(/[,\s]+/g);
+      if (actions == null) {
+        actions = action.split(/[,\s]+/g);
+      }
+      if (object == null) {
+        object = global;
+      }
       tasks || (tasks = new balUtilFlow.Group(next));
       balUtilFlow.each(actions, function(action) {
         return tasks.push(function(complete) {
           var argsClone, fn;
           argsClone = (args || []).slice();
           argsClone.push(complete);
-          fn = object[action];
+          fn = balUtilTypes.isFunction(action) ? action : object[action];
           return fn.apply(object, argsClone);
         });
       });
       tasks.sync();
       return this;
+    },
+    createSnore: function(message, opts) {
+      var snore, _ref;
+      opts || (opts = {});
+      if ((_ref = opts.delay) == null) {
+        opts.delay = 5000;
+      }
+      snore = {
+        snoring: false,
+        timer: setTimeout(function() {
+          snore.clear();
+          snore.snoring = true;
+          return typeof message === "function" ? message() : void 0;
+        }, opts.delay),
+        clear: function() {
+          if (snore.timer) {
+            clearTimeout(snore.timer);
+            return snore.timer = false;
+          }
+        }
+      };
+      return snore;
+    },
+    suffixArray: function() {
+      var arg, args, item, result, suffix, _i, _j, _len, _len1;
+      suffix = arguments[0], args = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
+      result = [];
+      for (_i = 0, _len = args.length; _i < _len; _i++) {
+        arg = args[_i];
+        if (!balUtilTypes.isArray(arg)) {
+          arg = [arg];
+        }
+        for (_j = 0, _len1 = arg.length; _j < _len1; _j++) {
+          item = arg[_j];
+          result.push(item + suffix);
+        }
+      }
+      return result;
     }
   };
 
@@ -141,13 +191,13 @@
   	tasks = new Group (err) -> next err
   	tasks.push (complete) -> someAsyncFunction(arg1, arg2, complete)
   	tasks.push (complete) -> anotherAsyncFunction(arg1, arg2, complete)
-  	tasks.async()
+  	tasks.run()
   
   	# Add tasks to a queue then fire them in serial (synchronously)
   	tasks = new Group (err) -> next err
   	tasks.push (complete) -> someAsyncFunction(arg1, arg2, complete)
   	tasks.push (complete) -> anotherAsyncFunction(arg1, arg2, complete)
-  	tasks.sync()
+  	tasks.run('serial')
   */
 
 
@@ -167,7 +217,7 @@
 
     _Class.prototype.queue = [];
 
-    _Class.prototype.mode = 'async';
+    _Class.prototype.mode = 'parallel';
 
     _Class.prototype.lastResult = null;
 
@@ -186,7 +236,9 @@
       for (_i = 0, _len = args.length; _i < _len; _i++) {
         arg = args[_i];
         if (balUtilTypes.isString(arg)) {
-          this.mode = arg;
+          if (arg === 'serial' || arg === 'sync') {
+            this.mode = 'serial';
+          }
         } else if (balUtilTypes.isFunction(arg)) {
           this.next = arg;
         } else if (balUtilTypes.isObject(arg)) {
@@ -335,7 +387,7 @@
     _Class.prototype.pushAndRun = function() {
       var args;
       args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
-      if (this.mode === 'sync' && this.isRunning()) {
+      if (this.mode === 'serial' && this.isRunning()) {
         this.push.apply(this, args);
       } else {
         ++this.total;
@@ -376,7 +428,7 @@
           }
           return balUtilFlow.fireWithOptionalCallback(_task, [complete], _context);
         };
-        if (this.completed !== 0 && (this.mode === 'async' || (this.completed % 100) === 0)) {
+        if (this.completed !== 0 && (this.mode === 'parallel' || (this.completed % 100) === 0)) {
           setTimeout(run, 0);
         } else {
           run();
@@ -388,16 +440,16 @@
     };
 
     _Class.prototype.run = function() {
-      var task, _i, _len, _ref;
+      var task, _i, _len, _ref, _ref1;
       if (this.isRunning() === false) {
         this.hasExited(false);
         if (this.hasTasks()) {
-          if (this.mode === 'sync') {
+          if ((_ref = this.mode) === 'serial' || _ref === 'sync') {
             this.nextTask();
           } else {
-            _ref = this.queue;
-            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-              task = _ref[_i];
+            _ref1 = this.queue;
+            for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+              task = _ref1[_i];
               this.nextTask();
             }
           }
@@ -409,13 +461,21 @@
     };
 
     _Class.prototype.async = function() {
-      this.mode = 'async';
+      return this.parallel();
+    };
+
+    _Class.prototype.parallel = function() {
+      this.mode = 'parallel';
       this.run();
       return this;
     };
 
     _Class.prototype.sync = function() {
-      this.mode = 'sync';
+      return this.serial();
+    };
+
+    _Class.prototype.serial = function() {
+      this.mode = 'serial';
       this.run();
       return this;
     };

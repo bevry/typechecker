@@ -1,5 +1,26 @@
 ## History
 
+- v1.16.0 January 24, 2013
+	- Node v0.9 compatability
+	- `balUtilModules` changes:
+		- Added `getEnvironmentPaths`
+		- Added `getStandardExecPaths(execName)`
+		- `exec` now supports the `output` option
+		- `determineExecPath` now resolves the possible paths and checks for their existance
+			- This avoids Node v0.9's ENOENT crash when executing a path that doesn't exit
+		- `getExecPath` will now try for `.exe` paths as well when running on windows if an extension hasn't already been defined
+		- `getGitPath`, `getNodePath`, `getNpmPath` will now also check the environment paths
+	- `balUtilFlow` changes:
+		- Added `createSnore`
+		- Added `suffixArray`
+		- `flow` now accepts the signatures `({object,actions,action,args,tasks,next})`, `(object, action, args, next)` and `(actions,args,next)`
+		- `Group` changes:
+			- `mode` can now be either `parallel` or `serial`, rather than `async` and `sync`
+			- `async()` is now `parallel()` (aliased for b/c)
+			- `sync()` is now `serial()` (aliased for b/c)
+	- `balUtilTypes` changes:
+		- Added `isEmptyObject`
+
 - v1.15.4 January 8, 2013
 	- `balUtilPaths` changes:
 		- Renamed `testIgnorePatterns` to `isIgnoredPath`

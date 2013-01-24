@@ -65,7 +65,7 @@
       return it('should fetch something', function(done) {
         return balUtil.getExecPath('ruby', function(err, path) {
           assert.equal(err || null, null);
-          console.log('npm:', path);
+          console.log('ruby:', path);
           assert.ok(path);
           return done();
         });

@@ -76,20 +76,16 @@
           pid = spawn(command.command, command.args || [], command.options || opts);
         }
         pid.stdout.on('data', function(data) {
-          var dataStr;
-          dataStr = data.toString();
           if (opts.output) {
-            process.stdout.write(dataStr);
+            process.stdout.write(data);
           }
-          return stdout += dataStr;
+          return stdout += data.toString();
         });
         pid.stderr.on('data', function(data) {
-          var dataStr;
-          dataStr = data.toString();
           if (opts.output) {
-            process.stderr.write(dataStr);
+            process.stderr.write(data);
           }
-          return stderr += dataStr;
+          return stderr += data.toString();
         });
         pid.on('exit', function(code, signal) {
           err = null;
@@ -138,6 +134,10 @@
         var exec, _ref4;
         exec = require('child_process').exec;
         _ref4 = balUtilFlow.extractOptsAndCallback(opts, next), opts = _ref4[0], next = _ref4[1];
+        if (opts.output) {
+          opts.stdio = 'inherit';
+          delete opts.output;
+        }
         return exec(command, opts, function(err, stdout, stderr) {
           balUtilModules.closeProcess();
           return next(err, stdout, stderr);
@@ -172,57 +172,74 @@
       tasks.sync();
       return this;
     },
-    determineExecPath: function(possiblePaths, next) {
-      var foundPath, possiblePath, tasks, _i, _len;
-      foundPath = null;
+    determineExecPath: function(possibleExecPaths, next) {
+      var execPath, pathUtil, possibleExecPath, tasks, _i, _len;
+      pathUtil = require('path');
+      execPath = null;
       tasks = new balUtilFlow.Group(function(err) {
-        return next(err, foundPath);
+        return next(err, execPath);
       });
-      for (_i = 0, _len = possiblePaths.length; _i < _len; _i++) {
-        possiblePath = possiblePaths[_i];
-        if (!possiblePath) {
+      for (_i = 0, _len = possibleExecPaths.length; _i < _len; _i++) {
+        possibleExecPath = possibleExecPaths[_i];
+        if (!possibleExecPath) {
           continue;
         }
         tasks.push({
-          possiblePath: possiblePath
+          possibleExecPath: possibleExecPath
         }, function(complete) {
-          possiblePath = this.possiblePath;
-          return balUtilModules.spawn([possiblePath, '--version'], function(err, stdout, stderr, code, signal) {
-            if (err) {
+          possibleExecPath = this.possibleExecPath;
+          possibleExecPath = pathUtil.resolve(possibleExecPath);
+          return balUtilPaths.exists(possibleExecPath, function(exists) {
+            if (!exists) {
               return complete();
-            } else {
-              foundPath = possiblePath;
-              return tasks.exit();
             }
+            return balUtilModules.spawn([possibleExecPath, '--version'], function(err, stdout, stderr, code, signal) {
+              if (err) {
+                return complete();
+              } else {
+                execPath = possibleExecPath;
+                return tasks.exit();
+              }
+            });
           });
         });
       }
       tasks.sync();
       return this;
     },
-    getExecPath: function(executableName, next) {
-      var key, path, pathUtil, paths, _i, _len;
-      pathUtil = require('path');
+    getEnvironmentPaths: function() {
+      var environmentPaths;
       if (balUtilModules.isWindows()) {
-        paths = process.env.PATH.split(/;/g);
+        environmentPaths = process.env.PATH.split(/;/g);
       } else {
-        paths = process.env.PATH.split(/:/g);
+        environmentPaths = process.env.PATH.split(/:/g);
       }
-      paths.unshift(process.cwd());
-      for (key = _i = 0, _len = paths.length; _i < _len; key = ++_i) {
-        path = paths[key];
-        paths[key] = pathUtil.join(path, executableName);
+      return environmentPaths;
+    },
+    getStandardExecPaths: function(execName) {
+      var possibleExecPaths;
+      possibleExecPaths = [process.cwd()].concat(balUtilModules.getEnvironmentPaths());
+      if (execName) {
+        possibleExecPaths = balUtilFlow.suffixArray("/" + execName, possibleExecPaths);
       }
-      balUtilModules.determineExecPath(paths, next);
+      return possibleExecPaths;
+    },
+    getExecPath: function(execName, next) {
+      var possibleExecPaths;
+      if (isWindows && execName.indexOf('.') === -1) {
+        possibleExecPaths = balUtilModules.getStandardExecPaths(execName + '.exe').concat(balUtilModules.getStandardExecPaths(execName));
+      } else {
+        possibleExecPaths = balUtilModules.getStandardExecPaths(execName);
+      }
+      balUtilModules.determineExecPath(possibleExecPaths, next);
       return this;
     },
     getHomePath: function(next) {
-      var homePath, pathUtil;
+      var homePath;
       if (balUtilModules.cachedHomePath != null) {
         next(null, balUtilModules.cachedHomePath);
         return this;
       }
-      pathUtil = require('path');
       homePath = process.env.USERPROFILE || process.env.HOME;
       homePath || (homePath = null);
       balUtilModules.cachedHomePath = homePath;
@@ -255,62 +272,62 @@
       return this;
     },
     getGitPath: function(next) {
-      var pathUtil, possiblePaths;
+      var execName, possibleExecPaths;
       if (balUtilModules.cachedGitPath != null) {
         next(null, balUtilModules.cachedGitPath);
         return this;
       }
-      pathUtil = require('path');
-      possiblePaths = isWindows ? [process.env.GIT_PATH, process.env.GITPATH, 'git', pathUtil.resolve('/Program Files (x64)/Git/bin/git.exe'), pathUtil.resolve('/Program Files (x86)/Git/bin/git.exe'), pathUtil.resolve('/Program Files/Git/bin/git.exe')] : [process.env.GIT_PATH, process.env.GITPATH, 'git', '/usr/local/bin/git', '/usr/bin/git'];
-      balUtilModules.determineExecPath(possiblePaths, function(err, gitPath) {
-        balUtilModules.cachedGitPath = gitPath;
+      execName = isWindows ? 'git.exe' : 'git';
+      possibleExecPaths = [process.env.GIT_PATH, process.env.GITPATH].concat(balUtilModules.getStandardExecPaths(execName)).concat(isWindows ? ["/Program Files (x64)/Git/bin/" + execName, "/Program Files (x86)/Git/bin/" + execName, "/Program Files/Git/bin/" + execName] : ["/usr/local/bin/" + execName, "/usr/bin/" + execName, "~/bin/" + execName]);
+      balUtilModules.determineExecPath(possibleExecPaths, function(err, execPath) {
+        balUtilModules.cachedGitPath = execPath;
         if (err) {
           return next(err);
         }
-        if (!gitPath) {
+        if (!execPath) {
           return next(new Error('Could not locate git binary'));
         }
-        return next(null, gitPath);
+        return next(null, execPath);
       });
       return this;
     },
     getNodePath: function(next) {
-      var pathUtil, possiblePaths;
+      var execName, possibleExecPaths;
       if (balUtilModules.cachedNodePath != null) {
         next(null, balUtilModules.cachedNodePath);
         return this;
       }
-      pathUtil = require('path');
-      possiblePaths = isWindows ? [process.env.NODE_PATH, process.env.NODEPATH, (/node(.exe)?$/.test(process.execPath) ? process.execPath : ''), 'node', pathUtil.resolve('/Program Files (x64)/nodejs/node.exe'), pathUtil.resolve('/Program Files (x86)/nodejs/node.exe'), pathUtil.resolve('/Program Files/nodejs/node.exe')] : [process.env.NODE_PATH, process.env.NODEPATH, (/node$/.test(process.execPath) ? process.execPath : ''), 'node', '/usr/local/bin/node', '/usr/bin/node', '~/bin/node'];
-      balUtilModules.determineExecPath(possiblePaths, function(err, nodePath) {
-        balUtilModules.cachedNodePath = nodePath;
+      execName = isWindows ? 'node.exe' : 'node';
+      possibleExecPaths = [process.env.NODE_PATH, process.env.NODEPATH, (/node(.exe)?$/.test(process.execPath) ? process.execPath : '')].concat(balUtilModules.getStandardExecPaths(execName)).concat(isWindows ? ["/Program Files (x64)/nodejs/" + execName, "/Program Files (x86)/nodejs/" + execName, "/Program Files/nodejs/" + execName] : ["/usr/local/bin/" + execName, "/usr/bin/" + execName, "~/bin/" + execName]);
+      balUtilModules.determineExecPath(possibleExecPaths, function(err, execPath) {
+        balUtilModules.cachedNodePath = execPath;
         if (err) {
           return next(err);
         }
-        if (!nodePath) {
+        if (!execPath) {
           return next(new Error('Could not locate node binary'));
         }
-        return next(null, nodePath);
+        return next(null, execPath);
       });
       return this;
     },
     getNpmPath: function(next) {
-      var pathUtil, possiblePaths;
+      var execName, possibleExecPaths;
       if (balUtilModules.cachedNpmPath != null) {
         next(null, balUtilModules.cachedNpmPath);
         return this;
       }
-      pathUtil = require('path');
-      possiblePaths = isWindows ? [process.env.NPM_PATH, process.env.NPMPATH, (/node(.exe)?$/.test(process.execPath) ? process.execPath.replace(/node(.exe)?$/, 'npm.cmd') : ''), 'npm', pathUtil.resolve('/Program Files (x64)/nodejs/npm.cmd'), pathUtil.resolve('/Program Files (x86)/nodejs/npm.cmd'), pathUtil.resolve('/Program Files/nodejs/npm.cmd')] : [process.env.NPM_PATH, process.env.NPMPATH, (/node$/.test(process.execPath) ? process.execPath.replace(/node$/, 'npm') : ''), 'npm', '/usr/local/bin/npm', '/usr/bin/npm', '~/node_modules/.bin/npm'];
-      balUtilModules.determineExecPath(possiblePaths, function(err, npmPath) {
-        balUtilModules.cachedNpmPath = npmPath;
+      execName = isWindows ? 'npm.cmd' : 'npm';
+      possibleExecPaths = [process.env.NPM_PATH, process.env.NPMPATH, (/node(.exe)?$/.test(process.execPath) ? process.execPath.replace(/node(.exe)?$/, execName) : '')].concat(balUtilModules.getStandardExecPaths(execName)).concat(isWindows ? ["/Program Files (x64)/nodejs/" + execName, "/Program Files (x86)/nodejs/" + execName, "/Program Files/nodejs/" + execName] : ["/usr/local/bin/" + execName, "/usr/bin/" + execName, "~/node_modules/.bin/" + execName]);
+      balUtilModules.determineExecPath(possibleExecPaths, function(err, execPath) {
+        balUtilModules.cachedNpmPath = execPath;
         if (err) {
           return next(err);
         }
-        if (!npmPath) {
+        if (!execPath) {
           return next(new Error('Could not locate npm binary'));
         }
-        return next(null, npmPath);
+        return next(null, execPath);
       });
       return this;
     },

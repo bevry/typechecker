@@ -13,6 +13,13 @@
   };
 
   joe.describe('misc', function(describe, it) {
+    it('should suffix arrays', function(done) {
+      var actual, expected;
+      expected = ['ba', 'ca', 'da', 'ea'];
+      actual = balUtil.suffixArray('a', 'b', ['c', 'd'], 'e');
+      assert.deepEqual(expected, actual, 'actual was as expected');
+      return done();
+    });
     it('should detect arrays', function(done) {
       var arr, obj, str;
       arr = [];
@@ -340,14 +347,14 @@
       secondTaskFinished = false;
       finished = false;
       total = 2;
-      tasks = new balUtil.Group('sync', function(err) {
+      tasks = new balUtil.Group('serial', function(err) {
         if (err) {
           return done(err);
         }
         assert.equal(false, finished, 'the group of tasks only finished once');
         return finished = true;
       });
-      assert.equal('sync', tasks.mode, 'mode was correctly set to sync');
+      assert.equal('serial', tasks.mode, 'mode was correctly set to serial');
       tasks.pushAndRun(function(complete) {
         firstTaskRun = true;
         assert.equal(false, secondTaskRun, 'the first task ran first as expected');
@@ -383,14 +390,14 @@
       secondTaskFinished = false;
       finished = false;
       total = 2;
-      tasks = new balUtil.Group('async', function(err) {
+      tasks = new balUtil.Group('parallel', function(err) {
         if (err) {
           return done(err);
         }
         assert.equal(false, finished, 'the group of tasks only finished once');
         return finished = true;
       });
-      assert.equal('async', tasks.mode, 'mode was correctly set to async');
+      assert.equal('parallel', tasks.mode, 'mode was correctly set to parallel');
       tasks.pushAndRun(function(complete) {
         firstTaskRun = true;
         assert.equal(false, secondTaskRun, 'the first task ran first as expected');
@@ -422,7 +429,7 @@
       var finished, tasks, total;
       finished = 0;
       total = 2;
-      tasks = new balUtil.Group('sync', {
+      tasks = new balUtil.Group('serial', {
         autoClear: true
       }, function(err) {
         if (err) {
@@ -430,7 +437,7 @@
         }
         return ++finished;
       });
-      assert.equal('sync', tasks.mode, 'mode was correctly set to sync');
+      assert.equal('serial', tasks.mode, 'mode was correctly set to serial');
       assert.equal(true, tasks.autoClear, 'autoClear was correctly set to true');
       tasks.pushAndRun(function(complete) {
         return complete();

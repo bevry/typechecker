@@ -8,7 +8,8 @@ For instance it does not work in node virtual machines
 
 
 (function() {
-  var balUtilTypes;
+  var balUtilTypes,
+    __hasProp = {}.hasOwnProperty;
 
   balUtilTypes = {
     toString: function(value) {
@@ -72,6 +73,17 @@ For instance it does not work in node virtual machines
     },
     isEmpty: function(value) {
       return value != null;
+    },
+    isEmptyObject: function(value) {
+      var empty, key;
+      empty = true;
+      for (key in value) {
+        if (!__hasProp.call(value, key)) continue;
+        value = value[key];
+        empty = false;
+        break;
+      }
+      return empty;
     }
   };
 

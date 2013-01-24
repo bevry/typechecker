@@ -14,6 +14,13 @@ wait = (delay,fn) -> setTimeout(fn,delay)
 
 joe.describe 'misc', (describe,it) ->
 
+	it 'should suffix arrays', (done) ->
+		# Prepare
+		expected = ['ba','ca','da','ea']
+		actual = balUtil.suffixArray('a', 'b', ['c', 'd'], 'e')
+		assert.deepEqual(expected, actual, 'actual was as expected')
+		done()
+
 	it 'should detect arrays', (done) ->
 		# Prepare
 		arr = []
@@ -337,11 +344,11 @@ joe.describe 'Group', (describe,it) ->
 		total = 2
 
 		# Create our group
-		tasks = new balUtil.Group 'sync', (err) ->
+		tasks = new balUtil.Group 'serial', (err) ->
 			return done(err)  if err
 			assert.equal(false, finished, 'the group of tasks only finished once')
 			finished = true
-		assert.equal('sync', tasks.mode, 'mode was correctly set to sync')
+		assert.equal('serial', tasks.mode, 'mode was correctly set to serial')
 
 		# Make the first task take longer than the second task, but as we run synchronously, it should still finish first
 		tasks.pushAndRun (complete) ->
@@ -384,11 +391,11 @@ joe.describe 'Group', (describe,it) ->
 		total = 2
 
 		# Create our group
-		tasks = new balUtil.Group 'async', (err) ->
+		tasks = new balUtil.Group 'parallel', (err) ->
 			return done(err)  if err
 			assert.equal(false, finished, 'the group of tasks only finished once')
 			finished = true
-		assert.equal('async', tasks.mode, 'mode was correctly set to async')
+		assert.equal('parallel', tasks.mode, 'mode was correctly set to parallel')
 
 		# Make the first task take longer than the second task, but as we run synchronously, it should still finish first
 		tasks.pushAndRun (complete) ->
@@ -426,10 +433,10 @@ joe.describe 'Group', (describe,it) ->
 		total = 2
 
 		# Create our group
-		tasks = new balUtil.Group 'sync', {autoClear: true}, (err) ->
+		tasks = new balUtil.Group 'serial', {autoClear: true}, (err) ->
 			return done(err)  if err
 			++finished
-		assert.equal('sync', tasks.mode, 'mode was correctly set to sync')
+		assert.equal('serial', tasks.mode, 'mode was correctly set to serial')
 		assert.equal(true, tasks.autoClear, 'autoClear was correctly set to true')
 
 		# Fire the first task right away

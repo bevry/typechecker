@@ -116,16 +116,22 @@ balUtilFlow =
 
 	# Flow through a series of actions on an object
 	# next(err)
-	flow: (opts) ->
+	flow: (args...) ->
 		# Extract
-		{object,action,args,tasks,next} = opts
+		if args.length is 1
+			{object,actions,action,args,tasks,next} = args[0]
+		else if args.length is 4
+			[object,action,args,next] = args
+		else if args.length is 3
+			[actions,args,next] = args
 
 		# Check
-		unless action
+		if action? is false and actions? is false
 			throw new Error('balUtilFlow.flow called without any action')
 
 		# Create tasks group and cycle through it
-		actions = action.split(/[,\s]+/g)
+		actions ?= action.split(/[,\s]+/g)
+		object ?= global
 		tasks or= new balUtilFlow.Group(next)
 		balUtilFlow.each actions, (action) -> tasks.push (complete) ->
 			# Prepare callback
@@ -133,7 +139,7 @@ balUtilFlow =
 			argsClone.push(complete)
 
 			# Fire the action with the next helper
-			fn = object[action]
+			fn = if balUtilTypes.isFunction(action) then action else object[action]
 			fn.apply(object,argsClone)
 
 		# Fire the tasks synchronously
@@ -141,6 +147,39 @@ balUtilFlow =
 
 		# Chain
 		@
+
+	# Create snore
+	createSnore: (message,opts) ->
+		# Prepare
+		opts or= {}
+		opts.delay ?= 5000
+
+		# Create snore object
+		snore =
+			snoring: false
+			timer: setTimeout(
+				->
+					snore.clear()
+					snore.snoring = true
+					message?()
+				opts.delay
+			)
+			clear: ->
+				if snore.timer
+					clearTimeout(snore.timer)
+					snore.timer = false
+
+		# Return
+		return snore
+
+	# Suffix an array
+	suffixArray: (suffix, args...) ->
+		result = []
+		for arg in args
+			arg = [arg]  unless balUtilTypes.isArray(arg)
+			for item in arg
+				result.push(item+suffix)
+		return result
 
 
 # =====================================
@@ -153,13 +192,13 @@ Usage:
 	tasks = new Group (err) -> next err
 	tasks.push (complete) -> someAsyncFunction(arg1, arg2, complete)
 	tasks.push (complete) -> anotherAsyncFunction(arg1, arg2, complete)
-	tasks.async()
+	tasks.run()
 
 	# Add tasks to a queue then fire them in serial (synchronously)
 	tasks = new Group (err) -> next err
 	tasks.push (complete) -> someAsyncFunction(arg1, arg2, complete)
 	tasks.push (complete) -> anotherAsyncFunction(arg1, arg2, complete)
-	tasks.sync()
+	tasks.run('serial')
 ###
 
 balUtilFlow.Group = class
@@ -185,7 +224,7 @@ balUtilFlow.Group = class
 	queue: []
 
 	# Mode
-	mode: 'async'
+	mode: 'parallel'
 
 	# Results
 	lastResult: null
@@ -201,7 +240,7 @@ balUtilFlow.Group = class
 		@clear()
 		for arg in args
 			if balUtilTypes.isString(arg)
-				@mode = arg
+				@mode = 'serial'  if arg in ['serial','sync']
 			else if balUtilTypes.isFunction(arg)
 				@next = arg
 			else if balUtilTypes.isObject(arg)
@@ -349,7 +388,7 @@ balUtilFlow.Group = class
 	# Push and run
 	pushAndRun: (args...) ->
 		# Check if we are currently running in sync mode
-		if @mode is 'sync' and @isRunning()
+		if @mode is 'serial' and @isRunning()
 			# push the task for later
 			@push(args...)
 		else
@@ -396,7 +435,7 @@ balUtilFlow.Group = class
 			# Fire with an immediate timeout for async loads, and every hundredth sync task, except for the first
 			# otherwise if we are under a stressful load node will crash with
 			# a segemantion fault / maximum call stack exceeded / range error
-			if @completed isnt 0 and (@mode is 'async' or (@completed % 100) is 0)
+			if @completed isnt 0 and (@mode is 'parallel' or (@completed % 100) is 0)
 				setTimeout(run,0)
 			# Otherwise run the task right away
 			else
@@ -412,7 +451,7 @@ balUtilFlow.Group = class
 		if @isRunning() is false
 			@hasExited(false)
 			if @hasTasks()
-				if @mode is 'sync'
+				if @mode in ['serial','sync']
 					@nextTask()
 				else
 					@nextTask()  for task in @queue
@@ -420,15 +459,17 @@ balUtilFlow.Group = class
 				@exit()
 		@
 
-	# Async
-	async: ->
-		@mode = 'async'
+	# Parallel
+	async: -> @parallel()
+	parallel: ->
+		@mode = 'parallel'
 		@run()
 		@
 
-	# Sync
-	sync: ->
-		@mode = 'sync'
+	# Serial
+	sync: -> @serial()
+	serial: ->
+		@mode = 'serial'
 		@run()
 		@
 
