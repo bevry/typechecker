@@ -51,7 +51,7 @@
 		"lib": "./out/lib"
 	},
 	"scripts": {
-		"test": "node ./out/test/everything.test.js --joe-reporter=console"
+		"test": "./node_modules/.bin/cake test"
 	},
 	"main": "./out/lib/balutil"
 }
