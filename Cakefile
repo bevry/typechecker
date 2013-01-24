@@ -25,6 +25,7 @@ SRC     = "#{APP}/src"
 # -----------------
 # Requires
 
+pathUtil = require('path')
 {exec,spawn} = require('child_process')
 safe = (next,fn) ->
 	return (err) ->
@@ -37,7 +38,14 @@ safe = (next,fn) ->
 
 clean = (opts,next) ->
 	(next = opts; opts = {})  unless next?
-	exec("rm -Rf #{OUT} node_modules *out *.log", {stdio:'inherit',cwd:APP}, next)
+	args = [
+		'-Rf'
+		OUT
+		pathUtil.join(APP,'node_modules')
+		pathUtil.join(APP,'*out')
+		pathUtil.join(APP,'*log')
+	]
+	spawn('rm', args, {stdio:'inherit',cwd:APP}).on('exit',next)
 
 compile = (opts,next) ->
 	(next = opts; opts = {})  unless next?
