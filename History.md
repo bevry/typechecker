@@ -1,5 +1,10 @@
 ## History
 
+- v1.16.1 January 25, 2013
+	- `balUtilFlow` changes:
+		- Added `safeShallowExtendPlainObjects`
+		- Added `safeDeepExtendPlainObjects`
+
 - v1.16.0 January 24, 2013
 	- Node v0.9 compatability
 	- `balUtilModules` changes:

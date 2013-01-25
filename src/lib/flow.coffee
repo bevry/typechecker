@@ -78,6 +78,15 @@ balUtilFlow =
 				target[key] = value
 		return target
 
+	# Safe Shallow extend plain objects
+	safeShallowExtendPlainObjects: (target,objs...) ->
+		for obj in objs
+			obj or= {}
+			for own key,value of obj
+				continue  unless value?
+				target[key] = value
+		return target
+
 	# Deep extend plain objects
 	deepExtendPlainObjects: (target,objs...) ->
 		for obj in objs
@@ -86,6 +95,19 @@ balUtilFlow =
 				if balUtilTypes.isPlainObject(value)
 					target[key] = {}  unless balUtilTypes.isPlainObject(target[key])
 					balUtilFlow.deepExtendPlainObjects(target[key],value)
+				else
+					target[key] = value
+		return target
+
+	# Safe Deep extend plain objects
+	safeDeepExtendPlainObjects: (target,objs...) ->
+		for obj in objs
+			obj or= {}
+			for own key,value of obj
+				continue  unless value?
+				if balUtilTypes.isPlainObject(value)
+					target[key] = {}  unless balUtilTypes.isPlainObject(target[key])
+					balUtilFlow.safeDeepExtendPlainObjects(target[key],value)
 				else
 					target[key] = value
 		return target

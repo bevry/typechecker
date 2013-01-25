@@ -75,6 +75,21 @@
       }, src, 'src object was modified');
       return done();
     });
+    it('should safe shallow extend correctly', function(done) {
+      var actual, expected;
+      expected = {
+        a: 2
+      };
+      actual = balUtil.safeShallowExtendPlainObjects({
+        a: 1
+      }, {
+        a: 2
+      }, {
+        a: null
+      });
+      assert.deepEqual(actual, expected, 'out object was as expected');
+      return done();
+    });
     it('should deep extend correctly', function(done) {
       var out, src;
       src = {
@@ -94,6 +109,29 @@
           b: 2
         }
       }, src, 'src object was not modified');
+      return done();
+    });
+    it('should safe deep extend correctly', function(done) {
+      var actual, expected;
+      expected = {
+        a: {
+          b: 2
+        }
+      };
+      actual = balUtil.safeDeepExtendPlainObjects({
+        a: {
+          b: 2
+        }
+      }, {
+        a: {
+          b: 2
+        }
+      }, {
+        a: {
+          b: null
+        }
+      });
+      assert.deepEqual(actual, expected, 'out object was as expected');
       return done();
     });
     return it('should dereference correctly', function(done) {

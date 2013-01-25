@@ -58,6 +58,13 @@ joe.describe 'misc', (describe,it) ->
 		assert.deepEqual({a:{b:3}}, src, 'src object was modified')
 		done()
 
+	it 'should safe shallow extend correctly', (done) ->
+		# Prepare
+		expected = {a:2}
+		actual = balUtil.safeShallowExtendPlainObjects({a:1}, {a:2}, {a:null})
+		assert.deepEqual(actual, expected, 'out object was as expected')
+		done()
+
 	it 'should deep extend correctly', (done) ->
 		# Prepare
 		src = {a:{b:2}}
@@ -65,6 +72,13 @@ joe.describe 'misc', (describe,it) ->
 		out.a.b = 3
 		assert.deepEqual({a:{b:3}}, out, 'out object was as expected')
 		assert.deepEqual({a:{b:2}}, src, 'src object was not modified')
+		done()
+
+	it 'should safe deep extend correctly', (done) ->
+		# Prepare
+		expected = {a:b:2}
+		actual = balUtil.safeDeepExtendPlainObjects({a:b:2}, {a:b:2}, {a:b:null})
+		assert.deepEqual(actual, expected, 'out object was as expected')
 		done()
 
 	it 'should dereference correctly', (done) ->
