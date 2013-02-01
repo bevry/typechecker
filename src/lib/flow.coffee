@@ -203,6 +203,55 @@ balUtilFlow =
 				result.push(item+suffix)
 		return result
 
+	# Set Deep
+	setDeep: (location,keys,value,safe=false) ->
+		# Prepare
+		keys = keys.split('.')  unless balUtilTypes.isArray(keys)
+
+		# Check
+		return null  if keys.length is 0
+
+		# Delve
+		key = keys[0]
+		if location?
+			location = location.attributes ? location
+			if keys.length is 1
+				if safe
+					result = location[key] ?= value
+				else
+					result = location[key] = value
+			else
+				location = location[key] ?= {}
+				result = balUtilFlow.setDeep(location, keys[1...], value, safe)
+		else
+			result = null
+
+		# Return
+		return result
+
+	# Get Deep
+	getDeep: (location,keys) ->
+		# Prepare
+		keys = keys.split('.')  unless balUtilTypes.isArray(keys)
+
+		# Check
+		return null  if keys.length is 0
+
+		# Delve
+		key = keys[0]
+		if location?
+			location = location.attributes ? location
+			location = location[key] ? null
+			if keys.length is 1
+				result = location
+			else
+				result = balUtilFlow.getDeep(location, keys[1...])
+		else
+			result = null
+
+		# Return
+		return result
+
 
 # =====================================
 # Group

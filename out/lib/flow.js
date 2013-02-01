@@ -223,6 +223,57 @@
         }
       }
       return result;
+    },
+    setDeep: function(location, keys, value, safe) {
+      var key, result, _ref, _ref1, _ref2;
+      if (safe == null) {
+        safe = false;
+      }
+      if (!balUtilTypes.isArray(keys)) {
+        keys = keys.split('.');
+      }
+      if (keys.length === 0) {
+        return null;
+      }
+      key = keys[0];
+      if (location != null) {
+        location = (_ref = location.attributes) != null ? _ref : location;
+        if (keys.length === 1) {
+          if (safe) {
+            result = (_ref1 = location[key]) != null ? _ref1 : location[key] = value;
+          } else {
+            result = location[key] = value;
+          }
+        } else {
+          location = (_ref2 = location[key]) != null ? _ref2 : location[key] = {};
+          result = balUtilFlow.setDeep(location, keys.slice(1), value, safe);
+        }
+      } else {
+        result = null;
+      }
+      return result;
+    },
+    getDeep: function(location, keys) {
+      var key, result, _ref, _ref1;
+      if (!balUtilTypes.isArray(keys)) {
+        keys = keys.split('.');
+      }
+      if (keys.length === 0) {
+        return null;
+      }
+      key = keys[0];
+      if (location != null) {
+        location = (_ref = location.attributes) != null ? _ref : location;
+        location = (_ref1 = location[key]) != null ? _ref1 : null;
+        if (keys.length === 1) {
+          result = location;
+        } else {
+          result = balUtilFlow.getDeep(location, keys.slice(1));
+        }
+      } else {
+        result = null;
+      }
+      return result;
     }
   };
 

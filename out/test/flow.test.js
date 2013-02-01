@@ -134,7 +134,7 @@
       assert.deepEqual(actual, expected, 'out object was as expected');
       return done();
     });
-    return it('should dereference correctly', function(done) {
+    it('should dereference correctly', function(done) {
       var out, src;
       src = {
         a: {
@@ -153,6 +153,46 @@
           b: 2
         }
       }, src, 'src object was not modified');
+      return done();
+    });
+    it('should getdeep correctly', function(done) {
+      var actual, expected, src;
+      src = {
+        a: {
+          b: {
+            attributes: {
+              c: 1
+            }
+          }
+        }
+      };
+      expected = 1;
+      actual = balUtil.getDeep(src, 'a.b.c');
+      assert.equal(expected, actual, 'out value was as expected');
+      return done();
+    });
+    return it('should setdeep correctly', function(done) {
+      var expected, src;
+      src = {
+        a: {
+          b: {
+            attributes: {
+              c: 1
+            }
+          }
+        }
+      };
+      expected = {
+        a: {
+          b: {
+            attributes: {
+              c: 2
+            }
+          }
+        }
+      };
+      balUtil.setDeep(src, 'a.b.c', 2);
+      assert.deepEqual(expected, src, 'out value was as expected');
       return done();
     });
   });

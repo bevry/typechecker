@@ -90,6 +90,34 @@ joe.describe 'misc', (describe,it) ->
 		assert.deepEqual({a:{b:2}}, src, 'src object was not modified')
 		done()
 
+	it 'should getdeep correctly', (done) ->
+		# Prepare
+		src =
+			a:
+				b:
+					attributes:
+						c: 1
+		expected = 1
+		actual = balUtil.getDeep(src,'a.b.c')
+		assert.equal(expected, actual, 'out value was as expected')
+		done()
+
+	it 'should setdeep correctly', (done) ->
+		# Prepare
+		src =
+			a:
+				b:
+					attributes:
+						c: 1
+		expected =
+			a:
+				b:
+					attributes:
+						c: 2
+		balUtil.setDeep(src,'a.b.c',2)
+		assert.deepEqual(expected, src, 'out value was as expected')
+		done()
+
 
 # -------------------------------------
 # Group

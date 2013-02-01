@@ -3,6 +3,9 @@
 - v1.16.2 February 1, 2013
 	- `balUtilPaths` changes:
 		- Added timeout support to `readPath`
+	- `balUtilFlow` changes:
+		- Added `setDeep`
+		- Added `getDeep`
 
 - v1.16.1 January 25, 2013
 	- `balUtilFlow` changes:
