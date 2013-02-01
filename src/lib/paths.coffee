@@ -965,25 +965,29 @@ balUtilPaths =
 	# Read path
 	# Reads a path be it local or remote
 	# next(err,data)
-	readPath: (filePath,next) ->
+	readPath: (filePath,opts,next) ->
+		[opts,next] = balUtilFlow.extractOptsAndCallback(opts,next)
 		if /^http/.test(filePath)
 			requestOpts = require('url').parse(filePath)
 			http = if requestOpts.protocol is 'https:' then require('https') else require('http')
-			http
-				.get requestOpts, (res) ->
-					data = ''
-					res.on 'data', (chunk) ->
-						data += chunk
-					res.on 'end', ->
-						locationHeader = res.headers?.location or null
-						if locationHeader and locationHeader isnt requestOpts.href
-							# Follow the redirect
-							return balUtilPaths.readPath(locationHeader,next)
-						else
-							# All done
-							return next(null,data)
+			req = http.get requestOpts, (res) ->
+				data = ''
+				res.on 'data', (chunk) ->
+					data += chunk
+				res.on 'end', ->
+					locationHeader = res.headers?.location or null
+					if locationHeader and locationHeader isnt requestOpts.href
+						# Follow the redirect
+						return balUtilPaths.readPath(locationHeader,next)
+					else
+						# All done
+						return next(null,data)
+			req
 				.on 'error', (err) ->
 					return next(err)
+				.on 'timeout', ->
+					req.abort()  # must abort manually, will trigger error event
+				.setTimeout(opts.timeout ? 10*1000)  # 10 second timeout
 		else
 			balUtilPaths.readFile filePath, (err,data) ->
 				return next(err)  if err

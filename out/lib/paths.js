@@ -721,29 +721,33 @@
       });
       return this;
     },
-    readPath: function(filePath, next) {
-      var http, requestOpts;
+    readPath: function(filePath, opts, next) {
+      var http, req, requestOpts, _ref6, _ref7;
+      _ref6 = balUtilFlow.extractOptsAndCallback(opts, next), opts = _ref6[0], next = _ref6[1];
       if (/^http/.test(filePath)) {
         requestOpts = require('url').parse(filePath);
         http = requestOpts.protocol === 'https:' ? require('https') : require('http');
-        http.get(requestOpts, function(res) {
+        req = http.get(requestOpts, function(res) {
           var data;
           data = '';
           res.on('data', function(chunk) {
             return data += chunk;
           });
           return res.on('end', function() {
-            var locationHeader, _ref6;
-            locationHeader = ((_ref6 = res.headers) != null ? _ref6.location : void 0) || null;
+            var locationHeader, _ref7;
+            locationHeader = ((_ref7 = res.headers) != null ? _ref7.location : void 0) || null;
             if (locationHeader && locationHeader !== requestOpts.href) {
               return balUtilPaths.readPath(locationHeader, next);
             } else {
               return next(null, data);
             }
           });
-        }).on('error', function(err) {
-          return next(err);
         });
+        req.on('error', function(err) {
+          return next(err);
+        }).on('timeout', function() {
+          return req.abort();
+        }).setTimeout((_ref7 = opts.timeout) != null ? _ref7 : 10 * 1000);
       } else {
         balUtilPaths.readFile(filePath, function(err, data) {
           if (err) {

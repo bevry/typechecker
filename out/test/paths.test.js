@@ -142,7 +142,7 @@
         });
       });
     });
-    return describe('rmdirDeep', function(describe, it) {
+    describe('rmdirDeep', function(describe, it) {
       it('should clean up the srcPath', function(done) {
         return balUtil.rmdirDeep(srcPath, function(err) {
           var exists;
@@ -164,6 +164,48 @@
           assert.equal(exists, false);
           return done();
         });
+      });
+    });
+    return describe('readPath', function(describe, it) {
+      var timeoutServer, timeoutServerAddress, timeoutServerPort;
+      timeoutServerAddress = "127.0.0.1";
+      timeoutServerPort = 9666;
+      timeoutServer = null;
+      it('should read normal paths', function(done) {
+        return balUtil.readPath(__filename, function(err, data) {
+          if (err) {
+            return done(err);
+          }
+          assert.ok(data != null);
+          return done();
+        });
+      });
+      it('should create our timeout server', function() {
+        return timeoutServer = require('http').createServer(function(req, res) {
+          return res.writeHead(200, {
+            'Content-Type': 'text/plain'
+          });
+        }).listen(timeoutServerPort, timeoutServerAddress);
+      });
+      it('should timeout requests after a while of inactivity (10s)', function(done) {
+        var interval, second, timeout;
+        second = 0;
+        interval = setInterval(function() {
+          return console.log("... " + (++second) + " seconds");
+        }, 1 * 1000);
+        timeout = setTimeout(function() {
+          assert.ok(false, 'timeout did not kick in');
+          return done();
+        }, 15 * 1000);
+        return balUtil.readPath("http://" + timeoutServerAddress + ":" + timeoutServerPort, function(err, data) {
+          clearInterval(interval);
+          clearTimeout(timeout);
+          assert.ok(err != null, 'timeout executed correctly with error');
+          return done();
+        });
+      });
+      return it('should close the server', function() {
+        return timeoutServer.close();
       });
     });
   });

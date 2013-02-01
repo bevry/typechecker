@@ -146,7 +146,7 @@ joe.describe 'paths', (describe,it) ->
 				assert.deepEqual(scantree,writetree)
 				done()
 
-	# Test rmdir
+	# Test rmdirDeep
 	describe 'rmdirDeep', (describe,it) ->
 		# Cleaup srcPath
 		it 'should clean up the srcPath', (done) ->
@@ -163,4 +163,48 @@ joe.describe 'paths', (describe,it) ->
 				exists = balUtil.existsSync(outPath)
 				assert.equal(exists,false)
 				done()
+
+
+	# Test readPath
+	describe 'readPath', (describe,it) ->
+		timeoutServerAddress = "127.0.0.1"
+		timeoutServerPort = 9666
+		timeoutServer = null
+
+		# Normal
+		it 'should read normal paths', (done) ->
+			balUtil.readPath __filename, (err,data) ->
+				return done(err)  if err
+				assert.ok(data?)
+				return done()
+
+		# Server
+		it 'should create our timeout server', ->
+			# Server
+			timeoutServer = require('http').createServer((req,res) ->
+				res.writeHead(200, {'Content-Type': 'text/plain'})
+			).listen(timeoutServerPort, timeoutServerAddress)
+
+		# Timeout
+		it 'should timeout requests after a while of inactivity (10s)', (done) ->
+			second = 0
+			interval = setInterval(
+				-> console.log("... #{++second} seconds")
+				1*1000
+			)
+			timeout = setTimeout(
+				->
+					assert.ok(false, 'timeout did not kick in')
+					return done()
+				15*1000
+			)
+			balUtil.readPath "http://#{timeoutServerAddress}:#{timeoutServerPort}", (err,data) ->
+				clearInterval(interval)
+				clearTimeout(timeout)
+				assert.ok(err?, 'timeout executed correctly with error')
+				return done()
+
+		# Close Server
+		it 'should close the server', ->
+			timeoutServer.close()
 
