@@ -24,4 +24,4 @@ You can discover the history inside the [History.md](https://github.com/balupton
 
 ## License
 Licensed under the incredibly [permissive](http://en.wikipedia.org/wiki/Permissive_free_software_licence) [MIT License](http://creativecommons.org/licenses/MIT/)
-<br/>Copyright &copy; 2011-2012 [Benjamin Arthur Lupton](http://balupton.com)
+<br/>Copyright &copy; 2011+ [Benjamin Arthur Lupton](http://balupton.com)
