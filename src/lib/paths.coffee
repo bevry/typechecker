@@ -370,14 +370,11 @@ balUtilPaths =
 		# Copy
 		balUtilPaths.readFile src, 'binary', (err,data) ->
 			# Error
-			if err
-				console.log "balUtilPaths.cp: cp failed on: #{src}"
-				return next(err)
+			return next(err)  if err
+
 			# Success
 			balUtilPaths.writeFile dst, data, 'binary', (err) ->
 				# Forward
-				if err
-					console.log "balUtilPaths.cp: writeFile failed on: #{dst}"
 				return next(err)
 
 		# Chain
@@ -397,20 +394,21 @@ balUtilPaths =
 		balUtilPaths.exists path, (exists) ->
 			# Error
 			return next(null,true)  if exists
+
 			# Success
 			parentPath = balUtilPaths.getParentPathSync(path)
 			balUtilPaths.ensurePath parentPath, (err) ->
 				# Error
-				if err
-					console.log "balUtilPaths.ensurePath: failed to ensure the path: #{parentPath}"
-					return next(err,false)
+				return next(err,false)  if err
+
 				# Success
 				balUtilPaths.mkdir path, '700', (err) ->
 					balUtilPaths.exists path, (exists) ->
 						# Error
 						if not exists
-							console.log "balUtilPaths.ensurePath: failed to create the directory: #{path}"
-							return next(new Error "Failed to create the directory: #{path}")
+							err = new Error("Failed to create the directory: #{path}")
+							return next(err,false)
+
 						# Success
 						next(null,false)
 		# Chain
@@ -437,9 +435,8 @@ balUtilPaths =
 		else
 			balUtilPaths.stat path, (err,stat) ->
 				# Error
-				if err
-					console.log "balUtilPaths.isDirectory: stat failed on: #{path}"
-					return next(err)
+				return next(err)  if err
+
 				# Success
 				return next(null, stat.isDirectory(), stat)
 
@@ -610,7 +607,6 @@ balUtilPaths =
 				return
 			# Error
 			else if err
-				console.log 'balUtilPaths.scandir: readdir has failed on:', opts.path
 				return tasks.exit(err)
 
 			# Totals
@@ -647,7 +643,6 @@ balUtilPaths =
 
 					# Error
 					else if err
-						console.log 'balUtilPaths.scandir: isDirectory has failed on:', fileFullPath
 						return tasks.exit(err)
 
 					# Directory
@@ -698,7 +693,6 @@ balUtilPaths =
 												return tasks.exit()
 											# Error
 											else if err
-												console.log 'balUtilPaths.scandir: has failed on:', fileFullPath
 												return tasks.exit(err)
 											# Subtree
 											else if subtreeCallback
@@ -777,9 +771,10 @@ balUtilPaths =
 		# Prepare
 		opts = {}
 		if args.length is 1
-			{srcPath,outPath,next} = opts = args[0]
+			opts = args[0]
 		else if args.length >= 3
 			[srcPath,outPath,next] = args
+			opts = {srcPath,outPath,next}
 		else
 			err = new Error('balUtilPaths.cpdir: unknown arguments')
 			if next
@@ -789,24 +784,21 @@ balUtilPaths =
 
 		# Create opts
 		scandirOpts = {
-			path: srcPath
+			path: opts.srcPath
 			fileAction: (fileSrcPath,fileRelativePath,next) ->
 				# Prepare
-				fileOutPath = pathUtil.join(outPath,fileRelativePath)
+				fileOutPath = pathUtil.join(opts.outPath,fileRelativePath)
 				# Ensure the directory that the file is going to exists
 				balUtilPaths.ensurePath pathUtil.dirname(fileOutPath), (err) ->
 					# Error
 					if err
-						console.log 'balUtilPaths.cpdir: failed to create the path for the file:',fileSrcPath
 						return next(err)
 					# The directory now does exist
 					# So let's now place the file inside it
 					balUtilPaths.cp fileSrcPath, fileOutPath, (err) ->
 						# Forward
-						if err
-							console.log 'balUtilPaths.cpdir: failed to copy the child file:',fileSrcPath
 						return next(err)
-			next: next
+			next: opts.next
 		}
 
 		# Passed Scandir Opts
@@ -831,9 +823,10 @@ balUtilPaths =
 		# Prepare
 		opts = {}
 		if args.length is 1
-			{srcPath,outPath,next} = opts = args[0]
+			opts = args[0]
 		else if args.length >= 3
 			[srcPath,outPath,next] = args
+			opts = {srcPath,outPath,next}
 		else
 			err = new Error('balUtilPaths.cpdir: unknown arguments')
 			if next
@@ -843,16 +836,14 @@ balUtilPaths =
 
 		# Create opts
 		scandirOpts = {
-			path: srcPath
+			path: opts.srcPath
 			fileAction: (fileSrcPath,fileRelativePath,next) ->
 				# Prepare
-				fileOutPath = pathUtil.join(outPath,fileRelativePath)
+				fileOutPath = pathUtil.join(opts.outPath,fileRelativePath)
 				# Ensure the directory that the file is going to exists
 				balUtilPaths.ensurePath pathUtil.dirname(fileOutPath), (err) ->
 					# Error
-					if err
-						console.log 'balUtilPaths.rpdir: failed to create the path for the file:',fileSrcPath
-						return next(err)
+					return next(err)  if err
 					# Check if it is worthwhile copying that file
 					balUtilPaths.isPathOlderThan fileOutPath, fileSrcPath, (err,older) ->
 						# The src path has been modified since the out path was generated
@@ -861,13 +852,11 @@ balUtilPaths =
 							# So let's now place the file inside it
 							balUtilPaths.cp fileSrcPath, fileOutPath, (err) ->
 								# Forward
-								if err
-									console.log 'balUtilPaths.rpdir: failed to copy the child file:',fileSrcPath
 								return next(err)
 						# The out path is new enough
 						else
 							return next()
-			next: next
+			next: opts.next
 		}
 
 		# Passed Scandir Opts
@@ -896,8 +885,6 @@ balUtilPaths =
 				(fileFullPath,fileRelativePath,next) ->
 					balUtilPaths.unlink fileFullPath, (err) ->
 						# Forward
-						if err
-							console.log 'balUtilPaths.rmdirDeep: failed to remove the child file:', fileFullPath
 						return next(err)
 
 				# Dir
@@ -905,8 +892,6 @@ balUtilPaths =
 					next null, false, (next) ->
 						balUtilPaths.rmdirDeep fileFullPath, (err) ->
 							# Forward
-							if err
-								console.log 'balUtilPaths.rmdirDeep: failed to remove the child directory:', fileFullPath
 							return next(err)
 
 				# Completed
@@ -917,8 +902,6 @@ balUtilPaths =
 					# Success
 					balUtilPaths.rmdir parentPath, (err) ->
 						# Forward
-						if err
-							console.log 'balUtilPaths.rmdirDeep: failed to remove the parent directory:', parentPath
 						return next(err, list, tree)
 			)
 
@@ -936,8 +919,7 @@ balUtilPaths =
 		# Ensure Destination
 		balUtilPaths.ensurePath dstPath, (err) ->
 			# Checks
-			if err
-				return tasks.exit err
+			return tasks.exit(err)  if err
 
 			# Cycle
 			for own fileRelativePath, value of tree
@@ -947,9 +929,7 @@ balUtilPaths =
 					balUtilPaths.writetree fileFullPath, value, tasks.completer()
 				else
 					balUtilPaths.writeFile fileFullPath, value, (err) ->
-						if err
-							console.log 'balUtilPaths.writetree: writeFile failed on:',fileFullPath
-						return tasks.complete err
+						return tasks.complete(err)
 
 			# Empty?
 			if tasks.total is 0
@@ -982,6 +962,7 @@ balUtilPaths =
 					else
 						# All done
 						return next(null,data)
+			req.setTimeout ?= (delay) -> setTimeout((-> req.abort(); next(new Error('Request timed out'))),delay)
 			req
 				.on 'error', (err) ->
 					return next(err)

@@ -95,9 +95,10 @@ balUtilTypes =
 	# Is empty object
 	isEmptyObject: (value) ->
 		empty = true
-		for own key,value of value
-			empty = false
-			break
+		if value?
+			for own key,value of value
+				empty = false
+				break
 		return empty
 
 

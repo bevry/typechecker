@@ -179,9 +179,6 @@
 
     EventSystem.prototype.onceUnlocked = function(eventName, next) {
       var event;
-      if (debug) {
-        console.log("onceUnlocked " + eventName);
-      }
       event = this.event(eventName);
       if (event.locked) {
         this.once(eventName + ':unlocked', next);

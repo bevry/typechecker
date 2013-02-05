@@ -239,7 +239,7 @@ balUtilModules =
 					return complete()  unless exists
 
 					# Check to see if the path is an executable
-					balUtilModules.spawn [possibleExecPath, '--version'], (err,stdout,stderr,code,signal) ->
+					balUtilModules.spawn [possibleExecPath, '--version'], {env:process.env}, (err,stdout,stderr,code,signal) ->
 						# Problem
 						if err
 							complete()
@@ -270,6 +270,8 @@ balUtilModules =
 	getStandardExecPaths: (execName) ->
 		# Prepare
 		possibleExecPaths = [process.cwd()].concat(balUtilModules.getEnvironmentPaths())
+		for value,index in possibleExecPaths
+			possibleExecPaths[index] = value.replace(/\/$/,'')
 
 		# Get the possible exec paths
 		possibleExecPaths = balUtilFlow.suffixArray("/#{execName}", possibleExecPaths)  if execName

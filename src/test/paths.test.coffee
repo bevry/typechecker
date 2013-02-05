@@ -183,7 +183,8 @@ joe.describe 'paths', (describe,it) ->
 			# Server
 			timeoutServer = require('http').createServer((req,res) ->
 				res.writeHead(200, {'Content-Type': 'text/plain'})
-			).listen(timeoutServerPort, timeoutServerAddress)
+			)
+			timeoutServer.listen(timeoutServerPort, timeoutServerAddress)
 
 		# Timeout
 		it 'should timeout requests after a while of inactivity (10s)', (done) ->

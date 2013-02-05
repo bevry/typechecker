@@ -72,11 +72,7 @@ setup = (opts,next) ->
 
 test = (opts,next) ->
 	(next = opts; opts = {})  unless next?
-	args = []
-	args.push("--debug-brk")  if opts.debug
-	args.push("#{OUT}/test/everything.test.js")
-	args.push("--joe-reporter=list")
-	spawn(NODE, args, {stdio:'inherit',cwd:APP}, next)
+	spawn(NPM, ['test'], {stdio:'inherit',cwd:APP}).on('exit',next)
 
 finish = (err) ->
 	throw err  if err

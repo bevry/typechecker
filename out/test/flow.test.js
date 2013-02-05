@@ -169,12 +169,15 @@
       expected = 1;
       actual = balUtil.getDeep(src, 'a.b.c');
       assert.equal(expected, actual, 'out value was as expected');
+      actual = balUtil.getDeep(src, 'a.b.unknown');
+      assert.ok(typeof actual === 'undefined', 'undefined value was as expected');
       return done();
     });
     return it('should setdeep correctly', function(done) {
       var expected, src;
       src = {
         a: {
+          unknown: 'asd',
           b: {
             attributes: {
               c: 1
@@ -191,6 +194,7 @@
           }
         }
       };
+      balUtil.setDeep(src, 'a.unknown', void 0);
       balUtil.setDeep(src, 'a.b.c', 2);
       assert.deepEqual(expected, src, 'out value was as expected');
       return done();

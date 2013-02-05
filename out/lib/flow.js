@@ -47,6 +47,18 @@
       }
       return result;
     },
+    clone: function() {
+      var args;
+      args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+      args.unshift({});
+      return this.shallowExtendPlainObjects.apply(this, args);
+    },
+    deepClone: function() {
+      var args;
+      args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+      args.unshift({});
+      return this.deepExtendPlainObjects.apply(this, args);
+    },
     extend: function() {
       var args;
       args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
@@ -233,45 +245,55 @@
         keys = keys.split('.');
       }
       if (keys.length === 0) {
-        return null;
+        return void 0;
       }
-      key = keys[0];
-      if (location != null) {
+      if (keys.length === 0 || typeof location === 'undefined') {
+        result = void 0;
+      } else if (location === null) {
+        result = null;
+      } else {
+        key = keys[0];
         location = (_ref = location.attributes) != null ? _ref : location;
         if (keys.length === 1) {
           if (safe) {
-            result = (_ref1 = location[key]) != null ? _ref1 : location[key] = value;
+            if ((_ref1 = location[key]) == null) {
+              location[key] = value;
+            }
           } else {
-            result = location[key] = value;
+            if (typeof value === 'undefined') {
+              if (typeof location[key] !== 'undefined') {
+                delete location[key];
+              }
+            } else {
+              location[key] = value;
+            }
           }
+          result = location[key];
         } else {
           location = (_ref2 = location[key]) != null ? _ref2 : location[key] = {};
           result = balUtilFlow.setDeep(location, keys.slice(1), value, safe);
         }
-      } else {
-        result = null;
       }
       return result;
     },
     getDeep: function(location, keys) {
-      var key, result, _ref, _ref1;
+      var key, result, _ref;
       if (!balUtilTypes.isArray(keys)) {
         keys = keys.split('.');
       }
-      if (keys.length === 0) {
-        return null;
-      }
-      key = keys[0];
-      if (location != null) {
+      if (keys.length === 0 || typeof location === 'undefined') {
+        result = void 0;
+      } else if (location === null) {
+        result = null;
+      } else {
+        key = keys[0];
         location = (_ref = location.attributes) != null ? _ref : location;
-        location = (_ref1 = location[key]) != null ? _ref1 : null;
+        location = typeof location[key] === 'undefined' ? void 0 : location[key];
         if (keys.length === 1) {
           result = location;
         } else {
           result = balUtilFlow.getDeep(location, keys.slice(1));
         }
-      } else {
-        result = null;
       }
       return result;
     }

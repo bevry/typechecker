@@ -181,11 +181,12 @@
         });
       });
       it('should create our timeout server', function() {
-        return timeoutServer = require('http').createServer(function(req, res) {
+        timeoutServer = require('http').createServer(function(req, res) {
           return res.writeHead(200, {
             'Content-Type': 'text/plain'
           });
-        }).listen(timeoutServerPort, timeoutServerAddress);
+        });
+        return timeoutServer.listen(timeoutServerPort, timeoutServerAddress);
       });
       it('should timeout requests after a while of inactivity (10s)', function(done) {
         var interval, second, timeout;

@@ -193,7 +193,9 @@
             if (!exists) {
               return complete();
             }
-            return balUtilModules.spawn([possibleExecPath, '--version'], function(err, stdout, stderr, code, signal) {
+            return balUtilModules.spawn([possibleExecPath, '--version'], {
+              env: process.env
+            }, function(err, stdout, stderr, code, signal) {
               if (err) {
                 return complete();
               } else {
@@ -217,8 +219,12 @@
       return environmentPaths;
     },
     getStandardExecPaths: function(execName) {
-      var possibleExecPaths;
+      var index, possibleExecPaths, value, _i, _len;
       possibleExecPaths = [process.cwd()].concat(balUtilModules.getEnvironmentPaths());
+      for (index = _i = 0, _len = possibleExecPaths.length; _i < _len; index = ++_i) {
+        value = possibleExecPaths[index];
+        possibleExecPaths[index] = value.replace(/\/$/, '');
+      }
       if (execName) {
         possibleExecPaths = balUtilFlow.suffixArray("/" + execName, possibleExecPaths);
       }

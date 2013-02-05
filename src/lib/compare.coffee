@@ -102,14 +102,16 @@ balUtilCompare =
 		balUtilPaths.readPath local, (err,data) ->
 			return errorCallback?(err,data)  if err
 			try
-				details.local = JSON.parse(data.toString())
+				dataStr = data.toString()
+				details.local = JSON.parse(dataStr)
 			catch err
 				return errorCallback?(err,data)
 			# Read remote
 			balUtilPaths.readPath remote, (err,data) ->
 				return errorCallback?(err,data)  if err
 				try
-					details.remote = JSON.parse(data.toString())
+					dataStr = data.toString()
+					details.remote = JSON.parse(dataStr)
 				catch err
 					return errorCallback?(err,data)
 				# Compare

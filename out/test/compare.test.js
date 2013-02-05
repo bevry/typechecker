@@ -31,6 +31,11 @@
 
   joe.describe('packageCompare', function(describe, it) {
     var localPackagePath, remotePackagePath, testVersion;
+    if (process.version.indexOf('v0.4') === 0) {
+      return it('test skipped for node v0.4', function(done) {
+        return done();
+      });
+    }
     localPackagePath = __dirname + '/../../package.json';
     remotePackagePath = 'https://raw.github.com/balupton/bal-util/master/package.json';
     testVersion = function(v1, operator, v2) {

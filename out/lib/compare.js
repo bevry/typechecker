@@ -107,11 +107,13 @@
         }
       };
       balUtilPaths.readPath(local, function(err, data) {
+        var dataStr;
         if (err) {
           return typeof errorCallback === "function" ? errorCallback(err, data) : void 0;
         }
         try {
-          details.local = JSON.parse(data.toString());
+          dataStr = data.toString();
+          details.local = JSON.parse(dataStr);
         } catch (err) {
           return typeof errorCallback === "function" ? errorCallback(err, data) : void 0;
         }
@@ -120,7 +122,8 @@
             return typeof errorCallback === "function" ? errorCallback(err, data) : void 0;
           }
           try {
-            details.remote = JSON.parse(data.toString());
+            dataStr = data.toString();
+            details.remote = JSON.parse(dataStr);
           } catch (err) {
             return typeof errorCallback === "function" ? errorCallback(err, data) : void 0;
           }

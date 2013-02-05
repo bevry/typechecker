@@ -1,5 +1,17 @@
 ## History
 
+- v1.16.3 February 5, 2013
+	- Node v0.4 support
+	- `balUtilPaths` changes:
+		- Removed deprecated `console.log`s when errors occur (they are now sent to the callback)
+		- Fixed `determineExecPath` when executable requires the environment configuration
+	- `balUtilTypes` changes:
+		- `isEmptyObject` now works for empty values (e.g. `null`)
+	- `balUtilFlow` changes:
+		- Added `clone`
+		- Added `deepClone`
+		- `setDeep` and `getDeep` now handle `undefined` values correctly
+
 - v1.16.2 February 1, 2013
 	- `balUtilPaths` changes:
 		- Added timeout support to `readPath`

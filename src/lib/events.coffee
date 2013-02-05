@@ -183,8 +183,6 @@ class EventSystem extends EventEmitterEnhanced
 	# Run one time once an event has unlocked
 	# next(err)
 	onceUnlocked: (eventName, next) ->
-		# Log
-		console.log "onceUnlocked #{eventName}"  if debug
 		# Grab the event
 		event = @event eventName
 		# Check lock status

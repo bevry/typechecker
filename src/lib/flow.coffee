@@ -65,6 +65,16 @@ balUtilFlow =
 		# Return the result
 		return result
 
+	# Clone
+	clone: (args...) ->
+		args.unshift({})
+		return @shallowExtendPlainObjects(args...)
+
+	# Deep Clone
+	deepClone: (args...) ->
+		args.unshift({})
+		return @deepExtendPlainObjects(args...)
+
 	# Extend
 	# Alias for Shallow Extend
 	extend: (args...) ->
@@ -209,22 +219,28 @@ balUtilFlow =
 		keys = keys.split('.')  unless balUtilTypes.isArray(keys)
 
 		# Check
-		return null  if keys.length is 0
+		return undefined  if keys.length is 0
 
-		# Delve
-		key = keys[0]
-		if location?
+		# Check
+		if keys.length is 0 or typeof location is 'undefined'
+			result = undefined
+		else if location is null
+			result = null
+		else
+			key = keys[0]
 			location = location.attributes ? location
 			if keys.length is 1
 				if safe
-					result = location[key] ?= value
+					location[key] ?= value
 				else
-					result = location[key] = value
+					if typeof value is 'undefined'
+						delete location[key]  if typeof location[key] isnt 'undefined'
+					else
+						location[key] = value
+				result = location[key]
 			else
 				location = location[key] ?= {}
 				result = balUtilFlow.setDeep(location, keys[1...], value, safe)
-		else
-			result = null
 
 		# Return
 		return result
@@ -235,19 +251,18 @@ balUtilFlow =
 		keys = keys.split('.')  unless balUtilTypes.isArray(keys)
 
 		# Check
-		return null  if keys.length is 0
-
-		# Delve
-		key = keys[0]
-		if location?
+		if keys.length is 0 or typeof location is 'undefined'
+			result = undefined
+		else if location is null
+			result = null
+		else
+			key = keys[0]
 			location = location.attributes ? location
-			location = location[key] ? null
+			location = if typeof location[key] is 'undefined' then undefined else location[key]
 			if keys.length is 1
 				result = location
 			else
 				result = balUtilFlow.getDeep(location, keys[1...])
-		else
-			result = null
 
 		# Return
 		return result

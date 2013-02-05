@@ -49,6 +49,10 @@ joe.describe 'versionCompare', (describe,it) ->
 # Package Compare
 
 joe.describe 'packageCompare', (describe,it) ->
+	# Check
+	if process.version.indexOf('v0.4') is 0
+		return it 'test skipped for node v0.4', (done) -> done()
+
 	# Prepare
 	localPackagePath = __dirname+'/../../package.json'
 	remotePackagePath = 'https://raw.github.com/balupton/bal-util/master/package.json'

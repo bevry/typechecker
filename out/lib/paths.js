@@ -238,13 +238,9 @@
     cp: function(src, dst, next) {
       balUtilPaths.readFile(src, 'binary', function(err, data) {
         if (err) {
-          console.log("balUtilPaths.cp: cp failed on: " + src);
           return next(err);
         }
         return balUtilPaths.writeFile(dst, data, 'binary', function(err) {
-          if (err) {
-            console.log("balUtilPaths.cp: writeFile failed on: " + dst);
-          }
           return next(err);
         });
       });
@@ -265,14 +261,13 @@
         parentPath = balUtilPaths.getParentPathSync(path);
         return balUtilPaths.ensurePath(parentPath, function(err) {
           if (err) {
-            console.log("balUtilPaths.ensurePath: failed to ensure the path: " + parentPath);
             return next(err, false);
           }
           return balUtilPaths.mkdir(path, '700', function(err) {
             return balUtilPaths.exists(path, function(exists) {
               if (!exists) {
-                console.log("balUtilPaths.ensurePath: failed to create the directory: " + path);
-                return next(new Error("Failed to create the directory: " + path));
+                err = new Error("Failed to create the directory: " + path);
+                return next(err, false);
               }
               return next(null, false);
             });
@@ -294,7 +289,6 @@
       } else {
         balUtilPaths.stat(path, function(err, stat) {
           if (err) {
-            console.log("balUtilPaths.isDirectory: stat failed on: " + path);
             return next(err);
           }
           return next(null, stat.isDirectory(), stat);
@@ -432,7 +426,6 @@
         if (tasks.exited) {
           return;
         } else if (err) {
-          console.log('balUtilPaths.scandir: readdir has failed on:', opts.path);
           return tasks.exit(err);
         }
         tasks.total += files.length;
@@ -457,7 +450,6 @@
               if (tasks.exited) {
 
               } else if (err) {
-                console.log('balUtilPaths.scandir: isDirectory has failed on:', fileFullPath);
                 return tasks.exit(err);
               } else if (isDirectory) {
                 complete = function(err, skip, subtreeCallback) {
@@ -496,7 +488,6 @@
                           if (tasks.exited) {
                             return tasks.exit();
                           } else if (err) {
-                            console.log('balUtilPaths.scandir: has failed on:', fileFullPath);
                             return tasks.exit(err);
                           } else if (subtreeCallback) {
                             return subtreeCallback(tasks.completer());
@@ -561,13 +552,18 @@
       return this;
     },
     cpdir: function() {
-      var args, err, next, opt, opts, outPath, scandirOpts, srcPath, _i, _len, _ref6, _ref7;
+      var args, err, next, opt, opts, outPath, scandirOpts, srcPath, _i, _len, _ref6;
       args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
       opts = {};
       if (args.length === 1) {
-        _ref6 = opts = args[0], srcPath = _ref6.srcPath, outPath = _ref6.outPath, next = _ref6.next;
+        opts = args[0];
       } else if (args.length >= 3) {
         srcPath = args[0], outPath = args[1], next = args[2];
+        opts = {
+          srcPath: srcPath,
+          outPath: outPath,
+          next: next
+        };
       } else {
         err = new Error('balUtilPaths.cpdir: unknown arguments');
         if (next) {
@@ -577,41 +573,42 @@
         }
       }
       scandirOpts = {
-        path: srcPath,
+        path: opts.srcPath,
         fileAction: function(fileSrcPath, fileRelativePath, next) {
           var fileOutPath;
-          fileOutPath = pathUtil.join(outPath, fileRelativePath);
+          fileOutPath = pathUtil.join(opts.outPath, fileRelativePath);
           return balUtilPaths.ensurePath(pathUtil.dirname(fileOutPath), function(err) {
             if (err) {
-              console.log('balUtilPaths.cpdir: failed to create the path for the file:', fileSrcPath);
               return next(err);
             }
             return balUtilPaths.cp(fileSrcPath, fileOutPath, function(err) {
-              if (err) {
-                console.log('balUtilPaths.cpdir: failed to copy the child file:', fileSrcPath);
-              }
               return next(err);
             });
           });
         },
-        next: next
+        next: opts.next
       };
-      _ref7 = ['ignorePaths', 'ignoreHiddenFiles', 'ignoreCommonPatterns', 'ignoreCustomPatterns'];
-      for (_i = 0, _len = _ref7.length; _i < _len; _i++) {
-        opt = _ref7[_i];
+      _ref6 = ['ignorePaths', 'ignoreHiddenFiles', 'ignoreCommonPatterns', 'ignoreCustomPatterns'];
+      for (_i = 0, _len = _ref6.length; _i < _len; _i++) {
+        opt = _ref6[_i];
         scandirOpts[opt] = opts[opt];
       }
       balUtilPaths.scandir(scandirOpts);
       return this;
     },
     rpdir: function() {
-      var args, err, next, opt, opts, outPath, scandirOpts, srcPath, _i, _len, _ref6, _ref7;
+      var args, err, next, opt, opts, outPath, scandirOpts, srcPath, _i, _len, _ref6;
       args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
       opts = {};
       if (args.length === 1) {
-        _ref6 = opts = args[0], srcPath = _ref6.srcPath, outPath = _ref6.outPath, next = _ref6.next;
+        opts = args[0];
       } else if (args.length >= 3) {
         srcPath = args[0], outPath = args[1], next = args[2];
+        opts = {
+          srcPath: srcPath,
+          outPath: outPath,
+          next: next
+        };
       } else {
         err = new Error('balUtilPaths.cpdir: unknown arguments');
         if (next) {
@@ -621,21 +618,17 @@
         }
       }
       scandirOpts = {
-        path: srcPath,
+        path: opts.srcPath,
         fileAction: function(fileSrcPath, fileRelativePath, next) {
           var fileOutPath;
-          fileOutPath = pathUtil.join(outPath, fileRelativePath);
+          fileOutPath = pathUtil.join(opts.outPath, fileRelativePath);
           return balUtilPaths.ensurePath(pathUtil.dirname(fileOutPath), function(err) {
             if (err) {
-              console.log('balUtilPaths.rpdir: failed to create the path for the file:', fileSrcPath);
               return next(err);
             }
             return balUtilPaths.isPathOlderThan(fileOutPath, fileSrcPath, function(err, older) {
               if (older === true || older === null) {
                 return balUtilPaths.cp(fileSrcPath, fileOutPath, function(err) {
-                  if (err) {
-                    console.log('balUtilPaths.rpdir: failed to copy the child file:', fileSrcPath);
-                  }
                   return next(err);
                 });
               } else {
@@ -644,11 +637,11 @@
             });
           });
         },
-        next: next
+        next: opts.next
       };
-      _ref7 = ['ignorePaths', 'ignoreHiddenFiles', 'ignoreCommonPatterns', 'ignoreCustomPatterns'];
-      for (_i = 0, _len = _ref7.length; _i < _len; _i++) {
-        opt = _ref7[_i];
+      _ref6 = ['ignorePaths', 'ignoreHiddenFiles', 'ignoreCommonPatterns', 'ignoreCustomPatterns'];
+      for (_i = 0, _len = _ref6.length; _i < _len; _i++) {
+        opt = _ref6[_i];
         scandirOpts[opt] = opts[opt];
       }
       balUtilPaths.scandir(scandirOpts);
@@ -661,17 +654,11 @@
         }
         return balUtilPaths.scandir(parentPath, function(fileFullPath, fileRelativePath, next) {
           return balUtilPaths.unlink(fileFullPath, function(err) {
-            if (err) {
-              console.log('balUtilPaths.rmdirDeep: failed to remove the child file:', fileFullPath);
-            }
             return next(err);
           });
         }, function(fileFullPath, fileRelativePath, next) {
           return next(null, false, function(next) {
             return balUtilPaths.rmdirDeep(fileFullPath, function(err) {
-              if (err) {
-                console.log('balUtilPaths.rmdirDeep: failed to remove the child directory:', fileFullPath);
-              }
               return next(err);
             });
           });
@@ -680,9 +667,6 @@
             return next(err, list, tree);
           }
           return balUtilPaths.rmdir(parentPath, function(err) {
-            if (err) {
-              console.log('balUtilPaths.rmdirDeep: failed to remove the parent directory:', parentPath);
-            }
             return next(err, list, tree);
           });
         });
@@ -708,9 +692,6 @@
             balUtilPaths.writetree(fileFullPath, value, tasks.completer());
           } else {
             balUtilPaths.writeFile(fileFullPath, value, function(err) {
-              if (err) {
-                console.log('balUtilPaths.writetree: writeFile failed on:', fileFullPath);
-              }
               return tasks.complete(err);
             });
           }
@@ -722,7 +703,7 @@
       return this;
     },
     readPath: function(filePath, opts, next) {
-      var http, req, requestOpts, _ref6, _ref7;
+      var http, req, requestOpts, _ref6, _ref7, _ref8;
       _ref6 = balUtilFlow.extractOptsAndCallback(opts, next), opts = _ref6[0], next = _ref6[1];
       if (/^http/.test(filePath)) {
         requestOpts = require('url').parse(filePath);
@@ -743,11 +724,19 @@
             }
           });
         });
+        if ((_ref7 = req.setTimeout) == null) {
+          req.setTimeout = function(delay) {
+            return setTimeout((function() {
+              req.abort();
+              return next(new Error('Request timed out'));
+            }), delay);
+          };
+        }
         req.on('error', function(err) {
           return next(err);
         }).on('timeout', function() {
           return req.abort();
-        }).setTimeout((_ref7 = opts.timeout) != null ? _ref7 : 10 * 1000);
+        }).setTimeout((_ref8 = opts.timeout) != null ? _ref8 : 10 * 1000);
       } else {
         balUtilPaths.readFile(filePath, function(err, data) {
           if (err) {
