@@ -1,9 +1,9 @@
 # Balupton's Utility Functions [![Build Status](https://secure.travis-ci.org/balupton/bal-util.png?branch=master)](http://travis-ci.org/balupton/bal-util)
-This project contains several utility functions used and maintained by Benjamin Lupton
+This project nutures plenty of JavaScript and Node.js utility functions used and maintained by Benjamin Lupton
 
 
 ## What it provides
-Look at it's source code. It's reasonbly documented, and there's lots of tests.
+Look at its source code. It's reasonbly documented, and there's lots of tests!
 
 
 ## Installing
