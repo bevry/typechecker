@@ -10,7 +10,6 @@ node_js:
 notifications:
   irc:
     - "irc.freenode.org#bevry-dev"
-    - "irc.freenode.org#docpad-dev"
   email:
     recipients:
       - balutil@bevry.me
