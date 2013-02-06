@@ -5,7 +5,7 @@ balUtilPaths = require('./paths')
 balUtilTypes = require('./types')
 
 # Prepare
-isWindows = process? and process.platform.indexOf('win') is 0
+isWindows = process?.platform?.indexOf('win') is 0
 
 # Create a counter of all the open files we have
 # As the filesystem will throw a fatal error if we have too many open files

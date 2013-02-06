@@ -1,5 +1,8 @@
 ## History
 
+- v1.16.5 February 6, 2013
+	- More [browserify](http://browserify.org/) support
+
 - v1.16.4 February 6, 2013
 	- [Browserify](http://browserify.org/) support
 
