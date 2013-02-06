@@ -1,5 +1,5 @@
 # Requires
-balUtilTypes = require?(__dirname+'/types') or @balUtilTypes
+balUtilTypes = require?('./types') or @balUtilTypes
 
 # =====================================
 # Flow

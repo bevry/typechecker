@@ -4,7 +4,7 @@
 
   balUtilCompare = null;
 
-  balUtilPaths = require(__dirname + '/paths');
+  balUtilPaths = require('./paths');
 
   balUtilCompare = {
     versionCompare: function(v1, operator, v2) {

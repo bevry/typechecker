@@ -1,5 +1,5 @@
 # Requires
-balUtilFlow = require?(__dirname+'/flow') or @balUtilFlow
+balUtilFlow = require?('./flow') or @balUtilFlow
 
 # =====================================
 # HTML

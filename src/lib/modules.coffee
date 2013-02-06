@@ -1,8 +1,8 @@
 # Requires
 balUtilModules = null
-balUtilFlow = require(__dirname+'/flow')
-balUtilPaths = require(__dirname+'/paths')
-balUtilTypes = require(__dirname+'/types')
+balUtilFlow = require('./flow')
+balUtilPaths = require('./paths')
+balUtilTypes = require('./types')
 
 # Prepare
 isWindows = process? and process.platform.indexOf('win') is 0

@@ -1,8 +1,8 @@
 # Necessary
 fsUtil = require('fs')
 pathUtil = require('path')
-balUtilFlow = require(__dirname+'/flow')
-balUtilTypes = require(__dirname+'/types')
+balUtilFlow = require('./flow')
+balUtilTypes = require('./types')
 
 # Create a counter of all the open files we have
 # As the filesystem will throw a fatal error if we have too many open files

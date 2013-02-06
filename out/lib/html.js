@@ -3,7 +3,7 @@
   var balUtilFlow, balUtilHTML,
     __slice = [].slice;
 
-  balUtilFlow = (typeof require === "function" ? require(__dirname + '/flow') : void 0) || this.balUtilFlow;
+  balUtilFlow = (typeof require === "function" ? require('./flow') : void 0) || this.balUtilFlow;
 
   balUtilHTML = {
     getAttribute: function(attributes, attribute) {

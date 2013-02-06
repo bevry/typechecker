@@ -1,5 +1,8 @@
 ## History
 
+- v1.16.4 February 6, 2013
+	- [Browserify](http://browserify.org/) support
+
 - v1.16.3 February 5, 2013
 	- Node v0.4 support
 	- `balUtilPaths` changes:

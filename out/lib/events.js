@@ -7,9 +7,9 @@
 
   EventEmitter = require('events').EventEmitter;
 
-  balUtilFlow = require(__dirname + '/flow');
+  balUtilFlow = require('./flow');
 
-  balUtilTypes = require(__dirname + '/types');
+  balUtilTypes = require('./types');
 
   debug = false;
 

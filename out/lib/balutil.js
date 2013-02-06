@@ -5,19 +5,19 @@
 
   balUtil = {};
 
-  balUtilCompare = require(__dirname + '/compare');
+  balUtilCompare = require('./compare.js');
 
-  balUtilEvents = require(__dirname + '/events');
+  balUtilEvents = require('./events');
 
-  balUtilFlow = require(__dirname + '/flow');
+  balUtilFlow = require('./flow');
 
-  balUtilHTML = require(__dirname + '/html');
+  balUtilHTML = require('./html');
 
-  balUtilModules = require(__dirname + '/modules');
+  balUtilModules = require('./modules');
 
-  balUtilPaths = require(__dirname + '/paths');
+  balUtilPaths = require('./paths');
 
-  balUtilTypes = require(__dirname + '/types');
+  balUtilTypes = require('./types');
 
   subpackages = [balUtilCompare, balUtilEvents, balUtilFlow, balUtilHTML, balUtilModules, balUtilPaths, balUtilTypes];
 

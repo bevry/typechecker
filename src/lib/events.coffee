@@ -1,7 +1,7 @@
 # Require
 EventEmitter = require('events').EventEmitter
-balUtilFlow = require(__dirname+'/flow')
-balUtilTypes = require(__dirname+'/types')
+balUtilFlow = require('./flow')
+balUtilTypes = require('./types')
 debug = false
 
 

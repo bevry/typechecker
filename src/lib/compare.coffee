@@ -1,6 +1,6 @@
 # Requires
 balUtilCompare = null
-balUtilPaths = require(__dirname+'/paths')
+balUtilPaths = require('./paths')
 
 
 # =====================================

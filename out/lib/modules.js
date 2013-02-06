@@ -5,11 +5,11 @@
 
   balUtilModules = null;
 
-  balUtilFlow = require(__dirname + '/flow');
+  balUtilFlow = require('./flow');
 
-  balUtilPaths = require(__dirname + '/paths');
+  balUtilPaths = require('./paths');
 
-  balUtilTypes = require(__dirname + '/types');
+  balUtilTypes = require('./types');
 
   isWindows = (typeof process !== "undefined" && process !== null) && process.platform.indexOf('win') === 0;
 

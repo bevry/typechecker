@@ -9,9 +9,9 @@
 
   pathUtil = require('path');
 
-  balUtilFlow = require(__dirname + '/flow');
+  balUtilFlow = require('./flow');
 
-  balUtilTypes = require(__dirname + '/types');
+  balUtilTypes = require('./types');
 
   if ((_ref = global.numberOfOpenFiles) == null) {
     global.numberOfOpenFiles = 0;
