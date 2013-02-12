@@ -703,7 +703,7 @@
       return this;
     },
     readPath: function(filePath, opts, next) {
-      var data, http, req, requestOpts, tasks, zlib, _base, _ref10, _ref11, _ref12, _ref6, _ref7, _ref8, _ref9;
+      var data, http, req, requestOpts, tasks, zlib, _ref10, _ref11, _ref6, _ref7, _ref8, _ref9;
       _ref6 = balUtilFlow.extractOptsAndCallback(opts, next), opts = _ref6[0], next = _ref6[1];
       if (/^http/.test(filePath)) {
         data = '';
@@ -727,9 +727,6 @@
         zlib = null;
         try {
           zlib = require('zlib');
-          if ((_ref10 = (_base = requestOpts.headers)['accept-encoding']) == null) {
-            _base['accept-encoding'] = 'gzip';
-          }
         } catch (err) {
 
         }
@@ -755,8 +752,8 @@
             });
           });
           return res.on('end', function() {
-            var locationHeader, _ref11;
-            locationHeader = ((_ref11 = res.headers) != null ? _ref11.location : void 0) || null;
+            var locationHeader, _ref10;
+            locationHeader = ((_ref10 = res.headers) != null ? _ref10.location : void 0) || null;
             if (locationHeader && locationHeader !== requestOpts.href) {
               return balUtilPaths.readPath(locationHeader, function(err, _data) {
                 if (err) {
@@ -770,7 +767,7 @@
             }
           });
         });
-        if ((_ref11 = req.setTimeout) == null) {
+        if ((_ref10 = req.setTimeout) == null) {
           req.setTimeout = function(delay) {
             return setTimeout((function() {
               req.abort();
@@ -778,7 +775,7 @@
             }), delay);
           };
         }
-        req.setTimeout((_ref12 = opts.timeout) != null ? _ref12 : 10 * 1000);
+        req.setTimeout((_ref11 = opts.timeout) != null ? _ref11 : 10 * 1000);
         req.on('error', function(err) {
           return tasks.exit(err);
         }).on('timeout', function() {

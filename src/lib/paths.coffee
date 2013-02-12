@@ -969,7 +969,8 @@ balUtilPaths =
 			# Gzip
 			try
 				zlib = require('zlib')
-				requestOpts.headers['accept-encoding'] ?= 'gzip'
+				# requestOpts.headers['accept-encoding'] ?= 'gzip'
+				# do not prefer gzip, it is buggy
 			catch err
 				# do nothing
 

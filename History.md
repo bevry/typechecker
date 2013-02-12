@@ -1,8 +1,12 @@
 ## History
 
+- v1.16.7 February 12, 2013
+	- `balUtilPaths` changes:
+		- `readPath`: do not prefer gzip, but still support it for decoding, as the zlib library is buggy
+
 - v1.16.6 February 12, 2013
 	- `balUtilPaths` changes:
-		- Added gzip support to `readPath` for node 0.6 and higher
+		- `readPath`: add support for gzip decoding for node 0.6 and higher
 
 - v1.16.5 February 6, 2013
 	- More [browserify](http://browserify.org/) support
