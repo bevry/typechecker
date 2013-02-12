@@ -180,6 +180,22 @@
           return done();
         });
       });
+      describe('gzip', function(describe, it) {
+        return it('should read gzipped paths', function(done) {
+          return balUtil.readPath('http://api.stackoverflow.com/1.0/users/130638/', function(err, data) {
+            if (process.version.indexOf('v0.4') === 0) {
+              assert.ok(err != null);
+              return done();
+            }
+            if (err) {
+              return done(err);
+            }
+            assert.ok(data != null);
+            assert.equal(data[0], '{');
+            return done();
+          });
+        });
+      });
       it('should create our timeout server', function() {
         timeoutServer = require('http').createServer(function(req, res) {
           return res.writeHead(200, {

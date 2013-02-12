@@ -1,5 +1,9 @@
 ## History
 
+- v1.16.6 February 12, 2013
+	- `balUtilPaths` changes:
+		- Added gzip support to `readPath` for node 0.6 and higher
+
 - v1.16.5 February 6, 2013
 	- More [browserify](http://browserify.org/) support
 

@@ -703,40 +703,88 @@
       return this;
     },
     readPath: function(filePath, opts, next) {
-      var http, req, requestOpts, _ref6, _ref7, _ref8;
+      var data, http, req, requestOpts, tasks, zlib, _base, _ref10, _ref11, _ref12, _ref6, _ref7, _ref8, _ref9;
       _ref6 = balUtilFlow.extractOptsAndCallback(opts, next), opts = _ref6[0], next = _ref6[1];
       if (/^http/.test(filePath)) {
+        data = '';
+        tasks = new balUtilFlow.Group(function(err) {
+          if (err) {
+            return next(err);
+          }
+          return next(null, data);
+        });
         requestOpts = require('url').parse(filePath);
+        if ((_ref7 = requestOpts.path) == null) {
+          requestOpts.path = requestOpts.pathname;
+        }
+        if ((_ref8 = requestOpts.method) == null) {
+          requestOpts.method = 'GET';
+        }
+        if ((_ref9 = requestOpts.headers) == null) {
+          requestOpts.headers = {};
+        }
         http = requestOpts.protocol === 'https:' ? require('https') : require('http');
-        req = http.get(requestOpts, function(res) {
-          var data;
-          data = '';
+        zlib = null;
+        try {
+          zlib = require('zlib');
+          if ((_ref10 = (_base = requestOpts.headers)['accept-encoding']) == null) {
+            _base['accept-encoding'] = 'gzip';
+          }
+        } catch (err) {
+
+        }
+        req = http.request(requestOpts, function(res) {
           res.on('data', function(chunk) {
-            return data += chunk;
+            return tasks.push(function(complete) {
+              if (res.headers['content-encoding'] === 'gzip' && Buffer.isBuffer(chunk)) {
+                if (zlib === null) {
+                  err = new Error('Gzip encoding not supported on this environment');
+                  return complete(err);
+                }
+                return zlib.unzip(chunk, function(err, chunk) {
+                  if (err) {
+                    return complete(err);
+                  }
+                  data += chunk;
+                  return complete();
+                });
+              } else {
+                data += chunk;
+                return complete();
+              }
+            });
           });
           return res.on('end', function() {
-            var locationHeader, _ref7;
-            locationHeader = ((_ref7 = res.headers) != null ? _ref7.location : void 0) || null;
+            var locationHeader, _ref11;
+            locationHeader = ((_ref11 = res.headers) != null ? _ref11.location : void 0) || null;
             if (locationHeader && locationHeader !== requestOpts.href) {
-              return balUtilPaths.readPath(locationHeader, next);
+              return balUtilPaths.readPath(locationHeader, function(err, _data) {
+                if (err) {
+                  return tasks.exit(err);
+                }
+                data = _data;
+                return tasks.exit();
+              });
             } else {
-              return next(null, data);
+              return tasks.run('serial');
             }
           });
         });
-        if ((_ref7 = req.setTimeout) == null) {
+        if ((_ref11 = req.setTimeout) == null) {
           req.setTimeout = function(delay) {
             return setTimeout((function() {
               req.abort();
-              return next(new Error('Request timed out'));
+              return tasks.exit(new Error('Request timed out'));
             }), delay);
           };
         }
+        req.setTimeout((_ref12 = opts.timeout) != null ? _ref12 : 10 * 1000);
         req.on('error', function(err) {
-          return next(err);
+          return tasks.exit(err);
         }).on('timeout', function() {
           return req.abort();
-        }).setTimeout((_ref8 = opts.timeout) != null ? _ref8 : 10 * 1000);
+        });
+        req.end();
       } else {
         balUtilPaths.readFile(filePath, function(err, data) {
           if (err) {

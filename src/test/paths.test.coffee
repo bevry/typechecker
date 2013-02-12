@@ -178,6 +178,21 @@ joe.describe 'paths', (describe,it) ->
 				assert.ok(data?)
 				return done()
 
+		# Should decode gzip
+		describe 'gzip', (describe,it) ->
+			it 'should read gzipped paths', (done) ->
+				balUtil.readPath 'http://api.stackoverflow.com/1.0/users/130638/', (err,data) ->
+					# Check
+					if process.version.indexOf('v0.4') is 0
+						assert.ok(err?)
+						return done()
+
+					# Continue
+					return done(err)  if err
+					assert.ok(data?)
+					assert.equal(data[0],'{')
+					return done()
+
 		# Server
 		it 'should create our timeout server', ->
 			# Server

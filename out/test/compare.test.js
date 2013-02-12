@@ -32,9 +32,7 @@
   joe.describe('packageCompare', function(describe, it) {
     var localPackagePath, remotePackagePath, testVersion;
     if (process.version.indexOf('v0.4') === 0) {
-      return it('test skipped for node v0.4', function(done) {
-        return done();
-      });
+      return it('test skipped for node v0.4', function() {});
     }
     localPackagePath = __dirname + '/../../package.json';
     remotePackagePath = 'https://raw.github.com/balupton/bal-util/master/package.json';
@@ -60,11 +58,7 @@
           return done();
         },
         errorCallback: function(err, data) {
-          if (/redirected/.test(data.toString())) {
-            return done();
-          }
-          assert.ok(false, 'the package compare request failed');
-          return done();
+          return done(err);
         }
       });
     });

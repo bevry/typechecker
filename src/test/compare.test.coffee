@@ -50,8 +50,7 @@ joe.describe 'versionCompare', (describe,it) ->
 
 joe.describe 'packageCompare', (describe,it) ->
 	# Check
-	if process.version.indexOf('v0.4') is 0
-		return it 'test skipped for node v0.4', (done) -> done()
+	return it('test skipped for node v0.4', ->)  if process.version.indexOf('v0.4') is 0
 
 	# Prepare
 	localPackagePath = __dirname+'/../../package.json'
@@ -77,7 +76,5 @@ joe.describe 'packageCompare', (describe,it) ->
 				testVersion(details.local.version,'>',details.remote.version)
 				done()
 			errorCallback: (err,data) ->
-				return done()  if /redirected/.test(data.toString())
-				assert.ok false, 'the package compare request failed'
-				done()
+				return done(err)
 		)

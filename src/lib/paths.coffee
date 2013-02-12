@@ -947,28 +947,79 @@ balUtilPaths =
 	# next(err,data)
 	readPath: (filePath,opts,next) ->
 		[opts,next] = balUtilFlow.extractOptsAndCallback(opts,next)
+
+		# Request
 		if /^http/.test(filePath)
+			# Prepare
+			data = ''
+			tasks = new balUtilFlow.Group (err) ->
+				return next(err)  if err
+				return next(null,data)
+
+			# Request
 			requestOpts = require('url').parse(filePath)
+			requestOpts.path ?= requestOpts.pathname
+			requestOpts.method ?= 'GET'
+			requestOpts.headers ?= {}
+
+			# Import
 			http = if requestOpts.protocol is 'https:' then require('https') else require('http')
-			req = http.get requestOpts, (res) ->
-				data = ''
-				res.on 'data', (chunk) ->
-					data += chunk
+			zlib = null
+
+			# Gzip
+			try
+				zlib = require('zlib')
+				requestOpts.headers['accept-encoding'] ?= 'gzip'
+			catch err
+				# do nothing
+
+			# Request
+			req = http.request requestOpts, (res) ->
+				# Listend
+				res.on 'data', (chunk) ->  tasks.push (complete) ->
+					if res.headers['content-encoding'] is 'gzip' and Buffer.isBuffer(chunk)
+						# Check
+						if zlib is null
+							err = new Error('Gzip encoding not supported on this environment')
+							return complete(err)
+						# Continue
+						zlib.unzip chunk, (err,chunk) ->
+							return complete(err)  if err
+							data += chunk
+							return complete()
+					else
+						data += chunk
+						return complete()
+
+				# Completed
 				res.on 'end', ->
+					# Redirect?
 					locationHeader = res.headers?.location or null
 					if locationHeader and locationHeader isnt requestOpts.href
 						# Follow the redirect
-						return balUtilPaths.readPath(locationHeader,next)
+						balUtilPaths.readPath locationHeader, (err,_data) ->
+							return tasks.exit(err)  if err
+							data = _data
+							return tasks.exit()
 					else
 						# All done
-						return next(null,data)
-			req.setTimeout ?= (delay) -> setTimeout((-> req.abort(); next(new Error('Request timed out'))),delay)
+						tasks.run('serial')
+
+			# Timeout
+			req.setTimeout ?= (delay) -> setTimeout((-> req.abort(); tasks.exit(new Error('Request timed out'))),delay)
+			req.setTimeout(opts.timeout ? 10*1000)  # 10 second timeout
+
+			# Listen
 			req
 				.on 'error', (err) ->
-					return next(err)
+					return tasks.exit(err)
 				.on 'timeout', ->
 					req.abort()  # must abort manually, will trigger error event
-				.setTimeout(opts.timeout ? 10*1000)  # 10 second timeout
+
+			# Start
+			req.end()
+
+		# Local
 		else
 			balUtilPaths.readFile filePath, (err,data) ->
 				return next(err)  if err
