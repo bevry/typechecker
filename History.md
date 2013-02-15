@@ -1,5 +1,9 @@
 ## History
 
+- v1.16.8 February 16, 2013
+	- `balUtilModules` changes:
+		- `spawnMultiple`, `execMultiple`: now accept a `tasksMode` option that can be `serial` (default) or `parallel`
+
 - v1.16.7 February 12, 2013
 	- `balUtilPaths` changes:
 		- `readPath`: do not prefer gzip, but still support it for decoding, as the zlib library is buggy

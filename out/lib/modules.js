@@ -105,8 +105,9 @@
     spawnMultiple: function(commands, opts, next) {
       var command, results, tasks, _i, _len, _ref5;
       _ref5 = balUtilFlow.extractOptsAndCallback(opts, next), opts = _ref5[0], next = _ref5[1];
+      opts.tasksMode || (opts.tasksMode = 'serial');
       results = [];
-      tasks = new balUtilFlow.Group(function(err) {
+      tasks = new balUtilFlow.Group(opts.tasksMode, function(err) {
         return next(err, results);
       });
       if (!balUtilTypes.isArray(commands)) {
@@ -126,7 +127,7 @@
           });
         });
       }
-      tasks.sync();
+      tasks.run();
       return this;
     },
     exec: function(command, opts, next) {
@@ -148,8 +149,9 @@
     execMultiple: function(commands, opts, next) {
       var command, results, tasks, _i, _len, _ref5;
       _ref5 = balUtilFlow.extractOptsAndCallback(opts, next), opts = _ref5[0], next = _ref5[1];
+      opts.tasksMode || (opts.tasksMode = 'serial');
       results = [];
-      tasks = new balUtilFlow.Group(function(err) {
+      tasks = new balUtilFlow.Group(opts.tasksMode, function(err) {
         return next(err, results);
       });
       if (!balUtilTypes.isArray(commands)) {

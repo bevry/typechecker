@@ -129,10 +129,11 @@ balUtilModules =
 	spawnMultiple: (commands,opts,next) ->
 		# Prepare
 		[opts,next] = balUtilFlow.extractOptsAndCallback(opts,next)
+		opts.tasksMode or= 'serial'
 		results = []
 
 		# Make sure we send back the arguments
-		tasks = new balUtilFlow.Group (err) ->
+		tasks = new balUtilFlow.Group opts.tasksMode, (err) ->
 			next(err,results)
 
 		# Prepare tasks
@@ -147,8 +148,8 @@ balUtilModules =
 					results.push(args)
 					complete(err)
 
-		# Run the tasks synchronously
-		tasks.sync()
+		# Run the tasks
+		tasks.run()
 
 		# Chain
 		@
@@ -186,10 +187,11 @@ balUtilModules =
 	execMultiple: (commands,opts,next) ->
 		# Prepare
 		[opts,next] = balUtilFlow.extractOptsAndCallback(opts,next)
+		opts.tasksMode or= 'serial'
 		results = []
 
 		# Make sure we send back the arguments
-		tasks = new balUtilFlow.Group (err) ->
+		tasks = new balUtilFlow.Group opts.tasksMode, (err) ->
 			next(err,results)
 
 		# Prepare tasks
