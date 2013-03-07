@@ -1,5 +1,11 @@
 ## History
 
+- v1.16.9 February 16, 2013
+	- `balUtilModules` changes:
+		- Added `getLocaleCode`
+		- Added `getCountryCode`
+		- Added `getLanguageCode`
+
 - v1.16.8 February 16, 2013
 	- `balUtilModules` changes:
 		- `spawnMultiple`, `execMultiple`: now accept a `tasksMode` option that can be `serial` (default) or `parallel`

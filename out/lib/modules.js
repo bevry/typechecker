@@ -27,12 +27,37 @@
 
   balUtilModules = {
     requireFresh: function(path) {
-      var result;
       path = require('path').resolve(path);
-      delete require.cache[path];
-      result = require(path);
-      delete require.cache[path];
-      return result;
+      return delete require;
+    },
+    getLocaleCode: function(lang) {
+      var localeCode;
+      if (lang == null) {
+        lang = null;
+      }
+      if (lang == null) {
+        lang = process.env.LANG || '';
+      }
+      localeCode = lang.replace(/\..+/, '').replace('-', '_').toLowerCase() || null;
+      return localeCode;
+    },
+    getLanguageCode: function(localeCode) {
+      var languageCode;
+      if (localeCode == null) {
+        localeCode = null;
+      }
+      localeCode = balUtilModules.getLocaleCode(localeCode);
+      languageCode = localeCode.replace(/^([a-z]+)[_-]([a-z]+)$/i, '$1').toLowerCase() || null;
+      return languageCode;
+    },
+    getCountryCode: function(localeCode) {
+      var countryCode;
+      if (localeCode == null) {
+        localeCode = null;
+      }
+      localeCode = balUtilModules.getLocaleCode(localeCode);
+      countryCode = localeCode.replace(/^([a-z]+)[_-]([a-z]+)$/i, '$2').toLowerCase() || null;
+      return countryCode;
     },
     isWindows: function() {
       return isWindows;
