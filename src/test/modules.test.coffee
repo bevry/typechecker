@@ -11,6 +11,12 @@ travis = process.env.TRAVIS_NODE_VERSION?
 
 joe.describe 'modules', (describe,it) ->
 
+	describe 'requireFresh', (describe,it) ->
+		it 'should fetch something', ->
+			result = balUtil.requireFresh(__dirname+'/../../package.json')
+			assert.ok(result)
+			assert.ok(result?.version)
+
 	describe 'locale', (describe,it) ->
 		describe 'getLocaleCode', (describe,it) ->
 			it 'should fetch something', ->

@@ -1,6 +1,10 @@
 ## History
 
-- v1.16.9 February 16, 2013
+- v1.16.10 March 8, 2013
+	- `balUtilModules` changes:
+		- Fixed `requireFresh` regression, added test
+
+- v1.16.9 March 8, 2013
 	- `balUtilModules` changes:
 		- Added `getLocaleCode`
 		- Added `getCountryCode`

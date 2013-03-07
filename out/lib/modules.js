@@ -27,8 +27,15 @@
 
   balUtilModules = {
     requireFresh: function(path) {
+      var result;
       path = require('path').resolve(path);
-      return delete require;
+      delete require.cache[path];
+      result = require(path);
+      delete require.cache[path];
+      return result;
+    },
+    isWindows: function() {
+      return isWindows;
     },
     getLocaleCode: function(lang) {
       var localeCode;
@@ -58,9 +65,6 @@
       localeCode = balUtilModules.getLocaleCode(localeCode);
       countryCode = localeCode.replace(/^([a-z]+)[_-]([a-z]+)$/i, '$2').toLowerCase() || null;
       return countryCode;
-    },
-    isWindows: function() {
-      return isWindows;
     },
     openProcess: function(next) {
       if (global.numberOfOpenProcesses < 0) {

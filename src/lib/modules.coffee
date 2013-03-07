@@ -26,7 +26,19 @@ balUtilModules =
 	# Require the file without adding it into the cache
 	requireFresh: (path) ->
 		path = require('path').resolve(path)
-		delete require
+		delete require.cache[path]  # clear require cache for the config file
+		result = require(path)
+		delete require.cache[path]  # clear require cache for the config file
+		return result
+
+
+	# =================================
+	# Environments
+
+	# Is Windows
+	# Returns whether or not we are running on a windows machine
+	isWindows: ->
+		return isWindows
 
 	# Get Locale Code
 	getLocaleCode: (lang=null) ->
@@ -45,18 +57,6 @@ balUtilModules =
 		localeCode = balUtilModules.getLocaleCode(localeCode)
 		countryCode = localeCode.replace(/^([a-z]+)[_-]([a-z]+)$/i,'$2').toLowerCase() or null
 		return countryCode
-
-
-	# =================================
-	# Environments
-
-	# Is Windows
-	# Returns whether or not we are running on a windows machine
-	isWindows: ->
-		return isWindows
-
-	# Get Locale Code
-
 
 
 	# =====================================

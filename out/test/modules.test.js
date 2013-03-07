@@ -11,6 +11,14 @@
   travis = process.env.TRAVIS_NODE_VERSION != null;
 
   joe.describe('modules', function(describe, it) {
+    describe('requireFresh', function(describe, it) {
+      return it('should fetch something', function() {
+        var result;
+        result = balUtil.requireFresh(__dirname + '/../../package.json');
+        assert.ok(result);
+        return assert.ok(result != null ? result.version : void 0);
+      });
+    });
     describe('locale', function(describe, it) {
       describe('getLocaleCode', function(describe, it) {
         it('should fetch something', function() {
