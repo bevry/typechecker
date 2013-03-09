@@ -48,13 +48,13 @@ balUtilModules =
 
 	# Get Language Code
 	getLanguageCode: (localeCode=null) ->
-		localeCode = balUtilModules.getLocaleCode(localeCode)
+		localeCode = balUtilModules.getLocaleCode(localeCode) or ''
 		languageCode = localeCode.replace(/^([a-z]+)[_-]([a-z]+)$/i,'$1').toLowerCase() or null
 		return languageCode
 
 	# Get Country Code
 	getCountryCode: (localeCode=null) ->
-		localeCode = balUtilModules.getLocaleCode(localeCode)
+		localeCode = balUtilModules.getLocaleCode(localeCode) or ''
 		countryCode = localeCode.replace(/^([a-z]+)[_-]([a-z]+)$/i,'$2').toLowerCase() or null
 		return countryCode
 

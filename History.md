@@ -1,5 +1,9 @@
 ## History
 
+- v1.16.11 March 10, 2013
+	- `balUtilModules` changes:
+		- Fixed `getCountryCode` and `getLanguageCode` failing when there is no locale code
+
 - v1.16.10 March 8, 2013
 	- `balUtilModules` changes:
 		- Fixed `requireFresh` regression, added test

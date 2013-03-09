@@ -53,7 +53,7 @@
       if (localeCode == null) {
         localeCode = null;
       }
-      localeCode = balUtilModules.getLocaleCode(localeCode);
+      localeCode = balUtilModules.getLocaleCode(localeCode) || '';
       languageCode = localeCode.replace(/^([a-z]+)[_-]([a-z]+)$/i, '$1').toLowerCase() || null;
       return languageCode;
     },
@@ -62,7 +62,7 @@
       if (localeCode == null) {
         localeCode = null;
       }
-      localeCode = balUtilModules.getLocaleCode(localeCode);
+      localeCode = balUtilModules.getLocaleCode(localeCode) || '';
       countryCode = localeCode.replace(/^([a-z]+)[_-]([a-z]+)$/i, '$2').toLowerCase() || null;
       return countryCode;
     },
