@@ -222,6 +222,55 @@ joe.describe 'Group', (describe,it) ->
 			done()
 
 
+	it 'should work when run synchronously via run', (done) ->
+		# Prepare
+		firstTaskRun = false
+		secondTaskRun = false
+		firstTaskFinished = false
+		secondTaskFinished = false
+		finished = false
+		total = 2
+
+		# Create our group
+		tasks = new balUtil.Group (err) ->
+			return done(err)  if err
+			assert.equal(false, finished, 'the group of tasks only finished once')
+			finished = true
+
+		# Make the first task take longer than the second task, but as we run synchronously, it should still finish first
+		tasks.push (complete) ->
+			firstTaskRun = true
+			assert.equal(false, secondTaskRun, 'the first task ran first as expected')
+			wait 1000, ->
+				firstTaskFinished = true
+				assert.equal(false, secondTaskFinished, 'the first task completed first as expected')
+				complete()
+
+		# Make the second task take shorter than the first task, but as we run synchronously, it should still finish second
+		tasks.push (complete) ->
+			secondTaskRun = true
+			assert.equal(true, firstTaskRun, 'the second task ran second as expected')
+			wait 500, ->
+				secondTaskFinished = true
+				assert.equal(true, firstTaskFinished, 'the second task completed second as expected')
+				complete()
+
+		# Check no tasks have run
+		assert.equal(0, tasks.completed, 'no tasks should have started yet')
+
+		# Run the tasks
+		tasks.run('sync')
+		assert.equal(true, tasks.isRunning(), 'isRunning() returned true')
+
+		# Check all tasks ran
+		wait 2000, ->
+			assert.equal(total, tasks.completed, 'the expected number of tasks ran '+"#{tasks.completed}/#{total}")
+			assert.equal(false, tasks.isRunning(), 'isRunning() returned false')
+			assert.equal(true, tasks.hasCompleted(), 'hasCompleted() returned true')
+			assert.equal(true, tasks.hasExited(), 'hasExited() returned true')
+			done()
+
+
 	it 'should work when run asynchronously', (done) ->
 		# Prepare
 		firstTaskRun = false

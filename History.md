@@ -1,5 +1,9 @@
 ## History
 
+- v1.16.12 March 18, 2013
+	- `balUtilFlow` changes:
+		- `Groups::run` signature changed from no arguments to a single `mode` argument
+
 - v1.16.11 March 10, 2013
 	- `balUtilModules` changes:
 		- Fixed `getCountryCode` and `getLanguageCode` failing when there is no locale code

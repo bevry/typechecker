@@ -533,8 +533,9 @@ balUtilFlow.Group = class
 		@
 
 	# Run the tasks
-	run: ->
+	run: (mode) ->
 		if @isRunning() is false
+			@mode = mode  if mode
 			@hasExited(false)
 			if @hasTasks()
 				if @mode in ['serial','sync']
@@ -547,17 +548,11 @@ balUtilFlow.Group = class
 
 	# Parallel
 	async: -> @parallel()
-	parallel: ->
-		@mode = 'parallel'
-		@run()
-		@
+	parallel: -> @run('parallel'); @
 
 	# Serial
 	sync: -> @serial()
-	serial: ->
-		@mode = 'serial'
-		@run()
-		@
+	serial: -> @run('serial'); @
 
 
 # =====================================
