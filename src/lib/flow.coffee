@@ -36,13 +36,17 @@ balUtilFlow =
 		callback = args[args.length-1]
 		context or= null
 		result = null
+		if balUtilTypes.isArray(method)
+			[fireMethod,introspectMethod] = method
+		else
+			fireMethod = introspectMethod = method
 
 		# We have the callback
 		# assume it is async
-		if method.length is args.length
+		if introspectMethod.length is args.length
 			# Fire the function
 			try
-				result = method.apply(context,args)
+				result = fireMethod.apply(context,args)
 			catch caughtError
 				callback(caughtError)
 
@@ -54,7 +58,7 @@ balUtilFlow =
 
 			# Fire the function
 			try
-				result = method.apply(context,args)
+				result = fireMethod.apply(context,args)
 				err = result  if balUtilTypes.isError(result)
 			catch caughtError
 				err = caughtError

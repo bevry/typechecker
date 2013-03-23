@@ -21,38 +21,49 @@
       return _ref;
     }
 
-    EventEmitterEnhanced.prototype.emitAsync = function(eventName, data, next) {
-      var listener, listeners, tasks, _i, _len;
+    EventEmitterEnhanced.prototype.getListenerGroup = function(eventName, data, next) {
+      var listeners, me, tasks;
 
+      me = this;
       listeners = this.listeners(eventName);
       tasks = new balUtilFlow.Group(next);
-      for (_i = 0, _len = listeners.length; _i < _len; _i++) {
-        listener = listeners[_i];
-        tasks.push({
-          listener: listener
-        }, function(complete) {
-          return balUtilFlow.fireWithOptionalCallback(this.listener, [data, complete]);
+      balUtilFlow.each(listeners, function(listener) {
+        if (listener.listener) {
+          listener = [listener, listener.listener];
+        }
+        return tasks.push(function(complete) {
+          return balUtilFlow.fireWithOptionalCallback(listener, [data, complete], me);
         });
-      }
-      tasks.async();
-      return this;
+      });
+      return tasks;
     };
 
-    EventEmitterEnhanced.prototype.emitSync = function(eventName, data, next) {
-      var listener, listeners, tasks, _i, _len;
+    EventEmitterEnhanced.prototype.emitSync = function() {
+      var args;
 
-      listeners = this.listeners(eventName);
-      tasks = new balUtilFlow.Group(next);
-      for (_i = 0, _len = listeners.length; _i < _len; _i++) {
-        listener = listeners[_i];
-        tasks.push({
-          listener: listener
-        }, function(complete) {
-          return balUtilFlow.fireWithOptionalCallback(this.listener, [data, complete]);
-        });
-      }
-      tasks.sync();
-      return this;
+      args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+      return this.emitSerial.apply(this, args);
+    };
+
+    EventEmitterEnhanced.prototype.emitSerial = function() {
+      var args;
+
+      args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+      return this.getListenerGroup.apply(this, args).run('serial');
+    };
+
+    EventEmitterEnhanced.prototype.emitAsync = function() {
+      var args;
+
+      args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+      return this.emitParallel.apply(this, args);
+    };
+
+    EventEmitterEnhanced.prototype.emitParallel = function() {
+      var args;
+
+      args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+      return this.getListenerGroup.apply(this, args).run('parallel');
     };
 
     return EventEmitterEnhanced;

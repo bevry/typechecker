@@ -22,15 +22,20 @@
       return [opts, next];
     },
     fireWithOptionalCallback: function(method, args, context) {
-      var callback, caughtError, err, result;
+      var callback, caughtError, err, fireMethod, introspectMethod, result;
 
       args || (args = []);
       callback = args[args.length - 1];
       context || (context = null);
       result = null;
-      if (method.length === args.length) {
+      if (balUtilTypes.isArray(method)) {
+        fireMethod = method[0], introspectMethod = method[1];
+      } else {
+        fireMethod = introspectMethod = method;
+      }
+      if (introspectMethod.length === args.length) {
         try {
-          result = method.apply(context, args);
+          result = fireMethod.apply(context, args);
         } catch (_error) {
           caughtError = _error;
           callback(caughtError);
@@ -38,7 +43,7 @@
       } else {
         err = null;
         try {
-          result = method.apply(context, args);
+          result = fireMethod.apply(context, args);
           if (balUtilTypes.isError(result)) {
             err = result;
           }

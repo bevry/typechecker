@@ -1,5 +1,15 @@
 ## History
 
+- v1.16.13 March 23, 2013
+	- `balUtilEvents` changes:
+		- `EventEmitterEnhanced` changes:
+			- Now works with `once` calls in node 0.10.0
+				- Closes [bevry/docpad#462](https://github.com/bevry/docpad/issues/462)
+			- Changed `emitSync` to be an alias to `emitSerial` and `emitAsync` to be an alias to `emitParallel`
+			- Added new `getListenerGroup` function
+	- `balUtilFlow` changes:
+		- `fireWithOptionalCallback` can now take the method as an array of `[fireMethod,introspectMethod]`  useful for pesly binds
+
 - v1.16.12 March 18, 2013
 	- `balUtilFlow` changes:
 		- `Groups::run` signature changed from no arguments to a single `mode` argument

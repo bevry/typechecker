@@ -12,39 +12,39 @@ debug = false
 
 class EventEmitterEnhanced extends EventEmitter
 
-	# Emit a group of listeners asynchronously
-	# next(err,result,results)
-	emitAsync: (eventName,data,next) ->
+	# Get Listener Group
+	# Fetch the listeners for a particular event as a task group
+	getListenerGroup: (eventName,data,next) ->
 		# Get listeners
+		me = @
 		listeners = @listeners(eventName)
-		# Prepare tasks
-		tasks = new balUtilFlow.Group(next)
-		# Add the tasks for the listeners
-		for listener in listeners
-			tasks.push {listener}, (complete) ->
-				# Fire the listener, treating the callback as optional
-				balUtilFlow.fireWithOptionalCallback(@listener,[data,complete])
-		# Trigger asynchronously
-		tasks.async()
-		# Chain
-		@
 
-	# Emit a group of listeners synchronously
-	# next(err,result,results)
-	emitSync: (eventName,data,next) ->
-		# Get listeners
-		listeners = @listeners(eventName)
 		# Prepare tasks
 		tasks = new balUtilFlow.Group(next)
+
 		# Add the tasks for the listeners
-		for listener in listeners
-			tasks.push {listener}, (complete) ->
+		balUtilFlow.each listeners, (listener) ->
+			# Once will actually wrap around the original listener, which isn't what we want for the introspection
+			# So we must pass fireWithOptionalCallback an array of the method to fire, and the method to introspect
+			# https://github.com/bevry/docpad/issues/462
+			# https://github.com/joyent/node/commit/d1b4dcd6acb1d1c66e423f7992dc6eec8a35c544
+			listener = [listener,listener.listener]  if listener.listener
+
+			# Bind to the task
+			tasks.push (complete) ->
 				# Fire the listener, treating the callback as optional
-				balUtilFlow.fireWithOptionalCallback(@listener,[data,complete])
-		# Trigger synchronously
-		tasks.sync()
-		# Chain
-		@
+				balUtilFlow.fireWithOptionalCallback(listener,[data,complete],me)
+
+		# Return
+		return tasks
+
+	# Emit Serial
+	emitSync: (args...) -> @emitSerial(args...)
+	emitSerial: (args...) -> @getListenerGroup(args...).run('serial')
+
+	# Emit Parallel
+	emitAsync: (args...) -> @emitParallel(args...)
+	emitParallel: (args...) -> @getListenerGroup(args...).run('parallel')
 
 
 # =====================================

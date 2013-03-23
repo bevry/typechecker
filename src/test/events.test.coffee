@@ -1,12 +1,115 @@
 # Requires
-assert = require('assert')
+{expect,assert} = require('chai')
 joe = require('joe')
-EventSystem = require(__dirname+'/../lib/balutil').EventSystem
+{EventEmitterEnhanced,EventSystem} = require(__dirname+'/../lib/balutil')
 debug = false
 
 
 # =====================================
-# Configuration
+# Event Emitter Enhanced
+
+joe.describe 'EventEmitterEnhanced', (describe,it) ->
+	eventEmitter = null
+
+	it 'should construct', ->
+		eventEmitter = new EventEmitterEnhanced()
+
+	# Serial
+	it 'should work in serial', (done) ->
+		# Prepare
+		first = second = 0
+
+		# Asynchronous
+		eventEmitter.on 'serial', (opts,next) ->
+			first++
+			setTimeout(
+				->
+					expect(second).to.eql(0)
+					first++
+					next()
+				500
+			)
+
+		# Synchronous
+		eventEmitter.on 'serial', ->
+			expect(first).to.eql(2)
+			second += 2
+
+		# Correct amount of listeners?
+		expect(eventEmitter.listeners('serial').length).to.eql(2)
+
+		# Emit and check
+		eventEmitter.emitSerial 'serial', null, (err) ->
+			expect(first).to.eql(2)
+			expect(second).to.eql(2)
+			done()
+
+	# Parallel
+	it 'should work in parallel', (done) ->
+		# Prepare
+		first = second = 0
+
+		# Asynchronous
+		eventEmitter.on 'parallel', (opts,next) ->
+			first++
+			setTimeout(
+				->
+					expect(second).to.eql(2)
+					first++
+					next()
+				500
+			)
+
+		# Synchronous
+		eventEmitter.on 'parallel', ->
+			expect(first).to.eql(1)
+			second += 2
+
+		# Correct amount of listeners?
+		expect(eventEmitter.listeners('parallel').length).to.eql(2)
+
+		# Emit and check
+		eventEmitter.emitParallel 'parallel', null, (err) ->
+			expect(first).to.eql(2)
+			expect(second).to.eql(2)
+			done()
+
+	# Parallel
+	it 'should work with once', (done) ->
+		# Prepare
+		first = second = 0
+
+		# Asynchronous
+		eventEmitter.once 'once', (opts,next) ->
+			first++
+			setTimeout(
+				->
+					expect(second).to.eql(2)
+					first++
+					next()
+				500
+			)
+
+		# Synchronous
+		eventEmitter.once 'once', ->
+			expect(first).to.eql(1)
+			second += 2
+
+		# Correct amount of listeners?
+		expect(eventEmitter.listeners('once').length).to.eql(2)
+
+		# Emit and check
+		eventEmitter.emitParallel 'once', null, (err) ->
+			expect(first).to.eql(2)
+			expect(second).to.eql(2)
+			expect(eventEmitter.listeners('once').length).to.eql(0)
+			done()
+
+
+
+
+# =====================================
+# Event System
 
 class Person extends EventSystem
 	###
@@ -85,7 +188,7 @@ class Person extends EventSystem
 				,1*1000)
 
 
-# =====================================
+# -------------------------------------
 # Tests
 
 joe.describe 'EventSystem', (describe,it) ->
