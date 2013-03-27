@@ -49,11 +49,11 @@ clean = (opts,next) ->
 
 compile = (opts,next) ->
 	(next = opts; opts = {})  unless next?
-	spawn(COFFEE, ['-co', OUT, SRC], {stdio:'inherit',cwd:APP}).on('exit',next)
+	spawn(COFFEE, ['-bco', OUT, SRC], {stdio:'inherit',cwd:APP}).on('exit',next)
 
 watch = (opts,next) ->
 	(next = opts; opts = {})  unless next?
-	spawn(COFFEE, ['-wco', OUT, SRC], {stdio:'inherit',cwd:APP}).on('exit',next)
+	spawn(COFFEE, ['-bwco', OUT, SRC], {stdio:'inherit',cwd:APP}).on('exit',next)
 
 install = (opts,next) ->
 	(next = opts; opts = {})  unless next?

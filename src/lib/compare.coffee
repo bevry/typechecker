@@ -1,4 +1,4 @@
-# Requires
+# Import
 balUtilCompare = null
 balUtilPaths = require('./paths')
 

@@ -1,5 +1,6 @@
-# Requires
-balUtilTypes = require?('./types') or @balUtilTypes
+# Import
+balUtilTypes = require('./types')
+
 
 # =====================================
 # Flow
@@ -691,6 +692,5 @@ balUtilFlow.Runner = class
 
 # =====================================
 # Export
-# for node.js and browsers
 
-if module? then (module.exports = balUtilFlow) else (@balUtilFlow = balUtilFlow)
+module.exports = balUtilFlow

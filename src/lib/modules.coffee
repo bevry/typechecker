@@ -1,4 +1,4 @@
-# Requires
+# Import
 balUtilModules = null
 balUtilFlow = require('./flow')
 balUtilPaths = require('./paths')

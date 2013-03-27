@@ -1,5 +1,6 @@
-# Requires
-balUtilFlow = require?('./flow') or @balUtilFlow
+# Import
+balUtilFlow = require('./flow')
+
 
 # =====================================
 # HTML
@@ -90,8 +91,8 @@ balUtilHTML =
 		# Chain
 		@
 
+
 # =====================================
 # Export
-# for node.js and browsers
 
-if module? then (module.exports = balUtilHTML) else (@balUtilHTML = balUtilHTML)
+module.exports = balUtilHTML

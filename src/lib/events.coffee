@@ -1,8 +1,7 @@
-# Require
+# Import
 EventEmitter = require('events').EventEmitter
 balUtilFlow = require('./flow')
 balUtilTypes = require('./types')
-debug = false
 
 
 # =====================================
