@@ -1,36 +1,17 @@
 {
 	"name": "typechecker",
-	"version": "2.0.0",
+	"version": "2.0.1",
 	"description": "Utilities to get and check variable types (isString, isPlainObject, isRegExp, etc)",
 	"homepage": "https://github.com/bevry/typechecker",
 	"keywords": [
-		"javascript",
-		"flow",
-		"control",
-		"async",
-		"sync",
-		"tasks",
-		"batch",
-		"utility",
-		"util",
-		"utilities",
-		"paths",
-		"path",
-		"events",
-		"event",
-		"module",
-		"modules",
-		"compare",
-		"comparison",
-		"html"
+		"types","type"
 	],
-	"author": "Benjamin Lupton <b@lupton.cc> (http://balupton.com)",
+	"author": "Bevry Pty Ltd <us@bevry.me> (http://bevry.me)",
 	"maintainers": [
 		"Benjamin Lupton <b@lupton.cc> (https://github.com/balupton)"
 	],
 	"contributors": [
-		"Benjamin Lupton <b@lupton.cc> (https://github.com/balupton)",
-		"Sean Fridman <fridman@mail.sfsu.edu> (https://github.com/sfrdmn)"
+		"Benjamin Lupton <b@lupton.cc> (https://github.com/balupton)"
 	],
 	"bugs": {
 		"url": "https://github.com/bevry/typechecker/issues"
@@ -54,5 +35,5 @@
 	"scripts": {
 		"test": "node ./out/test/typechecker-test.js --joe-reporter=list"
 	},
-	"main": "./out/lib/balutil"
+	"main": "./out/lib/typechecker.js"
 }
