@@ -52,5 +52,5 @@ You can discover the history inside the [History.md](https://github.com/bevry/ty
 
 ## License
 Licensed under the incredibly [permissive](http://en.wikipedia.org/wiki/Permissive_free_software_licence) [MIT License](http://creativecommons.org/licenses/MIT/)
-<br/>Copyright © 2013+ [Bevry Pty Ltd](http://bevry.me) <us@bevry.me>
+<br/>Copyright © 2013+ [Bevry Pty Ltd](http://bevry.me)
 <br/>Copyright © 2011-2012 [Benjamin Arthur Lupton](http://balupton.com)
