@@ -1,7 +1,7 @@
-# Requires
+# Import
 assert = require('assert')
 joe = require('joe')
-balUtil = require(__dirname+'/../lib/balutil')
+typeChecker = require('../lib/typechecker')
 util = require('util')
 
 
@@ -9,7 +9,7 @@ util = require('util')
 # Tests
 
 # Types
-joe.describe 'types', (describe,it) ->
+joe.describe 'typechecker', (describe,it) ->
 	# Prepare
 	typeTestData = [
 		[false,'boolean']
@@ -33,6 +33,5 @@ joe.describe 'types', (describe,it) ->
 
 	# Run
 	for [value,typeExpected] in typeTestData
-		typeActual = balUtil.getType(value)
+		typeActual = typeChecker.getType(value)
 		testType(value,typeExpected,typeActual)
-

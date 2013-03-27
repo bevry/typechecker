@@ -1,11 +1,8 @@
-# =====================================
-# Types
-# Provides higher level typeof functionality
-
-balUtilTypes =
+# Define
+typeChecker =
 
 	# Get the object type string
-	getObjectTypeString: (value) ->
+	getObjectType: (value) ->
 		return Object::toString.call(value)
 
 	# Get the type
@@ -15,7 +12,7 @@ balUtilTypes =
 
 		# Cycle
 		for type in ['Array','RegExp','Date','Function','Boolean','Number','Error','String','Null','Undefined']
-			if balUtilTypes['is'+type](value)
+			if typeChecker['is'+type](value)
 				result = type.toLowerCase()
 				break
 
@@ -24,7 +21,7 @@ balUtilTypes =
 
 	# Checks to see if a value is an object and only an object
 	isPlainObject: (value) ->
-		return balUtilTypes.isObject(value) and value.__proto__ is Object.prototype
+		return typeChecker.isObject(value) and value.__proto__ is Object.prototype
 
 	# Checks to see if a value is an object
 	isObject: (value) ->
@@ -37,35 +34,35 @@ balUtilTypes =
 
 	# Checks to see if a value is a date
 	isDate: (value) ->
-		return balUtilTypes.getObjectTypeString(value) is '[object Date]'
+		return typeChecker.getObjectType(value) is '[object Date]'
 
 	# Checks to see if a value is an arguments object
 	isArguments: (value) ->
-		return balUtilTypes.getObjectTypeString(value) is '[object Arguments]'
+		return typeChecker.getObjectType(value) is '[object Arguments]'
 
 	# Checks to see if a value is a function
 	isFunction: (value) ->
-		return balUtilTypes.getObjectTypeString(value) is '[object Function]'
+		return typeChecker.getObjectType(value) is '[object Function]'
 
 	# Checks to see if a value is an regex
 	isRegExp: (value) ->
-		return balUtilTypes.getObjectTypeString(value) is '[object RegExp]'
+		return typeChecker.getObjectType(value) is '[object RegExp]'
 
 	# Checks to see if a value is an array
 	isArray: (value) ->
-		return Array.isArray?(value) ? balUtilTypes.getObjectTypeString(value) is '[object Array]'
+		return Array.isArray?(value) ? typeChecker.getObjectType(value) is '[object Array]'
 
 	# Checks to see if a valule is a number
 	isNumber: (value) ->
-		return typeof value is 'number' or balUtilTypes.getObjectTypeString(value) is '[object Number]'
+		return typeof value is 'number' or typeChecker.getObjectType(value) is '[object Number]'
 
 	# Checks to see if a value is a string
 	isString: (value) ->
-		return typeof value is 'string' or balUtilTypes.getObjectTypeString(value) is '[object String]'
+		return typeof value is 'string' or typeChecker.getObjectType(value) is '[object String]'
 
 	# Checks to see if a valule is a boolean
 	isBoolean: (value) ->
-		return value is true or value is false or balUtilTypes.getObjectTypeString(value) is '[object Boolean]'
+		return value is true or value is false or typeChecker.getObjectType(value) is '[object Boolean]'
 
 	# Checks to see if a value is null
 	isNull: (value) ->
@@ -89,7 +86,5 @@ balUtilTypes =
 		return empty
 
 
-# =====================================
 # Export
-
-module.exports = balUtilTypes
+module.exports = typeChecker

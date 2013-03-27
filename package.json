@@ -1,8 +1,8 @@
 {
-	"name": "bal-util",
-	"version": "1.17.0",
-	"description": "Common utility functions for Node.js used and maintained by Benjamin Lupton",
-	"homepage": "https://github.com/balupton/bal-util",
+	"name": "typechecker",
+	"version": "2.0.0",
+	"description": "Utilities to get and check variable types (isString, isPlainObject, isRegExp, etc)",
+	"homepage": "https://github.com/bevry/typechecker",
 	"keywords": [
 		"javascript",
 		"flow",
@@ -33,11 +33,11 @@
 		"Sean Fridman <fridman@mail.sfsu.edu> (https://github.com/sfrdmn)"
 	],
 	"bugs": {
-		"url": "https://github.com/balupton/bal-util/issues"
+		"url": "https://github.com/bevry/typechecker/issues"
 	},
 	"repository" : {
 		"type": "git",
-		"url": "http://github.com/balupton/bal-util.git"
+		"url": "http://github.com/bevry/typechecker.git"
 	},
 	"engines" : {
 		"node": ">=0.4"
@@ -52,7 +52,7 @@
 		"lib": "./out/lib"
 	},
 	"scripts": {
-		"test": "node ./out/test/everything-test.js --joe-reporter=list"
+		"test": "node ./out/test/typechecker-test.js --joe-reporter=list"
 	},
 	"main": "./out/lib/balutil"
 }
