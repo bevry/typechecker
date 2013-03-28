@@ -21,28 +21,34 @@ Utilities to get and check variable types (isString, isPlainObject, isRegExp, et
 ### Example
 
 ``` javascript
-require('typechecker').isRegExp(/^a/)  // true
+require('typechecker').isRegExp(/^a/)  // returns true
 ```
 
 ### Methods
 
-- `getObjectType` (e.g. `[object RegExp]`)
-- `getType` (e.g. `regexp`)
-- `isPlainObject` (checks for no custom prototype)
-- `isError`
-- `isDate`
-- `isArguments`
-- `isFunction`
-- `isRegExp`
-- `isArray`
-- `isNumber`
-- `isString`
-- `isBoolean`
-- `isNull`
-- `isUndefined`
-- `isEmpty` (checks for `null` or `undefined`)
-- `isEmptyObject` (checks for no keys that are its own)
+- `getObjectType` - returns the object string of the value, e.g. when passed `/^a/` it'll return `"[object RegExp]"`
+- `getType` - returns lower case string of the type, e.g. when passed `/^a/` it'll return `"regex"`
+- `isPlainObject` - returns `true` if the value doesn't have a custom prototype
+- `isError` - returns `true` if the value an error, otherwise `false`
+- `isDate` - returns `true` if the value is a date, otherwise `false`
+- `isArguments` - returns `true` if the value is function arguments, otherwise `false`
+- `isFunction` - returns `true` if the value is a function, otherwise `false`
+- `isRegExp` - returns `true` if the value is a regular expression instance, otherwise `false`
+- `isArray` - returns `true` if the value is an array, otherwise `false`
+- `isNumber` - returns `true` if the value is a number (`"2"` is a string), otherwise `false`
+- `isString` - returns `true` if the value is a string, otherwise `false`
+- `isBoolean` - returns `true` if the value is a boolean, otherwise `false`
+- `isNull` - returns `true` if the value is null, otherwise `false`
+- `isUndefined` - returns `true` if the value is undefined, otherwise `false`
+- `isEmpty` - returns `true` if the value is `null` or `undefined`
+- `isEmptyObject` - returns `true` if the object has no keys that are its own
 
+
+### Notes
+
+Why should I use this `instanceof`? Under certain circumstances `instanceof` may not return the correct results.
+This occurs with [node's vm module](http://nodejs.org/api/vm.html#vm_globals) especially, and circumstances where an object's prototype has been dereferenced from the original.
+As such, for basic `==` and `===` checks (e.g. `a === null`), you're fine not using this, but for checks when you would do `instanceof` (e.g. `err instanceof Error`), you should try to use this instead.
 
 
 ## History
