@@ -21,10 +21,10 @@ Utilities to get and check variable types (isString, isPlainObject, isRegExp, et
 ### Example
 
 ``` javascript
-require('typechecker').isRegExp(/^a/)
+require('typechecker').isRegExp(/^a/)  // true
 ```
 
-### Available Methods
+### Methods
 
 - `getObjectType` (e.g. `[object RegExp]`)
 - `getType` (e.g. `regexp`)
