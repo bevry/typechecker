@@ -1,4 +1,9 @@
-# TypeChecker [![Build Status](https://secure.travis-ci.org/bevry/typechecker.png?branch=master)](http://travis-ci.org/bevry/typechecker)
+# TypeChecker
+
+[![Build Status](https://secure.travis-ci.org/bevry/typechecker.png?branch=master)](http://travis-ci.org/bevry/typechecker)
+[![NPM version](https://badge.fury.io/js/typechecker.png)](https://npmjs.org/package/typechecker)
+[![Flattr this project](https://raw.github.com/balupton/flattr-buttons/master/badge-89x18.gif)](http://flattr.com/thing/344188/balupton-on-Flattr)
+
 Utilities to get and check variable types (isString, isPlainObject, isRegExp, etc)
 
 
