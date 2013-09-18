@@ -1,1 +1,0 @@
-require('./out/lib/typechecker.js');

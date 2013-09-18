@@ -2,7 +2,7 @@
   "name": "typechecker",
   "repo": "bevry/typechecker",
   "description": "Utilities to get and check variable types (isString, isPlainObject, isRegExp, etc)",
-  "version": "2.0.5",
+  "version": "2.0.6",
   "keywords": [
     "types",
     "type",
@@ -26,9 +26,8 @@
   "dependencies": {},
   "development": {},
   "license": "MIT",
-  "main": "index.js",
+  "main": "./out/lib/typechecker.js",
   "scripts": [
-    "index.js",
     "out/lib/typechecker.js"
   ]
 }

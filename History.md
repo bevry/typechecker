@@ -1,5 +1,9 @@
 ## History
 
+- v2.0.6 September 18, 2013
+	- Fixed node release (since v2.0.5)
+	- Fixed bower release (since v2.0.4)
+
 - v2.0.5 September 18, 2013
 	- Fixed node release (since v2.0.4)
 
