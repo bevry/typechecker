@@ -1,5 +1,8 @@
 ## History
 
+- v2.0.2 September 28, 2013
+	- Republished for component.io compatibility
+
 - v2.0.1 March 27, 2013
 	- Fixed some package.json properties
 

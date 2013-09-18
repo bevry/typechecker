@@ -1,6 +1,6 @@
 {
   "name": "typechecker",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "Utilities to get and check variable types (isString, isPlainObject, isRegExp, etc)",
   "homepage": "https://github.com/bevry/typechecker",
   "keywords": [
