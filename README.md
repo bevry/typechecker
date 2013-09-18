@@ -13,7 +13,7 @@ Utilities to get and check variable types (isString, isPlainObject, isRegExp, et
 
 ### [Node](http://nodejs.org/), [Browserify](http://browserify.org/)
 - Use: `require('typechecker')`
-- Install: 'npm install --save typechecker'
+- Install: `npm install --save typechecker`
 
 ### [Ender](http://ender.jit.su/)
 - Use: `require('typechecker')`
