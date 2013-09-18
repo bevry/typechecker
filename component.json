@@ -1,0 +1,34 @@
+{
+  "name": "typechecker",
+  "repo": "bevry/typechecker",
+  "description": "Utilities to get and check variable types (isString, isPlainObject, isRegExp, etc)",
+  "version": "2.0.1",
+  "keywords": [
+    "types",
+    "type",
+    "check",
+    "gettype",
+    "isstring",
+    "isregexp",
+    "isregex",
+    "isplainobject",
+    "isobject",
+    "iserror",
+    "isnumber",
+    "isdate",
+    "isarguments",
+    "isarray",
+    "isnull",
+    "isempty",
+    "isundefined",
+    "isemptyobject"
+  ],
+  "dependencies": {},
+  "development": {},
+  "license": "MIT",
+  "main": "index.js",
+  "scripts": [
+    "index.js",
+    "out/lib/typechecker.js"
+  ]
+}
