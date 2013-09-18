@@ -1,10 +1,14 @@
 ## History
 
+- v2.0.4 September 28, 2013
+	- Fixed cyclic dependency problem on windows (since v2.0.3)
+	- Added bower support
+
 - v2.0.3 September 28, 2013
-	- Attempt at fixing circular dependency infinite loop introduced in v2.0.2
+	- Attempt at fixing circular dependency infinite loop (since v2.0.2)
 
 - v2.0.2 September 28, 2013
-	- Republished for component.io compatibility
+	- Added component.io support
 
 - v2.0.1 March 27, 2013
 	- Fixed some package.json properties

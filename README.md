@@ -1,24 +1,31 @@
 # TypeChecker
 
-[![Build Status](https://secure.travis-ci.org/bevry/typechecker.png?branch=master)](http://travis-ci.org/bevry/typechecker)
-[![NPM version](https://badge.fury.io/js/typechecker.png)](https://npmjs.org/package/typechecker)
-[![Flattr this project](https://raw.github.com/balupton/flattr-buttons/master/badge-89x18.gif)](http://flattr.com/thing/344188/balupton-on-Flattr)
+[![Build Status](https://secure.travis-ci.org/bevry/typechecker.png?branch=master)](http://travis-ci.org/bevry/typechecker "Check this project's build status on TravisCI")
+[![NPM version](https://badge.fury.io/js/typechecker.png)](https://npmjs.org/package/typechecker "View this project on NPM")
+[![Gittip donate button](http://badgr.co/gittip/bevry.png)](https://www.gittip.com/bevry/ "Donate weekly to this project using Gittip")
+[![Flattr donate button](https://raw.github.com/balupton/flattr-buttons/master/badge-89x18.gif)](http://flattr.com/thing/344188/balupton-on-Flattr "Donate monthly to this project using Flattr")
+[![PayPayl donate button](https://www.paypalobjects.com/en_AU/i/btn/btn_donate_SM.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=QB8GQPZAH84N6 "Donate once-off to this project using Paypal")
 
 Utilities to get and check variable types (isString, isPlainObject, isRegExp, etc)
 
 
-
 ## Install
 
-### Backend
+### [Node](http://nodejs.org/), [Browserify](http://browserify.org/)
+- Use: `require('typechecker')`
+- Install: 'npm install --save typechecker'
 
-1. [Install Node.js](http://bevry.me/node/install)
-2. `npm install --save typechecker`
+### [Ender](http://ender.jit.su/)
+- Use: `require('typechecker')`
+- Install: `ender add typechecker`
 
-### Frontend
+## [Component](http://github.com/component/component)
+- Use: `require('typechecker')`
+- Install: `component install bevry/typechecker`
 
-1. [See Browserify](http://browserify.org/)
-
+## [Bower](http://bower.io/)
+- Use: `require('typechecker')`
+- Install: `bower install typechecker`
 
 
 ## Usage
@@ -59,7 +66,6 @@ Plus things like `isEmptyObject` and `isPlainObject` are darn useful!
 
 ## History
 You can discover the history inside the [History.md](https://github.com/bevry/typechecker/blob/master/History.md#files) file
-
 
 
 ## License

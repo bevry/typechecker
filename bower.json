@@ -1,8 +1,12 @@
 {
   "name": "typechecker",
-  "repo": "bevry/typechecker",
-  "description": "Utilities to get and check variable types (isString, isPlainObject, isRegExp, etc)",
+  "main": "index.js",
   "version": "2.0.4",
+  "homepage": "https://github.com/bevry/typechecker",
+  "authors": [
+    "Benjamin Lupton <b@lupton.cc>"
+  ],
+  "description": "Utilities to get and check variable types (isString, isPlainObject, isRegExp, etc)",
   "keywords": [
     "types",
     "type",
@@ -23,12 +27,12 @@
     "isundefined",
     "isemptyobject"
   ],
-  "dependencies": {},
-  "development": {},
   "license": "MIT",
-  "main": "index.js",
-  "scripts": [
-    "index.js",
-    "out/lib/typechecker.js"
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
   ]
 }
