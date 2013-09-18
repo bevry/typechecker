@@ -1,7 +1,7 @@
 {
   "name": "typechecker",
   "main": "index.js",
-  "version": "2.0.4",
+  "version": "2.0.5",
   "homepage": "https://github.com/bevry/typechecker",
   "authors": [
     "Benjamin Lupton <b@lupton.cc>"

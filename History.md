@@ -1,13 +1,16 @@
 ## History
 
-- v2.0.4 September 28, 2013
+- v2.0.5 September 18, 2013
+	- Fixed node release (since v2.0.4)
+
+- v2.0.4 September 18, 2013
 	- Fixed cyclic dependency problem on windows (since v2.0.3)
 	- Added bower support
 
-- v2.0.3 September 28, 2013
+- v2.0.3 September 18, 2013
 	- Attempt at fixing circular dependency infinite loop (since v2.0.2)
 
-- v2.0.2 September 28, 2013
+- v2.0.2 September 18, 2013
 	- Added component.io support
 
 - v2.0.1 March 27, 2013
