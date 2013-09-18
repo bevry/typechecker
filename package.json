@@ -1,6 +1,6 @@
 {
   "name": "typechecker",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "description": "Utilities to get and check variable types (isString, isPlainObject, isRegExp, etc)",
   "homepage": "https://github.com/bevry/typechecker",
   "keywords": [
@@ -50,7 +50,7 @@
     "lib": "./out/lib"
   },
   "scripts": {
-    "preinstall": "npm install --force typechecker",
+    "preinstall": "node -e \"if(require('fs').existsSync('./.git')){ require('child_process').spawn('npm', ['install','--force',require('./package.json').name], {env:process.env,cwd:process.cwd(),stdio:'inherit'}); }\"",
     "test": "node ./out/test/everything-test.js"
   },
   "main": "./out/lib/typechecker.js"

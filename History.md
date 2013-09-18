@@ -1,5 +1,8 @@
 ## History
 
+- v2.0.3 September 28, 2013
+	- Attempt at fixing circular dependency infinite loop introduced in v2.0.2
+
 - v2.0.2 September 28, 2013
 	- Republished for component.io compatibility
 
