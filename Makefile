@@ -1,8 +1,6 @@
 # For Component.io
 
 build: components index.js
-	npm install
-	./node_modules/.bin/cake compile
 	@component build --dev
 
 components: component.json
