@@ -36,14 +36,6 @@ Utilities to get and check variable types (isString, isPlainObject, isRegExp, et
 - Use: `require('typechecker')`
 - Install: `ender add typechecker`
 
-### [Component](http://github.com/component/component)
-- Use: `require('typechecker')`
-- Install: `component install bevry/typechecker`
-
-### [Bower](http://bower.io/)
-- Use: `require('typechecker')`
-- Install: `bower install typechecker`
-
 <!-- /INSTALL -->
 
 
@@ -123,6 +115,7 @@ No sponsors yet! Will you be the first?
 These amazing people have contributed code to this project:
 
 - Benjamin Lupton <b@lupton.cc> (https://github.com/balupton) - [view contributions](https://github.com/bevry/typechecker/commits?author=balupton)
+- sfrdmn (https://github.com/sfrdmn) - [view contributions](https://github.com/bevry/typechecker/commits?author=sfrdmn)
 
 [Become a contributor!](https://github.com/bevry/typechecker/blob/master/Contributing.md#files)
 
@@ -135,7 +128,8 @@ These amazing people have contributed code to this project:
 
 Licensed under the incredibly [permissive](http://en.wikipedia.org/wiki/Permissive_free_software_licence) [MIT license](http://creativecommons.org/licenses/MIT/)
 
-Copyright &copy; Benjamin Lupton <b@lupton.cc>
+Copyright &copy; 2013+ Bevry Pty Ltd <us@bevry.me> (http://bevry.me)
+<br/>Copyright &copy; 2011-2012 Benjamin Lupton <b@lupton.cc> (http://balupton.com)
 
 <!-- /LICENSE -->
 

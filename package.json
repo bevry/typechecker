@@ -1,7 +1,7 @@
 {
   "title": "TypeChecker",
   "name": "typechecker",
-  "version": "2.0.7",
+  "version": "2.0.8",
   "description": "Utilities to get and check variable types (isString, isPlainObject, isRegExp, etc)",
   "homepage": "https://github.com/bevry/typechecker",
   "license": {
@@ -34,12 +34,13 @@
     "isundefined",
     "isemptyobject"
   ],
-  "author": "Benjamin Lupton <b@lupton.cc>",
+  "author": "2013+ Bevry Pty Ltd <us@bevry.me> (http://bevry.me), 2011-2012 Benjamin Lupton <b@lupton.cc> (http://balupton.com)",
   "maintainers": [
     "Benjamin Lupton <b@lupton.cc> (https://github.com/balupton)"
   ],
   "contributors": [
-    "Benjamin Lupton <b@lupton.cc> (https://github.com/balupton)"
+    "Benjamin Lupton <b@lupton.cc> (https://github.com/balupton)",
+    "sfrdmn (https://github.com/sfrdmn)"
   ],
   "bugs": {
     "url": "https://github.com/bevry/typechecker/issues"
