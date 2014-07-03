@@ -1,4 +1,18 @@
 # Define
+types = [
+	'Array'
+	'Boolean'
+	'Date'
+	'Error'
+	'Function'
+	'Null'
+	'Number'
+	'RegExp'
+	'String'
+	'Undefined'
+	'Object'  # deliberately last, as this is a catch all
+]
+
 typeChecker =
 
 	# Get the object type string
@@ -8,10 +22,10 @@ typeChecker =
 	# Get the type
 	getType: (value) ->
 		# Prepare
-		result = 'object'
+		result = null
 
 		# Cycle
-		for type in ['Array','RegExp','Date','Function','Boolean','Number','Error','String','Null','Undefined']
+		for type in types
 			if typeChecker['is'+type](value)
 				result = type.toLowerCase()
 				break
