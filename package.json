@@ -45,6 +45,7 @@
   ],
   "contributors": [
     "Benjamin Lupton <b@lupton.cc> (https://github.com/balupton)",
+    "joegesualdo (https://github.com/joegesualdo)",
     "sfrdmn (https://github.com/sfrdmn)"
   ],
   "bugs": {
@@ -57,9 +58,9 @@
   "engines": {
     "node": ">=0.4"
   },
+  "browsers": true,
   "dependencies": {},
   "devDependencies": {
-    "assert-helpers": "^1.0.2",
     "babel": "^5.8.21",
     "babel-eslint": "^4.0.10",
     "eslint": "^1.2.1",
@@ -69,8 +70,6 @@
   },
   "main": "./es6guardian.js",
   "scripts": {
-    "preinstall": "node --harmony ./cyclic.js",
-
     "clean": "node --harmony nakefile.js clean",
     "setup": "node --harmony nakefile.js setup",
     "compile": "node --harmony nakefile.js compile",
@@ -79,7 +78,6 @@
     "meta": "node --harmony nakefile.js meta",
     "prepare": "node --harmony nakefile.js prepare",
     "release": "node --harmony nakefile.js release",
-
     "test": "node --harmony ./es5/test/typechecker-test.js"
   },
   "nakeConfiguration": {
