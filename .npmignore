@@ -1,8 +1,12 @@
-# v1.3.3 October 26, 2013
+# 27 March 2015
 # https://github.com/bevry/base
 
 # Temp Files
+**/.docpad.db
+**/out.*
 **/*.log
+**/*.cpuprofile
+**/*.heapsnapshot
 
 # Build Files
 build/
@@ -10,7 +14,14 @@ components/
 bower_components/
 node_modules/
 
+# Private Files
+.env
+
 # Development Files
+.editorconfig
+.eslintrc
+.jshintrc
+coffeelint.json
 .travis*
 Cakefile
 Makefile
@@ -24,3 +35,8 @@ HISTORY.md
 template.js
 component.json
 bower.json
+
+# =====================================
+# CUSTOM MODIFICATIONS
+
+# None

@@ -1,15 +1,27 @@
-# v1.3.2 October 26, 2013
+# August 25, 2015
 # https://github.com/bevry/base
+
+# Use the latest travis infrastructure
+sudo: false
+
+# We use node
 language: node_js
-install: "npm install"
-before_script: "./node_modules/.bin/cake compile"
-script: "npm test"
 node_js:
-  - "0.8"
-  - "0.10"
-notifications:
-  irc:
-    - "irc.freenode.org#bevry-dev"
-  email:
-    recipients:
-      - travisci@bevry.me
+  - "0.12"
+  - iojs
+cache:
+  directories:
+    - node_modules
+
+# Prepare our tests
+# Ensure npm is the latest version that we support
+# Ensure the project is setup correctly and compiled
+install: "npm install -g npm@3 && npm run-script setup"
+before_script: "npm run-script compile"
+
+# Run our tests
+script: "npm test"
+
+# Custom notifications
+# travis encrypt --org "$SLACK_SUBDOMAIN:$SLACK_TRAVIS_TOKEN#updates" --add notifications.slack
+# travis encrypt --org "$TRAVIS_NOTIFICATION_EMAIL" --add notifications.email.recipients
