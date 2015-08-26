@@ -1,7 +1,7 @@
 {
   "title": "TypeChecker",
   "name": "typechecker",
-  "version": "2.1.0",
+  "version": "3.0.0",
   "description": "Utilities to get and check variable types (isString, isPlainObject, isRegExp, etc)",
   "homepage": "https://github.com/bevry/typechecker",
   "license": {
@@ -61,6 +61,7 @@
   "browsers": true,
   "dependencies": {},
   "devDependencies": {
+    "assert-helpers": "^1.0.2",
     "babel": "^5.8.21",
     "babel-eslint": "^4.0.10",
     "eslint": "^1.2.1",

@@ -1,5 +1,13 @@
 # History
 
+## v3.0.0 August 27, 2015
+- Added new `class` type that the `getType` method can now return
+- Added the methods:
+ 	- `isClass` (checks for native and conventional classes)
+	- `isNativeClass` (checks for native ES6 classes)
+	- `isConventionalClass` (checks for functions that start with a capital letter)
+- Anonymous compiled/non-native classes may be detected as functions instead of as classes. If you rely on class detection, be aware of this, and document this to your users accordingly.
+
 ## v2.1.0 August 26, 2015
 - Fixed `isEmpty` - it use to return the opposite of what was empty
 - Converted from CoffeeScript to ES6+

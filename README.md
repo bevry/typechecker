@@ -47,7 +47,7 @@ Under certain circumstances `instanceof` may not return the correct results. Thi
 ### [Browserify](http://browserify.org/)
 - Use: `require('typechecker')`
 - Install: `npm install --save typechecker`
-- CDN URL: `//wzrd.in/bundle/typechecker@2.1.0`
+- CDN URL: `//wzrd.in/bundle/typechecker@3.0.0`
 
 ### [Ender](http://enderjs.com)
 - Use: `require('typechecker')`
@@ -76,12 +76,15 @@ Values:
 - `isPlainObject` - returns `true` if the value doesn't have a custom prototype
 - `isEmpty` - returns `true` if the value is `null` or `undefined`
 - `isEmptyObject` - returns `true` if the object has no keys that are its own
+- `isNativeClass` - returns `true` if the value is a native ES6 class
+- `isConventionalClass` - returns `true` if the value is a function which name starts with a capital letter
 
 Types:
 
 - `isError` - returns `true` if the value is an error, otherwise `false`
 - `isDate` - returns `true` if the value is a date, otherwise `false`
 - `isArguments` - returns `true` if the value is function arguments, otherwise `false`
+- `isClass` - returns `true` if the value is a native or conventional class, otherwise `false`
 - `isFunction` - returns `true` if the value is a function, otherwise `false`
 - `isRegExp` - returns `true` if the value is a regular expression instance, otherwise `false`
 - `isArray` - returns `true` if the value is an array, otherwise `false`

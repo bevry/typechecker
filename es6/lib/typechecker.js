@@ -4,6 +4,7 @@ const types = [
 	'Boolean',
 	'Date',
 	'Error',
+	'Class',
 	'Function',
 	'Null',
 	'Number',
@@ -61,8 +62,37 @@ const typeChecker = {
 		return true
 	},
 
+	// Is ES6+ class
+	// If changed, isClass must also be updated
+	isNativeClass: function (value) {
+		return typeof value === 'function' && value.toString().indexOf('class') === 0
+	},
+
+	// Is Conventional Class
+	// Looks for function with capital first letter: function MyClass
+	// First letter is the 9th character
+	// Uppercase letters are between 65 and 90 inclusive
+	// If changed, isClass must also be updated
+	isConventionalClass: function (value) {
+		let c; return typeof value === 'function' && (c = value.toString().charCodeAt(9)) >= 65 && c <= 90
+	},
+
+	// There use to be code here that checked for CoffeeScript's "function _Class" at index 0 (which was sound)
+	// But it would also check for Babel's __classCallCheck anywhere in the function, which wasn't sound
+	// as somewhere in the function, another class could be defined, which would provide a false positive
+	// So instead, proxied classes are ignored, as we can't guarantee their accuracy, would also be an ever growing set
+
+
 	// -----------------------------------
 	// Types
+
+	// Is Class
+	isClass: function (value) {
+		let s, c; return typeof value === 'function' && (
+			(s = value.toString()).indexOf('class') === 0 ||
+			((c = s.charCodeAt(9)) >= 65 && c <= 90)
+		)
+	},
 
 	// Checks to see if a value is an object
 	isObject: function (value) {
