@@ -52,7 +52,7 @@ require('typechecker').isRegExp(/^a/)  // returns true
 - `getObjectType` - returns the object string of the value, e.g. when passed `/^a/` it'll return `"[object RegExp]"`
 - `getType` - returns lower case string of the type, e.g. when passed `/^a/` it'll return `"regex"`
 - `isPlainObject` - returns `true` if the value doesn't have a custom prototype
-- `isError` - returns `true` if the value an error, otherwise `false`
+- `isError` - returns `true` if the value is an error, otherwise `false`
 - `isDate` - returns `true` if the value is a date, otherwise `false`
 - `isArguments` - returns `true` if the value is function arguments, otherwise `false`
 - `isFunction` - returns `true` if the value is a function, otherwise `false`
