@@ -1,7 +1,7 @@
 // Import
 const {equal} = require('assert-helpers')
 const joe = require('joe')
-const typeChecker = require('../lib/typechecker')
+const typeChecker = require('../..')
 const util = require('util')
 
 
