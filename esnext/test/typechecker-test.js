@@ -114,9 +114,12 @@ joe.describe('typechecker', function (describe) {
 		}
 
 		// Run
-		for ( let [value, typeExpected] of typeTestData ) {
+		// Do this for for...of as babel's compilation of that doesn't work with node 0.10
+		typeTestData.forEach(function (item) {
+			const value = item[0]
+			const typeExpected = item[1]
 			const typeActual = typeChecker.getType(value)
 			testType(value, typeExpected, typeActual)
-		}
+		})
 	})
 })
