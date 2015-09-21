@@ -104,7 +104,6 @@ joe.describe('typechecker', function (describe) {
 		}
 		catch ( err ) {
 			console.log("Didn't add native class types as native classes are not supported on this environment: " + err.message)
-			return
 		}
 
 		// Handler
