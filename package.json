@@ -85,7 +85,7 @@
   "main": "./esnextguardian.js",
   "browser": "./es5/lib/typechecker.js",
   "jspm": {
-      "main": "./esnext/lib/typechecker.js"
+    "main": "./esnext/lib/typechecker.js"
   },
   "scripts": {
     "clean": "node --harmony nakefile.js clean",
