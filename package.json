@@ -1,23 +1,35 @@
 {
   "title": "TypeChecker",
   "name": "typechecker",
-  "version": "3.0.0",
+  "version": "4.0.0",
   "description": "Utilities to get and check variable types (isString, isPlainObject, isRegExp, etc)",
   "homepage": "https://github.com/bevry/typechecker",
-  "license": {
-    "type": "MIT"
-  },
+  "license": "MIT",
   "badges": {
-    "travis": true,
-    "npm": true,
-    "npmdownloads": true,
-    "david": true,
-    "daviddev": true,
-    "gratipay": "bevry",
-    "flattr": "344188/balupton-on-Flattr",
-    "paypal": "QB8GQPZAH84N6",
-    "bitcoin": "https://bevry.me/bitcoin",
-    "wishlist": "https://bevry.me/wishlist"
+    "list": [
+      "travisci",
+      "npmversion",
+      "npmdownloads",
+      "daviddm",
+      "daviddmdev",
+      "---",
+      "slackin",
+      "patreon",
+      "gratipay",
+      "flattr",
+      "paypal",
+      "bitcoin",
+      "wishlist"
+    ],
+    "config": {
+      "patreonUsername": "bevry",
+      "gratipayUsername": "bevry",
+      "flattrCode": "344188/balupton-on-Flattr",
+      "paypalButtonID": "QB8GQPZAH84N6",
+      "bitcoinURL": "https://bevry.me/bitcoin",
+      "wishlistURL": "https://bevry.me/wishlist",
+      "slackinURL": "https://slack.bevry.me"
+    }
   },
   "keywords": [
     "types",
@@ -41,12 +53,12 @@
   ],
   "author": "2013+ Bevry Pty Ltd <us@bevry.me> (http://bevry.me), 2011-2012 Benjamin Lupton <b@lupton.cc> (http://balupton.com)",
   "maintainers": [
-    "Benjamin Lupton <b@lupton.cc> (https://github.com/balupton)"
+    "Benjamin Lupton <b@lupton.cc> (http://balupton.com)"
   ],
   "contributors": [
-    "Benjamin Lupton <b@lupton.cc> (https://github.com/balupton)",
-    "joegesualdo (https://github.com/joegesualdo)",
-    "sfrdmn (https://github.com/sfrdmn)"
+    "Benjamin Lupton <b@lupton.cc> (http://balupton.com)",
+    "Joe Gesualdo <joegesualdo@gmail.com> (https://github.com/joegesualdo)",
+    "Sean Fridman <fridman@mail.sfsu.edu> (www.seanfridman.com)"
   ],
   "bugs": {
     "url": "https://github.com/bevry/typechecker/issues"
@@ -56,20 +68,25 @@
     "url": "http://github.com/bevry/typechecker.git"
   },
   "engines": {
-    "node": ">=0.4"
+    "node": ">=0.10"
   },
-  "browsers": true,
-  "dependencies": {},
+  "dependencies": {
+    "esnextguardian": "^1.1.0"
+  },
   "devDependencies": {
-    "assert-helpers": "^1.0.2",
-    "babel": "^5.8.21",
-    "babel-eslint": "^4.0.10",
-    "eslint": "^1.2.1",
+    "assert-helpers": "^4.0.1",
+    "babel": "^5.8.23",
+    "babel-eslint": "^4.1.3",
+    "eslint": "^1.5.0",
     "joe": "^1.6.0",
     "joe-reporter-console": "^1.2.1",
-    "projectz": "^0.5.0"
+    "projectz": "^1.0.6"
   },
-  "main": "./es6guardian.js",
+  "main": "./esnextguardian.js",
+  "browser": "./es5/lib/typechecker.js",
+  "jspm": {
+      "main": "./esnext/lib/typechecker.js"
+  },
   "scripts": {
     "clean": "node --harmony nakefile.js clean",
     "setup": "node --harmony nakefile.js setup",
@@ -82,7 +99,7 @@
     "test": "node --harmony ./es5/test/typechecker-test.js"
   },
   "nakeConfiguration": {
-    "BABEL_SRC_PATH": "es6",
-    "ESLINT_SRC_PATH": "es6"
+    "BABEL_SRC_PATH": "esnext",
+    "ESLINT_SRC_PATH": "esnext"
   }
 }

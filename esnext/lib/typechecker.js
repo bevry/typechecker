@@ -1,4 +1,4 @@
-// Define
+// Types
 const types = [
 	'Array',
 	'Boolean',
@@ -11,9 +11,12 @@ const types = [
 	'RegExp',
 	'String',
 	'Undefined',
+	'Map',
+	'WeakMap',
 	'Object'  // deliberately last, as this is a catch all
 ]
 
+// Module
 const typeChecker = {
 
 	// -----------------------------------
@@ -27,7 +30,8 @@ const typeChecker = {
 	// Get the type
 	getType: function (value) {
 		// Cycle
-		for ( let type of types ) {
+		for ( let i = 0, n = types.length, type; i < n; ++i ) {
+			type = types[i]
 			if ( typeChecker['is' + type](value) ) {
 				return type.toLowerCase()
 			}
@@ -88,6 +92,7 @@ const typeChecker = {
 
 	// Is Class
 	isClass: function (value) {
+		/* eslint no-extra-parens:0 */
 		let s, c; return typeof value === 'function' && (
 			(s = value.toString()).indexOf('class') === 0 ||
 			((c = s.charCodeAt(9)) >= 65 && c <= 90)
@@ -153,9 +158,19 @@ const typeChecker = {
 	// Checks to see if a value is undefined
 	isUndefined: function (value) {
 		return typeof value === 'undefined'
+	},
+
+	// Checks to see if a value is a Map
+	isMap: function (value) {
+		return typeChecker.getObjectType(value) === '[object Map]'
+	},
+
+	// Checks to see if a value is a WeakMap
+	isWeakMap: function (value) {
+		return typeChecker.getObjectType(value) === '[object WeakMap]'
 	}
+
 }
 
-
 // Export
-module.exports = typeChecker
+export default typeChecker

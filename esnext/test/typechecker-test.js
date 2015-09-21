@@ -1,8 +1,7 @@
 // Import
-const {equal} = require('assert-helpers')
+const {equal, inspect} = require('assert-helpers')
 const joe = require('joe')
 const typeChecker = require('../..')
-const util = require('util')
 
 
 // =====================================
@@ -24,6 +23,7 @@ joe.describe('typechecker', function (describe) {
 			equal(typeChecker.isEmpty(false), false, 'false should not be considered empty')
 			equal(typeChecker.isEmpty(0), false, '0 should not be considered empty')
 			equal(typeChecker.isEmpty(''), false, '"" should not be considered empty')
+			equal(typeChecker.isEmpty({}), false, '{} should not be considered empty')
 		})
 
 		it('isEmptyObject', function () {
@@ -39,6 +39,8 @@ joe.describe('typechecker', function (describe) {
 				}
 			}
 			equal(typeChecker.isEmptyObject({}), true, '{} should be considered empty')
+			equal(typeChecker.isEmptyObject(new Map()), true, 'new Map() should be considered empty')
+			equal(typeChecker.isEmptyObject(new WeakMap()), true, 'new WeakMap() should be considered empty')
 			equal(typeChecker.isEmptyObject({a: 1}), false, '{a: 1} should not be considered empty')
 			equal(typeChecker.isEmptyObject(new A()), true, 'class A instantiation should be considered empty')
 			equal(typeChecker.isEmptyObject(new B()), true, 'class B instantiation should not be considered empty')
@@ -79,6 +81,8 @@ joe.describe('typechecker', function (describe) {
 			[true, 'boolean'],
 			['', 'string'],
 			[{}, 'object'],
+			[new Map(), 'map'],
+			[new WeakMap(), 'weakmap'],
 			[class CompiledNativeClass {}, 'class'],
 			[class compiledNativeClass {}, 'function'],
 			[class {}, 'function'],
@@ -103,11 +107,9 @@ joe.describe('typechecker', function (describe) {
 			return
 		}
 
-
-
 		// Handler
-		const testType = function (value, typeExpected, typeActual) {
-			it(`should detect ${util.inspect(value)} is of type ${typeExpected}`, function () {
+		function testType (value, typeExpected, typeActual) {
+			it(`should detect ${inspect(value)} is of type ${typeExpected}`, function () {
 				equal(typeActual, typeExpected)
 			})
 		}

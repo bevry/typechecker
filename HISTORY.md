@@ -1,5 +1,11 @@
 # History
 
+## v4.0.0 September 21, 2015
+- Added new `map` and `weakmap` types that the `getType` method can now return
+- Added the methods:
+ 	- `isMap` (checks for Map instance)
+	- `isWeakMap` (checks for WeakMap instance)
+
 ## v3.0.0 August 27, 2015
 - Added new `class` type that the `getType` method can now return
 - Added the methods:
