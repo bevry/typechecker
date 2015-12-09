@@ -1,3 +1,6 @@
+/* eslint no-console:0, space-before-keywords:0, no-undefined:0, no-magic-numbers:0 */
+'use strict'
+
 // Import
 const {equal, inspect} = require('assert-helpers')
 const joe = require('joe')
@@ -93,7 +96,6 @@ joe.describe('typechecker', function (describe) {
 			[new Error(), 'error'],
 			[[], 'array'],
 			[null, 'null'],
-			/* eslint no-undefined:0 */
 			[undefined, 'undefined'],
 			[/a/, 'regexp'],
 			[1, 'number'],
