@@ -1,4 +1,4 @@
-// 2015 December 1
+// 2016 January 15
 // https://github.com/bevry/base
 // http://eslint.org
 /* eslint no-warning-comments: 0 */
@@ -687,7 +687,8 @@ module.exports = {
 
 		// Controversial change, but makes sense to move towards to reduce the risk of bad people overwriting apply and call
 		// https://github.com/eslint/eslint/issues/ERROR939
-		'prefer-reflect': WARN,
+		// Ignoring because node does not yet support it, so we don't want to get the performance hit of using the compiled ES5 version
+		'prefer-reflect': IGNORE,
 
 		// Sure, why not
 		'prefer-spread': ERROR,

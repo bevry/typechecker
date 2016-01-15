@@ -1,5 +1,9 @@
 # History
 
+## v4.1.0 2016 January 15
+- Now defined as a class with static methods instead of an object with functions as that is essentially what it is
+- Repackaged
+
 ## v4.0.1 2015 December 9
 - Updated base files
 - Updated dependencies
