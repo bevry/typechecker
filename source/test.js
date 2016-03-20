@@ -1,26 +1,26 @@
+/* @flow */
 /* eslint no-console:0, space-before-keywords:0, no-undefined:0, no-magic-numbers:0 */
-'use strict'
 
 // Import
-const {equal, inspect} = require('assert-helpers')
-const joe = require('joe')
-const typeChecker = require('../..')
+import {equal, inspect} from 'assert-helpers'
+import {suite} from 'joe'
+import * as typeChecker from './index.js'
 
 
 // =====================================
 // Tests
 
 // Types
-joe.describe('typechecker', function (describe) {
+suite('typechecker', function (suite) {
 
-	describe('value', function (describe, it) {
-		it('isPlainObject', function () {
+	suite('value', function (suite, test) {
+		test('isPlainObject', function () {
 			class A {}
 			equal(typeChecker.isPlainObject({}), true, 'object {} should be a plain object')
 			equal(typeChecker.isPlainObject(new A()), false, 'class A instantiation should not be a plain object')
 		})
 
-		it('isEmpty', function () {
+		test('isEmpty', function () {
 			equal(typeChecker.isEmpty(null), true, 'null should be considered empty')
 			equal(typeChecker.isEmpty(), true, 'undefined should be considered empty')
 			equal(typeChecker.isEmpty(false), false, 'false should not be considered empty')
@@ -29,13 +29,14 @@ joe.describe('typechecker', function (describe) {
 			equal(typeChecker.isEmpty({}), false, '{} should not be considered empty')
 		})
 
-		it('isEmptyObject', function () {
+		test('isEmptyObject', function () {
 			class A {}
 			class B {
 				z () {}
 			}
 			class C extends B {}
 			class D extends C {
+				/* :: greeting:?string; */
 				constructor () {
 					super()
 					this.greeting = 'hello'
@@ -51,7 +52,7 @@ joe.describe('typechecker', function (describe) {
 			equal(typeChecker.isEmptyObject(new D()), false, 'class D instantiation should not be considered empty')
 		})
 
-		it('isNativeClass', function () {
+		test('isNativeClass', function () {
 			let A, B
 			try {
 				/* eslint no-eval:0 */
@@ -67,7 +68,7 @@ joe.describe('typechecker', function (describe) {
 			equal(typeChecker.isNativeClass(function () {}), false, 'function () {} should not be considered native class')
 		})
 
-		it('isConventionalClass', function () {
+		test('isConventionalClass', function () {
 			equal(typeChecker.isConventionalClass(class A {}), true, 'compiled class A {} should be considered conventional class')
 			equal(typeChecker.isConventionalClass(class a {}), false, 'compiled class {} should not be considered conventional class')
 			equal(typeChecker.isConventionalClass(class {}), false, 'compiled class {} should not be considered conventional class')
@@ -77,7 +78,7 @@ joe.describe('typechecker', function (describe) {
 		})
 	})
 
-	describe('types', function (describe, it) {
+	suite('types', function (suite, test) {
 		// Prepare
 		const typeTestData = [
 			[false, 'boolean'],
@@ -110,7 +111,7 @@ joe.describe('typechecker', function (describe) {
 
 		// Handler
 		function testType (value, typeExpected, typeActual) {
-			it(`should detect ${inspect(value)} is of type ${typeExpected}`, function () {
+			test(`should detect ${inspect(value)} is of type ${typeExpected}`, function () {
 				equal(typeActual, typeExpected)
 			})
 		}

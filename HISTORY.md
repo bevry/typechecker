@@ -1,5 +1,9 @@
 # History
 
+## v4.2.0 2016 March 20
+- Now defined as individual methods
+- Repackaged
+
 ## v4.1.0 2016 January 15
 - Now defined as a class with static methods instead of an object with functions as that is essentially what it is
 - Repackaged

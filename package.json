@@ -1,7 +1,7 @@
 {
   "title": "TypeChecker",
   "name": "typechecker",
-  "version": "4.1.0",
+  "version": "4.2.0",
   "description": "Utilities to get and check variable types (isString, isPlainObject, isRegExp, etc)",
   "homepage": "https://github.com/bevry/typechecker",
   "license": "MIT",
@@ -64,7 +64,8 @@
   "contributors": [
     "Benjamin Lupton <b@lupton.cc> (http://balupton.com)",
     "Joe Gesualdo <joegesualdo@gmail.com> (https://github.com/joegesualdo)",
-    "Sean Fridman <mail@seanfridman.com> (http://seanfridman.com)"
+    "Sean Fridman <mail@seanfridman.com> (http://seanfridman.com)",
+    "Benjamin Lupton (https://balupton.com)"
   ],
   "bugs": {
     "url": "https://github.com/bevry/typechecker/issues"
@@ -74,10 +75,36 @@
     "url": "http://github.com/bevry/typechecker.git"
   },
   "engines": {
-    "node": ">=0.12"
+    "node": ">=0.10"
   },
+  "editions": [
+    {
+      "description": "Source + ESNext + Import + Flow Type Comments",
+      "directory": "source",
+      "entry": "source/index.js",
+      "syntaxes": [
+        "javascript",
+        "esnext",
+        "import",
+        "const",
+        "let",
+        "flow type comments"
+      ]
+    },
+    {
+      "description": "Babel Compiled + ES2015 + Require",
+      "directory": "es2015",
+      "entry": "es2015/index.js",
+      "syntaxes": [
+        "javascript",
+        "es2015",
+        "require"
+      ]
+    }
+  ],
   "main": "index.js",
-  "browser": "es2015/typechecker.js",
+  "jsnext:main": "source/index.js",
+  "browser": "es2015/index.js",
   "scripts": {
     "setup": "npm install",
     "clean": "rm -Rf ./docs ./es2015",
@@ -93,7 +120,7 @@
     "pretest": "npm run test:eslint && npm run test:flow",
     "test:eslint": "eslint ./source",
     "test:flow": "flow check",
-    "test": "node --harmony ./es2015/test.js"
+    "test": "node --harmony -e \"require('editions').requirePackage(process.cwd(), require, 'test.js')\""
   },
   "dependencies": {
     "editions": "^1.1.0"

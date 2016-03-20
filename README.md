@@ -38,6 +38,11 @@ Why should I use this instead of say `instanceof`?
 Under certain circumstances `instanceof` may not return the correct results. This occurs with [node's vm module](http://nodejs.org/api/vm.html#vm_globals) especially, and circumstances where an object's prototype has been dereferenced from the original. As such, for basic `==` and `===` checks (like `a === null`), you're fine not using this, but for checks when you would have done `instanceof` (like `err instanceof Error`), you should try to use this instead. Plus things like `isEmpty`, `isEmptyObject` and `isPlainObject` are darn useful!
 
 
+## Usage
+
+[API Documentation.](http://rawgit.com/bevry/typechecker/master/docs/index.html)
+
+
 <!-- INSTALL/ -->
 
 <h2>Install</h2>
@@ -49,52 +54,13 @@ Under certain circumstances `instanceof` may not return the correct results. Thi
 <a href="http://browserify.org" title="Browserify lets you require('modules') in the browser by bundling up all of your dependencies"><h3>Browserify</h3></a><ul>
 <li>Install: <code>npm install --save typechecker</code></li>
 <li>Use: <code>require('typechecker')</code></li>
-<li>CDN URL: <code>//wzrd.in/bundle/typechecker@4.1.0</code></li></ul>
+<li>CDN URL: <code>//wzrd.in/bundle/typechecker@4.2.0</code></li></ul>
 
 <a href="http://enderjs.com" title="Ender is a full featured package manager for your browser"><h3>Ender</h3></a><ul>
 <li>Install: <code>ender add typechecker</code></li>
 <li>Use: <code>require('typechecker')</code></li></ul>
 
 <!-- /INSTALL -->
-
-
-## Usage
-
-### Example
-
-``` javascript
-require('typechecker').isRegExp(/^a/)  // returns true
-```
-
-### Methods
-
-Helpers:
-
-- `getObjectType` - returns the object string of the value, e.g. when passed `/^a/` it'll return `"[object RegExp]"`
-- `getType` - returns lower case string of the type, e.g. when passed `/^a/` it'll return `"regex"`
-
-Values:
-
-- `isPlainObject` - returns `true` if the value doesn't have a custom prototype
-- `isEmpty` - returns `true` if the value is `null` or `undefined`
-- `isEmptyObject` - returns `true` if the object has no keys that are its own
-- `isNativeClass` - returns `true` if the value is a native ES6 class
-- `isConventionalClass` - returns `true` if the value is a function which name starts with a capital letter
-
-Types:
-
-- `isError` - returns `true` if the value is an error, otherwise `false`
-- `isDate` - returns `true` if the value is a date, otherwise `false`
-- `isArguments` - returns `true` if the value is function arguments, otherwise `false`
-- `isClass` - returns `true` if the value is a native or conventional class, otherwise `false`
-- `isFunction` - returns `true` if the value is a function, otherwise `false`
-- `isRegExp` - returns `true` if the value is a regular expression instance, otherwise `false`
-- `isArray` - returns `true` if the value is an array, otherwise `false`
-- `isNumber` - returns `true` if the value is a number (`"2"` is a string), otherwise `false`
-- `isString` - returns `true` if the value is a string, otherwise `false`
-- `isBoolean` - returns `true` if the value is a boolean, otherwise `false`
-- `isNull` - returns `true` if the value is null, otherwise `false`
-- `isUndefined` - returns `true` if the value is undefined, otherwise `false`
 
 
 <!-- HISTORY/ -->
@@ -123,7 +89,7 @@ Types:
 
 These amazing people are maintaining this project:
 
-<ul><li><a href="http://balupton.com">Benjamin Lupton</a> — <a href="https://github.com/bevry/typechecker/commits?author=balupton" title="View the GitHub contributions of Benjamin Lupton on repository bevry/typechecker">view contributions</a></li></ul>
+<ul><li><a href="http://balupton.com">Benjamin Lupton</a></li></ul>
 
 <h3>Sponsors</h3>
 
@@ -140,9 +106,10 @@ No sponsors yet! Will you be the first?
 
 These amazing people have contributed code to this project:
 
-<ul><li><a href="http://balupton.com">Benjamin Lupton</a> — <a href="https://github.com/bevry/typechecker/commits?author=balupton" title="View the GitHub contributions of Benjamin Lupton on repository bevry/typechecker">view contributions</a></li>
+<ul><li><a href="http://balupton.com">Benjamin Lupton</a></li>
 <li><a href="https://github.com/joegesualdo">Joe Gesualdo</a> — <a href="https://github.com/bevry/typechecker/commits?author=joegesualdo" title="View the GitHub contributions of Joe Gesualdo on repository bevry/typechecker">view contributions</a></li>
-<li><a href="http://seanfridman.com">Sean Fridman</a> — <a href="https://github.com/bevry/typechecker/commits?author=sfrdmn" title="View the GitHub contributions of Sean Fridman on repository bevry/typechecker">view contributions</a></li></ul>
+<li><a href="http://seanfridman.com">Sean Fridman</a> — <a href="https://github.com/bevry/typechecker/commits?author=sfrdmn" title="View the GitHub contributions of Sean Fridman on repository bevry/typechecker">view contributions</a></li>
+<li><a href="https://balupton.com">Benjamin Lupton</a> — <a href="https://github.com/bevry/typechecker/commits?author=balupton" title="View the GitHub contributions of Benjamin Lupton on repository bevry/typechecker">view contributions</a></li></ul>
 
 <a href="https://github.com/bevry/typechecker/blob/master/CONTRIBUTING.md#files">Discover how you can contribute by heading on over to the <code>CONTRIBUTING.md</code> file.</a>
 

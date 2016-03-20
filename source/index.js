@@ -1,184 +1,272 @@
-'use strict'
+/* @flow */
 
 // Character positions
 const INDEX_OF_FUNCTION_NAME = 9  // "function X", X is at index 9
 const FIRST_UPPERCASE_INDEX_IN_ASCII = 65  // A is at index 65 in ASCII
 const LAST_UPPERCASE_INDEX_IN_ASCII = 90   // Z is at index 90 in ASCII
 
-// Module
-module.exports = class TypeChecker {
-	// -----------------------------------
-	// Helpers
+// -----------------------------------
+// Helpers
 
-	// Get an array of the available types in CamelCase
-	static getTypes () {
-		return [
-			'Array',
-			'Boolean',
-			'Date',
-			'Error',
-			'Class',
-			'Function',
-			'Null',
-			'Number',
-			'RegExp',
-			'String',
-			'Undefined',
-			'Map',
-			'WeakMap',
-			'Object'  // deliberately last, as this is a catch all
-		]
-	}
+/**
+ * Get an array of the available types in CamelCase
+ * @returns {Array}
+ */
+export function getTypes () /* :Array<string> */ {
+	return [
+		'Array',
+		'Boolean',
+		'Date',
+		'Error',
+		'Class',
+		'Function',
+		'Null',
+		'Number',
+		'RegExp',
+		'String',
+		'Undefined',
+		'Map',
+		'WeakMap',
+		'Object'  // deliberately last, as this is a catch all
+	]
+}
 
-	// Get the type of the value in lowercase
-	static getType (value) {
-		// Cycle the keys of this class
-		const types = this.getTypes()
-		for ( let i = 0; i < types.length; ++i ) {
-			const type = types[i]
-			if ( this['is' + type](value) ) {
-				return type.toLowerCase()
-			}
+/**
+ * Get the type of the value in lowercase
+ * @param {any} value
+ * @returns {?string}
+ */
+export function getType (value /* :mixed */) /* :?string */ {
+	// Cycle the keys of this class
+	// Don't use for of loop as that breaks node 0.10 compat
+	const types = getTypes()
+	for ( let i = 0; i < types.length; ++i ) {
+		const type = types[i]
+		if ( this['is' + type](value) ) {
+			return type.toLowerCase()
 		}
-
-		// Return
-		return null
 	}
 
-	// Get the object type string
-	static getObjectType (value) {
-		return Object.prototype.toString.call(value)
-	}
+	// Return
+	return null
+}
 
-	// -----------------------------------
-	// Values
+/**
+ * Get the object type string
+ * @param {any} value
+ * @returns {string}
+ */
+export function getObjectType (value /* :mixed */) /* :string */ {
+	return Object.prototype.toString.call(value)
+}
 
-	// Checks to see if a value is an object and only an object
-	static isPlainObject (value) {
-		/* eslint no-proto:0 */
-		return this.isObject(value) && value.__proto__ === Object.prototype
-	}
+// -----------------------------------
+// Values
 
-	// Checks to see if a value is empty
-	static isEmpty (value) {
-		return value == null
-	}
+/**
+ * Checks to see if a value is an object
+ * @param {any} value
+ * @returns {boolean}
+ */
+export function isObject (value /* :any */ ) /* :boolean */ {
+	// null and undefined are objects, hence the truthy check
+	return value && typeof value === 'object'
+}
 
-	// Is empty object
-	static isEmptyObject (value) {
-		// We could use Object.keys, but this is more effecient
-		for ( const key in value ) {
-			if ( value.hasOwnProperty(key) ) {
-				return false
-			}
+/**
+ * Checks to see if a value is an object and only an object
+ * @param {any} value
+ * @returns {boolean}
+ */
+export function isPlainObject (value /* :any */ ) /* :boolean */ {
+	/* eslint no-proto:0 */
+	return isObject(value) && value.__proto__ === Object.prototype
+}
+
+/**
+ * Checks to see if a value is empty
+ * @param {any} value
+ * @returns {boolean}
+ */
+export function isEmpty (value /* :mixed */ ) /* :boolean */ {
+	return value == null
+}
+
+/**
+ * Is empty object
+ * @param {any} value
+ * @returns {boolean}
+ */
+export function isEmptyObject (value /* :Object */ ) /* :boolean */ {
+	// We could use Object.keys, but this is more effecient
+	for ( const key in value ) {
+		if ( value.hasOwnProperty(key) ) {
+			return false
 		}
-		return true
 	}
+	return true
+}
 
-	// Is ES6+ class
-	// If changed, isClass must also be updated
-	static isNativeClass (value) {
-		return typeof value === 'function' && value.toString().indexOf('class') === 0
-	}
+/**
+ * Is ES6+ class
+ * @param {any} value
+ * @returns {boolean}
+ */
+export function isNativeClass (value /* :mixed */ ) /* :boolean */ {
+	// NOTE TO DEVELOPER: If any of this changes, isClass must also be updated
+	return typeof value === 'function' && value.toString().indexOf('class') === 0
+}
 
-	// Is Conventional Class
-	// Looks for function with capital first letter MyClass
-	// First letter is the 9th character
-	// If changed, isClass must also be updated
-	static isConventionalClass (value) {
-		let c; return typeof value === 'function' &&
-			(c = value.toString().charCodeAt(INDEX_OF_FUNCTION_NAME)) >= FIRST_UPPERCASE_INDEX_IN_ASCII
-				&& c <= LAST_UPPERCASE_INDEX_IN_ASCII
-	}
+/**
+ * Is Conventional Class
+ * Looks for function with capital first letter MyClass
+ * First letter is the 9th character
+ * If changed, isClass must also be updated
+ * @param {any} value
+ * @returns {boolean}
+ */
+export function isConventionalClass (value /* :any */ ) /* :boolean */ {
+	if ( typeof value !== 'function' )  return false
+	const c = value.toString().charCodeAt(INDEX_OF_FUNCTION_NAME)
+	return c >= FIRST_UPPERCASE_INDEX_IN_ASCII && c <= LAST_UPPERCASE_INDEX_IN_ASCII
+}
 
-	// There use to be code here that checked for CoffeeScript's "function _Class" at index 0 (which was sound)
-	// But it would also check for Babel's __classCallCheck anywhere in the function, which wasn't sound
-	// as somewhere in the function, another class could be defined, which would provide a false positive
-	// So instead, proxied classes are ignored, as we can't guarantee their accuracy, would also be an ever growing set
+// There use to be code here that checked for CoffeeScript's "function _Class" at index 0 (which was sound)
+// But it would also check for Babel's __classCallCheck anywhere in the function, which wasn't sound
+// as somewhere in the function, another class could be defined, which would provide a false positive
+// So instead, proxied classes are ignored, as we can't guarantee their accuracy, would also be an ever growing set
 
 
-	// -----------------------------------
-	// Types
+// -----------------------------------
+// Types
 
-	// Is Class
-	static isClass (value) {
-		/* eslint no-extra-parens:0 */
-		let s, c; return typeof value === 'function' && (
-			(s = value.toString()).indexOf('class') === 0 ||
-			((c = s.charCodeAt(INDEX_OF_FUNCTION_NAME)) >= FIRST_UPPERCASE_INDEX_IN_ASCII
-				&& c <= LAST_UPPERCASE_INDEX_IN_ASCII)
-		)
-	}
+/**
+ * Is Class
+ * @param {any} value
+ * @returns {boolean}
+ */
+export function isClass (value /* :any */ ) /* :boolean */ {
+	// NOTE TO DEVELOPER: If any of this changes, you may also need to update isNativeClass
+	if ( typeof value !== 'function' )  return false
+	const s = value.toString()
+	if ( s.indexOf('class') === 0 )  return true
+	const c = s.charCodeAt(INDEX_OF_FUNCTION_NAME)
+	return c >= FIRST_UPPERCASE_INDEX_IN_ASCII && c <= LAST_UPPERCASE_INDEX_IN_ASCII
+}
 
-	// Checks to see if a value is an object
-	static isObject (value) {
-		// null and undefined are objects, hence the truthy check
-		return value && typeof value === 'object'
-	}
+/**
+ * Checks to see if a value is an error
+ * @param {any} value
+ * @returns {boolean}
+ */
+export function isError (value /* :mixed */ ) /* :boolean */ {
+	return value instanceof Error
+}
 
-	// Checks to see if a value is an error
-	static isError (value) {
-		return value instanceof Error
-	}
+/**
+ * Checks to see if a value is a date
+ * @param {any} value
+ * @returns {boolean}
+ */
+export function isDate (value /* :mixed */ ) /* :boolean */ {
+	return getObjectType(value) === '[object Date]'
+}
 
-	// Checks to see if a value is a date
-	static isDate (value) {
-		return this.getObjectType(value) === '[object Date]'
-	}
+/**
+ * Checks to see if a value is an arguments object
+ * @param {any} value
+ * @returns {boolean}
+ */
+export function isArguments (value /* :mixed */ ) /* :boolean */ {
+	return getObjectType(value) === '[object Arguments]'
+}
 
-	// Checks to see if a value is an arguments object
-	static isArguments (value) {
-		return this.getObjectType(value) === '[object Arguments]'
-	}
+/**
+ * Checks to see if a value is a function
+ * @param {any} value
+ * @returns {boolean}
+ */
+export function isFunction (value /* :mixed */ ) /* :boolean */ {
+	return getObjectType(value) === '[object Function]'
+}
 
-	// Checks to see if a value is a function
-	static isFunction (value) {
-		return this.getObjectType(value) === '[object Function]'
-	}
+/**
+ * Checks to see if a value is an regex
+ * @param {any} value
+ * @returns {boolean}
+ */
+export function isRegExp (value /* :mixed */ ) /* :boolean */ {
+	return getObjectType(value) === '[object RegExp]'
+}
 
-	// Checks to see if a value is an regex
-	static isRegExp (value) {
-		return this.getObjectType(value) === '[object RegExp]'
-	}
+/**
+ * Checks to see if a value is an array
+ * @param {any} value
+ * @returns {boolean}
+ */
+export function isArray (value /* :mixed */ ) /* :boolean */ {
+	return Array.isArray && Array.isArray(value) || getObjectType(value) === '[object Array]'
+}
 
-	// Checks to see if a value is an array
-	static isArray (value) {
-		return Array.isArray && Array.isArray(value) || this.getObjectType(value) === '[object Array]'
-	}
+/**
+ * Checks to see if a valule is a number
+ * @param {any} value
+ * @returns {boolean}
+ */
+export function isNumber (value /* :mixed */ ) /* :boolean */ {
+	return typeof value === 'number' || getObjectType(value) === '[object Number]'
+}
 
-	// Checks to see if a valule is a number
-	static isNumber (value) {
-		return typeof value === 'number' || this.getObjectType(value) === '[object Number]'
-	}
+/**
+ * Checks to see if a value is a string
+ * @param {any} value
+ * @returns {boolean}
+ */
+export function isString (value /* :mixed */ ) /* :boolean */ {
+	return typeof value === 'string' || getObjectType(value) === '[object String]'
+}
 
-	// Checks to see if a value is a string
-	static isString (value) {
-		return typeof value === 'string' || this.getObjectType(value) === '[object String]'
-	}
+/**
+ * Checks to see if a valule is a boolean
+ * @param {any} value
+ * @returns {boolean}
+ */
+export function isBoolean (value /* :mixed */ ) /* :boolean */ {
+	return value === true || value === false || getObjectType(value) === '[object Boolean]'
+}
 
-	// Checks to see if a valule is a boolean
-	static isBoolean (value) {
-		return value === true || value === false || this.getObjectType(value) === '[object Boolean]'
-	}
+/**
+ * Checks to see if a value is null
+ * @param {any} value
+ * @returns {boolean}
+ */
+export function isNull (value /* :mixed */ ) /* :boolean */ {
+	return value === null
+}
 
-	// Checks to see if a value is null
-	static isNull (value) {
-		return value === null
-	}
+/**
+ * Checks to see if a value is undefined
+ * @param {any} value
+ * @returns {boolean}
+ */
+export function isUndefined (value /* :mixed */ ) /* :boolean */ {
+	return typeof value === 'undefined'
+}
 
-	// Checks to see if a value is undefined
-	static isUndefined (value) {
-		return typeof value === 'undefined'
-	}
+/**
+ * Checks to see if a value is a Map
+ * @param {any} value
+ * @returns {boolean}
+ */
+export function isMap (value /* :mixed */ ) /* :boolean */ {
+	return getObjectType(value) === '[object Map]'
+}
 
-	// Checks to see if a value is a Map
-	static isMap (value) {
-		return this.getObjectType(value) === '[object Map]'
-	}
-
-	// Checks to see if a value is a WeakMap
-	static isWeakMap (value) {
-		return this.getObjectType(value) === '[object WeakMap]'
-	}
-
+/**
+ * Checks to see if a value is a WeakMap
+ * @param {any} value
+ * @returns {boolean}
+ */
+export function isWeakMap (value /* :mixed */ ) /* :boolean */ {
+	return getObjectType(value) === '[object WeakMap]'
 }
