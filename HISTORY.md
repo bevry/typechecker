@@ -1,5 +1,8 @@
 # History
 
+## v4.2.1 2016 March 20
+- Fixed packing issue
+
 ## v4.2.0 2016 March 20
 - Now defined as individual methods
 - Repackaged
