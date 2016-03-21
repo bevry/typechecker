@@ -32,11 +32,6 @@
                 getType
               </a>
               <a
-                href='#getTypes'
-                class='block bold'>
-                getTypes
-              </a>
-              <a
                 href='#isArguments'
                 class='block bold'>
                 isArguments
@@ -136,6 +131,11 @@
                 class='block bold'>
                 isWeakMap
               </a>
+              <a
+                href='#typeMap'
+                class='block bold'>
+                typeMap
+              </a>
           </div>
         </div>
       </div>
@@ -145,7 +145,7 @@
   <h2 id='getObjectType' class='mt0'>
     getObjectType<span class='gray'>(value)</span>
   </h2>
-    <p><a href='https://github.com/bevry/typechecker/blob/7a413aef43ebc99920a90b7535ed9a0343a56a2d/source/index.js#L59-L61'><code>source/index.js</code></a></p>
+    <p><a href='https://github.com/bevry/typechecker/blob/3fc458f3c1b5baa137b75df814141f60fdf6ec38/source/index.js#L17-L19'><code>source/index.js</code></a></p>
   
   
   
@@ -173,9 +173,9 @@
 </section>
 </div><div class='py1'><section class='py2 clearfix'>
   <h2 id='getType' class='mt0'>
-    getType<span class='gray'>(value)</span>
+    getType<span class='gray'>(value, [_typeMap])</span>
   </h2>
-    <p><a href='https://github.com/bevry/typechecker/blob/7a413aef43ebc99920a90b7535ed9a0343a56a2d/source/index.js#L39-L52'><code>source/index.js</code></a></p>
+    <p><a href='https://github.com/bevry/typechecker/blob/3fc458f3c1b5baa137b75df814141f60fdf6ec38/source/index.js#L259-L271'><code>source/index.js</code></a></p>
   
   
   
@@ -192,6 +192,15 @@
             
           </div>
         </li>
+        <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a>
+=
+ <strong>_typeMap</strong>
+          :
+          <div class='force-inline'>
+            <p>a custom type map (type => method) in case you have new types you wish to use</p>
+
+          </div>
+        </li>
     </ul>
       <h4>Returns</h4>
       <code>?
@@ -203,30 +212,10 @@
       </div>
 </section>
 </div><div class='py1'><section class='py2 clearfix'>
-  <h2 id='getTypes' class='mt0'>
-    getTypes<span class='gray'></span>
-  </h2>
-    <p><a href='https://github.com/bevry/typechecker/blob/7a413aef43ebc99920a90b7535ed9a0343a56a2d/source/index.js#L15-L32'><code>source/index.js</code></a></p>
-  
-  
-  
-  
-  
-  <p>Get an array of the available types in CamelCase</p>
-
-      <h4>Returns</h4>
-      <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a>
-</code>
-      
-      <div class='force-inline'>
-        
-      </div>
-</section>
-</div><div class='py1'><section class='py2 clearfix'>
   <h2 id='isArguments' class='mt0'>
     isArguments<span class='gray'>(value)</span>
   </h2>
-    <p><a href='https://github.com/bevry/typechecker/blob/7a413aef43ebc99920a90b7535ed9a0343a56a2d/source/index.js#L180-L182'><code>source/index.js</code></a></p>
+    <p><a href='https://github.com/bevry/typechecker/blob/3fc458f3c1b5baa137b75df814141f60fdf6ec38/source/index.js#L135-L137'><code>source/index.js</code></a></p>
   
   
   
@@ -256,7 +245,7 @@
   <h2 id='isArray' class='mt0'>
     isArray<span class='gray'>(value)</span>
   </h2>
-    <p><a href='https://github.com/bevry/typechecker/blob/7a413aef43ebc99920a90b7535ed9a0343a56a2d/source/index.js#L207-L209'><code>source/index.js</code></a></p>
+    <p><a href='https://github.com/bevry/typechecker/blob/3fc458f3c1b5baa137b75df814141f60fdf6ec38/source/index.js#L162-L164'><code>source/index.js</code></a></p>
   
   
   
@@ -286,7 +275,7 @@
   <h2 id='isBoolean' class='mt0'>
     isBoolean<span class='gray'>(value)</span>
   </h2>
-    <p><a href='https://github.com/bevry/typechecker/blob/7a413aef43ebc99920a90b7535ed9a0343a56a2d/source/index.js#L234-L236'><code>source/index.js</code></a></p>
+    <p><a href='https://github.com/bevry/typechecker/blob/3fc458f3c1b5baa137b75df814141f60fdf6ec38/source/index.js#L189-L191'><code>source/index.js</code></a></p>
   
   
   
@@ -316,7 +305,7 @@
   <h2 id='isClass' class='mt0'>
     isClass<span class='gray'>(value)</span>
   </h2>
-    <p><a href='https://github.com/bevry/typechecker/blob/7a413aef43ebc99920a90b7535ed9a0343a56a2d/source/index.js#L148-L155'><code>source/index.js</code></a></p>
+    <p><a href='https://github.com/bevry/typechecker/blob/3fc458f3c1b5baa137b75df814141f60fdf6ec38/source/index.js#L103-L110'><code>source/index.js</code></a></p>
   
   
   
@@ -346,7 +335,7 @@
   <h2 id='isConventionalClass' class='mt0'>
     isConventionalClass<span class='gray'>(value)</span>
   </h2>
-    <p><a href='https://github.com/bevry/typechecker/blob/7a413aef43ebc99920a90b7535ed9a0343a56a2d/source/index.js#L128-L132'><code>source/index.js</code></a></p>
+    <p><a href='https://github.com/bevry/typechecker/blob/3fc458f3c1b5baa137b75df814141f60fdf6ec38/source/index.js#L83-L87'><code>source/index.js</code></a></p>
   
   
   
@@ -379,7 +368,7 @@ If changed, isClass must also be updated</p>
   <h2 id='isDate' class='mt0'>
     isDate<span class='gray'>(value)</span>
   </h2>
-    <p><a href='https://github.com/bevry/typechecker/blob/7a413aef43ebc99920a90b7535ed9a0343a56a2d/source/index.js#L171-L173'><code>source/index.js</code></a></p>
+    <p><a href='https://github.com/bevry/typechecker/blob/3fc458f3c1b5baa137b75df814141f60fdf6ec38/source/index.js#L126-L128'><code>source/index.js</code></a></p>
   
   
   
@@ -409,7 +398,7 @@ If changed, isClass must also be updated</p>
   <h2 id='isEmpty' class='mt0'>
     isEmpty<span class='gray'>(value)</span>
   </h2>
-    <p><a href='https://github.com/bevry/typechecker/blob/7a413aef43ebc99920a90b7535ed9a0343a56a2d/source/index.js#L91-L93'><code>source/index.js</code></a></p>
+    <p><a href='https://github.com/bevry/typechecker/blob/3fc458f3c1b5baa137b75df814141f60fdf6ec38/source/index.js#L46-L48'><code>source/index.js</code></a></p>
   
   
   
@@ -439,7 +428,7 @@ If changed, isClass must also be updated</p>
   <h2 id='isEmptyObject' class='mt0'>
     isEmptyObject<span class='gray'>(value)</span>
   </h2>
-    <p><a href='https://github.com/bevry/typechecker/blob/7a413aef43ebc99920a90b7535ed9a0343a56a2d/source/index.js#L100-L108'><code>source/index.js</code></a></p>
+    <p><a href='https://github.com/bevry/typechecker/blob/3fc458f3c1b5baa137b75df814141f60fdf6ec38/source/index.js#L55-L63'><code>source/index.js</code></a></p>
   
   
   
@@ -469,7 +458,7 @@ If changed, isClass must also be updated</p>
   <h2 id='isError' class='mt0'>
     isError<span class='gray'>(value)</span>
   </h2>
-    <p><a href='https://github.com/bevry/typechecker/blob/7a413aef43ebc99920a90b7535ed9a0343a56a2d/source/index.js#L162-L164'><code>source/index.js</code></a></p>
+    <p><a href='https://github.com/bevry/typechecker/blob/3fc458f3c1b5baa137b75df814141f60fdf6ec38/source/index.js#L117-L119'><code>source/index.js</code></a></p>
   
   
   
@@ -499,7 +488,7 @@ If changed, isClass must also be updated</p>
   <h2 id='isFunction' class='mt0'>
     isFunction<span class='gray'>(value)</span>
   </h2>
-    <p><a href='https://github.com/bevry/typechecker/blob/7a413aef43ebc99920a90b7535ed9a0343a56a2d/source/index.js#L189-L191'><code>source/index.js</code></a></p>
+    <p><a href='https://github.com/bevry/typechecker/blob/3fc458f3c1b5baa137b75df814141f60fdf6ec38/source/index.js#L144-L146'><code>source/index.js</code></a></p>
   
   
   
@@ -529,7 +518,7 @@ If changed, isClass must also be updated</p>
   <h2 id='isMap' class='mt0'>
     isMap<span class='gray'>(value)</span>
   </h2>
-    <p><a href='https://github.com/bevry/typechecker/blob/7a413aef43ebc99920a90b7535ed9a0343a56a2d/source/index.js#L261-L263'><code>source/index.js</code></a></p>
+    <p><a href='https://github.com/bevry/typechecker/blob/3fc458f3c1b5baa137b75df814141f60fdf6ec38/source/index.js#L216-L218'><code>source/index.js</code></a></p>
   
   
   
@@ -559,7 +548,7 @@ If changed, isClass must also be updated</p>
   <h2 id='isNativeClass' class='mt0'>
     isNativeClass<span class='gray'>(value)</span>
   </h2>
-    <p><a href='https://github.com/bevry/typechecker/blob/7a413aef43ebc99920a90b7535ed9a0343a56a2d/source/index.js#L115-L118'><code>source/index.js</code></a></p>
+    <p><a href='https://github.com/bevry/typechecker/blob/3fc458f3c1b5baa137b75df814141f60fdf6ec38/source/index.js#L70-L73'><code>source/index.js</code></a></p>
   
   
   
@@ -589,7 +578,7 @@ If changed, isClass must also be updated</p>
   <h2 id='isNull' class='mt0'>
     isNull<span class='gray'>(value)</span>
   </h2>
-    <p><a href='https://github.com/bevry/typechecker/blob/7a413aef43ebc99920a90b7535ed9a0343a56a2d/source/index.js#L243-L245'><code>source/index.js</code></a></p>
+    <p><a href='https://github.com/bevry/typechecker/blob/3fc458f3c1b5baa137b75df814141f60fdf6ec38/source/index.js#L198-L200'><code>source/index.js</code></a></p>
   
   
   
@@ -619,7 +608,7 @@ If changed, isClass must also be updated</p>
   <h2 id='isNumber' class='mt0'>
     isNumber<span class='gray'>(value)</span>
   </h2>
-    <p><a href='https://github.com/bevry/typechecker/blob/7a413aef43ebc99920a90b7535ed9a0343a56a2d/source/index.js#L216-L218'><code>source/index.js</code></a></p>
+    <p><a href='https://github.com/bevry/typechecker/blob/3fc458f3c1b5baa137b75df814141f60fdf6ec38/source/index.js#L171-L173'><code>source/index.js</code></a></p>
   
   
   
@@ -649,7 +638,7 @@ If changed, isClass must also be updated</p>
   <h2 id='isObject' class='mt0'>
     isObject<span class='gray'>(value)</span>
   </h2>
-    <p><a href='https://github.com/bevry/typechecker/blob/7a413aef43ebc99920a90b7535ed9a0343a56a2d/source/index.js#L71-L74'><code>source/index.js</code></a></p>
+    <p><a href='https://github.com/bevry/typechecker/blob/3fc458f3c1b5baa137b75df814141f60fdf6ec38/source/index.js#L26-L29'><code>source/index.js</code></a></p>
   
   
   
@@ -679,7 +668,7 @@ If changed, isClass must also be updated</p>
   <h2 id='isPlainObject' class='mt0'>
     isPlainObject<span class='gray'>(value)</span>
   </h2>
-    <p><a href='https://github.com/bevry/typechecker/blob/7a413aef43ebc99920a90b7535ed9a0343a56a2d/source/index.js#L81-L84'><code>source/index.js</code></a></p>
+    <p><a href='https://github.com/bevry/typechecker/blob/3fc458f3c1b5baa137b75df814141f60fdf6ec38/source/index.js#L36-L39'><code>source/index.js</code></a></p>
   
   
   
@@ -709,7 +698,7 @@ If changed, isClass must also be updated</p>
   <h2 id='isRegExp' class='mt0'>
     isRegExp<span class='gray'>(value)</span>
   </h2>
-    <p><a href='https://github.com/bevry/typechecker/blob/7a413aef43ebc99920a90b7535ed9a0343a56a2d/source/index.js#L198-L200'><code>source/index.js</code></a></p>
+    <p><a href='https://github.com/bevry/typechecker/blob/3fc458f3c1b5baa137b75df814141f60fdf6ec38/source/index.js#L153-L155'><code>source/index.js</code></a></p>
   
   
   
@@ -739,7 +728,7 @@ If changed, isClass must also be updated</p>
   <h2 id='isString' class='mt0'>
     isString<span class='gray'>(value)</span>
   </h2>
-    <p><a href='https://github.com/bevry/typechecker/blob/7a413aef43ebc99920a90b7535ed9a0343a56a2d/source/index.js#L225-L227'><code>source/index.js</code></a></p>
+    <p><a href='https://github.com/bevry/typechecker/blob/3fc458f3c1b5baa137b75df814141f60fdf6ec38/source/index.js#L180-L182'><code>source/index.js</code></a></p>
   
   
   
@@ -769,7 +758,7 @@ If changed, isClass must also be updated</p>
   <h2 id='isUndefined' class='mt0'>
     isUndefined<span class='gray'>(value)</span>
   </h2>
-    <p><a href='https://github.com/bevry/typechecker/blob/7a413aef43ebc99920a90b7535ed9a0343a56a2d/source/index.js#L252-L254'><code>source/index.js</code></a></p>
+    <p><a href='https://github.com/bevry/typechecker/blob/3fc458f3c1b5baa137b75df814141f60fdf6ec38/source/index.js#L207-L209'><code>source/index.js</code></a></p>
   
   
   
@@ -799,7 +788,7 @@ If changed, isClass must also be updated</p>
   <h2 id='isWeakMap' class='mt0'>
     isWeakMap<span class='gray'>(value)</span>
   </h2>
-    <p><a href='https://github.com/bevry/typechecker/blob/7a413aef43ebc99920a90b7535ed9a0343a56a2d/source/index.js#L270-L272'><code>source/index.js</code></a></p>
+    <p><a href='https://github.com/bevry/typechecker/blob/3fc458f3c1b5baa137b75df814141f60fdf6ec38/source/index.js#L225-L227'><code>source/index.js</code></a></p>
   
   
   
@@ -824,6 +813,19 @@ If changed, isClass must also be updated</p>
       <div class='force-inline'>
         
       </div>
+</section>
+</div><div class='py1'><section class='py2 clearfix'>
+  <h2 id='typeMap' class='mt0'>
+    typeMap<span class='gray'></span>
+  </h2>
+    <p><a href='https://github.com/bevry/typechecker/blob/3fc458f3c1b5baa137b75df814141f60fdf6ec38/source/index.js#L236-L251'><code>source/index.js</code></a></p>
+  
+  
+  
+  
+  
+  <p>The type mapping (type => method) to use for getType. Frozen.</p>
+
 </section>
 </div>
         </div>

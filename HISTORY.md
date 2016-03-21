@@ -1,5 +1,9 @@
 # History
 
+## v4.3.0 2016 March 21
+- Removed `getTypes` as it was ambigious, internal and no one external used it
+- Exposed `typeMap` which links types to the methods that check for them, used by `getType`
+
 ## v4.2.1 2016 March 20
 - Fixed packing issue
 
