@@ -5,51 +5,9 @@ const INDEX_OF_FUNCTION_NAME = 9  // "function X", X is at index 9
 const FIRST_UPPERCASE_INDEX_IN_ASCII = 65  // A is at index 65 in ASCII
 const LAST_UPPERCASE_INDEX_IN_ASCII = 90   // Z is at index 90 in ASCII
 
+
 // -----------------------------------
-// Helpers
-
-/**
- * Get an array of the available types in CamelCase
- * @returns {Array}
- */
-export function getTypes () /* :Array<string> */ {
-	return [
-		'Array',
-		'Boolean',
-		'Date',
-		'Error',
-		'Class',
-		'Function',
-		'Null',
-		'Number',
-		'RegExp',
-		'String',
-		'Undefined',
-		'Map',
-		'WeakMap',
-		'Object'  // deliberately last, as this is a catch all
-	]
-}
-
-/**
- * Get the type of the value in lowercase
- * @param {any} value
- * @returns {?string}
- */
-export function getType (value /* :mixed */) /* :?string */ {
-	// Cycle the keys of this class
-	// Don't use for of loop as that breaks node 0.10 compat
-	const types = getTypes()
-	for ( let i = 0; i < types.length; ++i ) {
-		const type = types[i]
-		if ( this['is' + type](value) ) {
-			return type.toLowerCase()
-		}
-	}
-
-	// Return
-	return null
-}
+// Values
 
 /**
  * Get the object type string
@@ -59,9 +17,6 @@ export function getType (value /* :mixed */) /* :?string */ {
 export function getObjectType (value /* :mixed */) /* :string */ {
 	return Object.prototype.toString.call(value)
 }
-
-// -----------------------------------
-// Values
 
 /**
  * Checks to see if a value is an object
@@ -269,4 +224,48 @@ export function isMap (value /* :mixed */ ) /* :boolean */ {
  */
 export function isWeakMap (value /* :mixed */ ) /* :boolean */ {
 	return getObjectType(value) === '[object WeakMap]'
+}
+
+
+// -----------------------------------
+// General
+
+/**
+ * The type mapping (type => method) to use for getType. Frozen.
+ */
+export const typeMap = Object.freeze({
+	array: isArray,
+	boolean: isBoolean,
+	date: isDate,
+	error: isError,
+	class: isClass,
+	function: isFunction,
+	null: isNull,
+	number: isNumber,
+	regexp: isRegExp,
+	string: isString,
+	'undefined': isUndefined,
+	map: isMap,
+	weakmap: isWeakMap,
+	object: isObject
+})
+
+/**
+ * Get the type of the value in lowercase
+ * @param {any} value
+ * @param {Object} [_typeMap] a custom type map (type => method) in case you have new types you wish to use
+ * @returns {?string}
+ */
+export function getType (value /* :mixed */, _typeMap /* :Object */ = typeMap) /* :?string */ {
+	// Cycle through our type map
+	for ( const key in _typeMap ) {
+		if ( typeMap.hasOwnProperty(key) ) {
+			if ( typeMap[key](value) ) {
+				return key
+			}
+		}
+	}
+
+	// No type was successful
+	return null
 }

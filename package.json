@@ -86,6 +86,7 @@
         "javascript",
         "esnext",
         "import",
+        "defaults",
         "const",
         "let",
         "flow type comments"
