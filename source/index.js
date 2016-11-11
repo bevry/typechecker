@@ -1,4 +1,6 @@
 /* @flow */
+/* eslint quote-props:0 */
+'use strict'
 
 // Character positions
 const INDEX_OF_FUNCTION_NAME = 9  // "function X", X is at index 9
@@ -14,7 +16,7 @@ const LAST_UPPERCASE_INDEX_IN_ASCII = 90   // Z is at index 90 in ASCII
  * @param {any} value
  * @returns {string}
  */
-export function getObjectType (value /* :mixed */) /* :string */ {
+function getObjectType (value /* :mixed */) /* :string */ {
 	return Object.prototype.toString.call(value)
 }
 
@@ -23,9 +25,9 @@ export function getObjectType (value /* :mixed */) /* :string */ {
  * @param {any} value
  * @returns {boolean}
  */
-export function isObject (value /* :any */ ) /* :boolean */ {
-	// null and undefined are objects, hence the truthy check
-	return value && typeof value === 'object'
+function isObject (value /* :any */ ) /* :boolean */ {
+	// null is object, hence the extra check
+	return value !== null && typeof value === 'object'
 }
 
 /**
@@ -33,7 +35,7 @@ export function isObject (value /* :any */ ) /* :boolean */ {
  * @param {any} value
  * @returns {boolean}
  */
-export function isPlainObject (value /* :any */ ) /* :boolean */ {
+function isPlainObject (value /* :any */ ) /* :boolean */ {
 	/* eslint no-proto:0 */
 	return isObject(value) && value.__proto__ === Object.prototype
 }
@@ -43,7 +45,7 @@ export function isPlainObject (value /* :any */ ) /* :boolean */ {
  * @param {any} value
  * @returns {boolean}
  */
-export function isEmpty (value /* :mixed */ ) /* :boolean */ {
+function isEmpty (value /* :mixed */ ) /* :boolean */ {
 	return value == null
 }
 
@@ -52,7 +54,7 @@ export function isEmpty (value /* :mixed */ ) /* :boolean */ {
  * @param {any} value
  * @returns {boolean}
  */
-export function isEmptyObject (value /* :Object */ ) /* :boolean */ {
+function isEmptyObject (value /* :Object */ ) /* :boolean */ {
 	// We could use Object.keys, but this is more effecient
 	for ( const key in value ) {
 		if ( value.hasOwnProperty(key) ) {
@@ -67,7 +69,7 @@ export function isEmptyObject (value /* :Object */ ) /* :boolean */ {
  * @param {any} value
  * @returns {boolean}
  */
-export function isNativeClass (value /* :mixed */ ) /* :boolean */ {
+function isNativeClass (value /* :mixed */ ) /* :boolean */ {
 	// NOTE TO DEVELOPER: If any of this changes, isClass must also be updated
 	return typeof value === 'function' && value.toString().indexOf('class') === 0
 }
@@ -80,7 +82,7 @@ export function isNativeClass (value /* :mixed */ ) /* :boolean */ {
  * @param {any} value
  * @returns {boolean}
  */
-export function isConventionalClass (value /* :any */ ) /* :boolean */ {
+function isConventionalClass (value /* :any */ ) /* :boolean */ {
 	if ( typeof value !== 'function' )  return false
 	const c = value.toString().charCodeAt(INDEX_OF_FUNCTION_NAME)
 	return c >= FIRST_UPPERCASE_INDEX_IN_ASCII && c <= LAST_UPPERCASE_INDEX_IN_ASCII
@@ -100,7 +102,7 @@ export function isConventionalClass (value /* :any */ ) /* :boolean */ {
  * @param {any} value
  * @returns {boolean}
  */
-export function isClass (value /* :any */ ) /* :boolean */ {
+function isClass (value /* :any */ ) /* :boolean */ {
 	// NOTE TO DEVELOPER: If any of this changes, you may also need to update isNativeClass
 	if ( typeof value !== 'function' )  return false
 	const s = value.toString()
@@ -114,7 +116,7 @@ export function isClass (value /* :any */ ) /* :boolean */ {
  * @param {any} value
  * @returns {boolean}
  */
-export function isError (value /* :mixed */ ) /* :boolean */ {
+function isError (value /* :mixed */ ) /* :boolean */ {
 	return value instanceof Error
 }
 
@@ -123,7 +125,7 @@ export function isError (value /* :mixed */ ) /* :boolean */ {
  * @param {any} value
  * @returns {boolean}
  */
-export function isDate (value /* :mixed */ ) /* :boolean */ {
+function isDate (value /* :mixed */ ) /* :boolean */ {
 	return getObjectType(value) === '[object Date]'
 }
 
@@ -132,7 +134,7 @@ export function isDate (value /* :mixed */ ) /* :boolean */ {
  * @param {any} value
  * @returns {boolean}
  */
-export function isArguments (value /* :mixed */ ) /* :boolean */ {
+function isArguments (value /* :mixed */ ) /* :boolean */ {
 	return getObjectType(value) === '[object Arguments]'
 }
 
@@ -141,7 +143,7 @@ export function isArguments (value /* :mixed */ ) /* :boolean */ {
  * @param {any} value
  * @returns {boolean}
  */
-export function isFunction (value /* :mixed */ ) /* :boolean */ {
+function isFunction (value /* :mixed */ ) /* :boolean */ {
 	return getObjectType(value) === '[object Function]'
 }
 
@@ -150,7 +152,7 @@ export function isFunction (value /* :mixed */ ) /* :boolean */ {
  * @param {any} value
  * @returns {boolean}
  */
-export function isRegExp (value /* :mixed */ ) /* :boolean */ {
+function isRegExp (value /* :mixed */ ) /* :boolean */ {
 	return getObjectType(value) === '[object RegExp]'
 }
 
@@ -159,8 +161,8 @@ export function isRegExp (value /* :mixed */ ) /* :boolean */ {
  * @param {any} value
  * @returns {boolean}
  */
-export function isArray (value /* :mixed */ ) /* :boolean */ {
-	return Array.isArray && Array.isArray(value) || getObjectType(value) === '[object Array]'
+function isArray (value /* :mixed */ ) /* :boolean */ {
+	return (typeof Array.isArray === 'function' && Array.isArray(value)) || getObjectType(value) === '[object Array]'
 }
 
 /**
@@ -168,7 +170,7 @@ export function isArray (value /* :mixed */ ) /* :boolean */ {
  * @param {any} value
  * @returns {boolean}
  */
-export function isNumber (value /* :mixed */ ) /* :boolean */ {
+function isNumber (value /* :mixed */ ) /* :boolean */ {
 	return typeof value === 'number' || getObjectType(value) === '[object Number]'
 }
 
@@ -177,7 +179,7 @@ export function isNumber (value /* :mixed */ ) /* :boolean */ {
  * @param {any} value
  * @returns {boolean}
  */
-export function isString (value /* :mixed */ ) /* :boolean */ {
+function isString (value /* :mixed */ ) /* :boolean */ {
 	return typeof value === 'string' || getObjectType(value) === '[object String]'
 }
 
@@ -186,7 +188,7 @@ export function isString (value /* :mixed */ ) /* :boolean */ {
  * @param {any} value
  * @returns {boolean}
  */
-export function isBoolean (value /* :mixed */ ) /* :boolean */ {
+function isBoolean (value /* :mixed */ ) /* :boolean */ {
 	return value === true || value === false || getObjectType(value) === '[object Boolean]'
 }
 
@@ -195,7 +197,7 @@ export function isBoolean (value /* :mixed */ ) /* :boolean */ {
  * @param {any} value
  * @returns {boolean}
  */
-export function isNull (value /* :mixed */ ) /* :boolean */ {
+function isNull (value /* :mixed */ ) /* :boolean */ {
 	return value === null
 }
 
@@ -204,7 +206,7 @@ export function isNull (value /* :mixed */ ) /* :boolean */ {
  * @param {any} value
  * @returns {boolean}
  */
-export function isUndefined (value /* :mixed */ ) /* :boolean */ {
+function isUndefined (value /* :mixed */ ) /* :boolean */ {
 	return typeof value === 'undefined'
 }
 
@@ -213,7 +215,7 @@ export function isUndefined (value /* :mixed */ ) /* :boolean */ {
  * @param {any} value
  * @returns {boolean}
  */
-export function isMap (value /* :mixed */ ) /* :boolean */ {
+function isMap (value /* :mixed */ ) /* :boolean */ {
 	return getObjectType(value) === '[object Map]'
 }
 
@@ -222,7 +224,7 @@ export function isMap (value /* :mixed */ ) /* :boolean */ {
  * @param {any} value
  * @returns {boolean}
  */
-export function isWeakMap (value /* :mixed */ ) /* :boolean */ {
+function isWeakMap (value /* :mixed */ ) /* :boolean */ {
 	return getObjectType(value) === '[object WeakMap]'
 }
 
@@ -233,7 +235,7 @@ export function isWeakMap (value /* :mixed */ ) /* :boolean */ {
 /**
  * The type mapping (type => method) to use for getType. Frozen.
  */
-export const typeMap = Object.freeze({
+const typeMap = Object.freeze({
 	array: isArray,
 	boolean: isBoolean,
 	date: isDate,
@@ -256,7 +258,7 @@ export const typeMap = Object.freeze({
  * @param {Object} [_typeMap] a custom type map (type => method) in case you have new types you wish to use
  * @returns {?string}
  */
-export function getType (value /* :mixed */, _typeMap /* :Object */ = typeMap) /* :?string */ {
+function getType (value /* :mixed */, _typeMap /* :Object */ = typeMap) /* :?string */ {
 	// Cycle through our type map
 	for ( const key in _typeMap ) {
 		if ( typeMap.hasOwnProperty(key) ) {
@@ -268,4 +270,31 @@ export function getType (value /* :mixed */, _typeMap /* :Object */ = typeMap) /
 
 	// No type was successful
 	return null
+}
+
+// Export
+module.exports = {
+	getObjectType,
+	isObject,
+	isPlainObject,
+	isEmpty,
+	isEmptyObject,
+	isNativeClass,
+	isConventionalClass,
+	isClass,
+	isError,
+	isDate,
+	isArguments,
+	isFunction,
+	isRegExp,
+	isArray,
+	isNumber,
+	isString,
+	isBoolean,
+	isNull,
+	isUndefined,
+	isMap,
+	isWeakMap,
+	typeMap,
+	getType
 }

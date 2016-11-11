@@ -1,7 +1,8 @@
-# 2016 March 8
+# 2016 October 17
 # https://github.com/bevry/base
 
 # Temp Files
+yarn.lock
 **/.docpad.db
 **/out.*
 **/*.log
@@ -14,6 +15,7 @@ components/
 bower_components/
 node_modules/
 out/
+*output/
 coffeejs/
 coffee/
 es5/

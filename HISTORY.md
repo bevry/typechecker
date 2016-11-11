@@ -1,7 +1,16 @@
 # History
 
+## v4.4.0 2016 November 11
+- Use `require` over `import`
+- More efficient `isObject` check
+- More comprehensive native vs conventional class tests
+- Updated base files
+  - Removes docs being contained in npm package
+    - Thanks to [Adam Demasi](https://github.com/kirb) for [issue #14](https://github.com/bevry/typechecker/issues/14)
+- Updated dependencies
+
 ## v4.3.0 2016 March 21
-- Removed `getTypes` as it was ambigious, internal and no one external used it
+- Removed `getTypes` as it was ambiguous, internal and no one external used it
 - Exposed `typeMap` which links types to the methods that check for them, used by `getType`
 
 ## v4.2.1 2016 March 20

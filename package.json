@@ -1,7 +1,7 @@
 {
   "title": "TypeChecker",
   "name": "typechecker",
-  "version": "4.3.0",
+  "version": "4.4.0",
   "description": "Utilities to get and check variable types (isString, isPlainObject, isRegExp, etc)",
   "homepage": "https://github.com/bevry/typechecker",
   "license": "MIT",
@@ -64,8 +64,7 @@
   "contributors": [
     "Benjamin Lupton <b@lupton.cc> (http://balupton.com)",
     "Joe Gesualdo <joegesualdo@gmail.com> (https://github.com/joegesualdo)",
-    "Sean Fridman <mail@seanfridman.com> (http://seanfridman.com)",
-    "Benjamin Lupton (https://balupton.com)"
+    "Sean Fridman <mail@seanfridman.com> (http://seanfridman.com)"
   ],
   "bugs": {
     "url": "https://github.com/bevry/typechecker/issues"
@@ -75,17 +74,17 @@
     "url": "http://github.com/bevry/typechecker.git"
   },
   "engines": {
-    "node": ">=0.10"
+    "node": ">=0.8"
   },
   "editions": [
     {
-      "description": "Source + ESNext + Import + Flow Type Comments",
+      "description": "Source + ESNext + Require + Flow Type Comments",
       "directory": "source",
       "entry": "source/index.js",
       "syntaxes": [
         "javascript",
         "esnext",
-        "import",
+        "require",
         "defaults",
         "const",
         "let",
@@ -104,39 +103,38 @@
     }
   ],
   "main": "index.js",
-  "jsnext:main": "source/index.js",
   "browser": "es2015/index.js",
   "scripts": {
-    "setup": "npm install",
-    "clean": "rm -Rf ./docs ./es2015",
-    "compile": "npm run compile:es2015",
-    "compile:es2015": "babel ./source --out-dir ./es2015 --presets es2015",
-    "meta": "npm run meta:docs && npm run meta:projectz",
-    "meta:docs": "documentation build -f html -g source/**.js -o docs",
-    "meta:projectz": "projectz compile",
-    "prepare": "npm run compile && npm run test && npm run meta",
-    "release": "npm run prepare && npm run release:publish && npm run release:tag && npm run release:push",
-    "release:publish": "npm publish",
-    "release:tag": "git tag v$npm_package_version -a",
-    "release:push": "git push origin master && git push origin --tags",
-    "pretest": "npm run test:eslint && npm run test:flow",
-    "test:eslint": "eslint ./source",
-    "test:flow": "flow check",
-    "test": "node --harmony -e \"require('editions').requirePackage(process.cwd(), require, 'test.js')\""
+    "our:setup": "npm install",
+    "our:clean": "rm -Rf ./docs ./es2015",
+    "our:compile": "npm run our:compile:es2015",
+    "our:compile:es2015": "babel ./source --out-dir ./es2015 --presets es2015",
+    "our:meta": "npm run our:meta:docs && npm run our:meta:projectz",
+    "our:meta:docs": "documentation build -f html -o ./docs -g --shallow ./source/**.js",
+    "our:meta:projectz": "projectz compile",
+    "our:verify": "npm run our:verify:eslint && npm run our:verify:flow",
+    "our:verify:eslint": "eslint --fix ./source",
+    "our:verify:flow": "flow check",
+    "our:test": "npm run our:verify && npm test",
+    "our:release": "npm run our:release:prepare && npm run our:release:publish && npm run our:release:tag && npm run our:release:push",
+    "our:release:prepare": "npm run our:clean && npm run our:compile && npm run our:test && npm run our:meta",
+    "our:release:publish": "npm publish",
+    "our:release:tag": "git tag v$npm_package_version -a",
+    "our:release:push": "git push origin master && git push origin --tags",
+    "test": "node --harmony ./test.js --joe-reporter=console"
   },
   "dependencies": {
-    "editions": "^1.1.0"
+    "editions": "^1.3.3"
   },
   "devDependencies": {
-    "assert-helpers": "^4.1.0",
-    "babel-cli": "^6.6.5",
-    "babel-preset-es2015": "^6.6.0",
-    "documentation": "^4.0.0-beta",
-    "eslint": "^2.3.0",
-    "eslint-plugin-babel": "^3.1.0",
-    "flow-bin": "^0.22.1",
-    "joe": "^1.6.0",
-    "joe-reporter-console": "^1.2.1",
-    "projectz": "^1.0.9"
+    "assert-helpers": "^4.4.0",
+    "babel-cli": "^6.18.0",
+    "babel-preset-es2015": "^6.18.0",
+    "documentation": "^4.0.0-beta8",
+    "eslint": "^3.9.1",
+    "flow-bin": "^0.34.0",
+    "joe": "^2.0.2",
+    "joe-reporter-console": "^2.0.1",
+    "projectz": "^1.3.2"
   }
 }
