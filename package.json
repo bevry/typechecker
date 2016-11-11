@@ -88,6 +88,7 @@
         "defaults",
         "const",
         "let",
+        "destructuring",
         "flow type comments"
       ]
     },
