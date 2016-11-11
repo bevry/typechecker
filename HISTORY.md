@@ -3,6 +3,8 @@
 ## v4.4.0 2016 November 11
 - Use `require` over `import`
 - More efficient `isObject` check
+  - Fixes `isObject` and `isPlainObject` not returning booleans in some cases
+    - Thanks to [athlordJojo](https://github.com/athlordJojo) for [issue #12](https://github.com/bevry/typechecker/issues/12)
 - More comprehensive native vs conventional class tests
 - Updated base files
   - Removes docs being contained in npm package

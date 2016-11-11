@@ -25,13 +25,21 @@ suite('typechecker', function (suite) {
 		test('isObject', function () {
 			equal(typeChecker.isObject({}), true, 'object {} should be a object')
 			equal(typeChecker.isObject(null), false, 'null should not be a object')
+			equal(typeChecker.isObject('a'), false, 'string should not be a object')
+			equal(typeChecker.isObject(''), false, 'empty string should not be a object')
 			equal(typeChecker.isObject(), false, 'undefined should not be a object')
 		})
 
 		test('isPlainObject', function () {
-			class A {}
 			equal(typeChecker.isPlainObject({}), true, 'object {} should be a plain object')
-			equal(typeChecker.isPlainObject(new A()), false, 'class A instantiation should not be a plain object')
+			equal(typeChecker.isPlainObject(null), false, 'null should not be a plain object')
+			equal(typeChecker.isPlainObject('a'), false, 'string should not be a plain object')
+			equal(typeChecker.isPlainObject(''), false, 'empty string should not be a plain object')
+			equal(typeChecker.isPlainObject(), false, 'undefined should not be a plain object')
+			if ( nativeFixtures ) {
+				equal(typeChecker.isPlainObject(new nativeFixtures.A()), false, 'native clas instantiation should not be a plain object')
+			}
+			equal(typeChecker.isPlainObject(new conventionalFixtures.A()), false, 'conventional class instantiation should not be a plain object')
 		})
 
 		test('isEmpty', function () {
