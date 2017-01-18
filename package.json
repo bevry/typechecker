@@ -1,7 +1,7 @@
 {
   "title": "TypeChecker",
   "name": "typechecker",
-  "version": "4.4.0",
+  "version": "4.4.1",
   "description": "Utilities to get and check variable types (isString, isPlainObject, isRegExp, etc)",
   "homepage": "https://github.com/bevry/typechecker",
   "license": "MIT",
@@ -132,8 +132,8 @@
     "babel-cli": "^6.18.0",
     "babel-preset-es2015": "^6.18.0",
     "documentation": "^4.0.0-beta8",
-    "eslint": "^3.9.1",
-    "flow-bin": "^0.34.0",
+    "eslint": "^3.13.1",
+    "flow-bin": "^0.37.4",
     "joe": "^2.0.2",
     "joe-reporter-console": "^2.0.1",
     "projectz": "^1.3.2"

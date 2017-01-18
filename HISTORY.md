@@ -1,5 +1,9 @@
 # History
 
+## v4.4.1 2017 January 18
+- Made custom type map argument in `getType` actually work
+  - Thanks to [David Kebler](https://github.com/dkebler) for [issue #15](https://github.com/bevry/typechecker/issues/15)
+
 ## v4.4.0 2016 November 11
 - Use `require` over `import`
 - More efficient `isObject` check

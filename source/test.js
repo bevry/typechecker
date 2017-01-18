@@ -19,7 +19,7 @@ catch ( err ) {
 }
 
 // Types
-suite('typechecker', function (suite) {
+suite('typechecker', function (suite, test) {
 
 	suite('value', function (suite, test) {
 		test('isObject', function () {
@@ -146,4 +146,32 @@ suite('typechecker', function (suite) {
 			testType(value, typeExpected, typeActual)
 		})
 	})
+
+	test('custom type map', function () {
+		const customTypeMap = {
+			map: typeChecker.isMap,
+			object: typeChecker.isObject
+		}
+		equal(
+			typeChecker.getType(new Map()),
+			'map',
+			'weak map came back as expected using default type map'
+		)
+		equal(
+			typeChecker.getType(new WeakMap()),
+			'weakmap',
+			'weak map came back as xpected using default type map'
+		)
+		equal(
+			typeChecker.getType(new Map(), customTypeMap),
+			'map',
+			'map came back as expected with custom type map'
+		)
+		equal(
+			typeChecker.getType(new WeakMap(), customTypeMap),
+			'object',
+			'weak map came back as object as expected as custom type map discards it'
+		)
+	})
+
 })

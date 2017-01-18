@@ -255,14 +255,14 @@ const typeMap = Object.freeze({
 /**
  * Get the type of the value in lowercase
  * @param {any} value
- * @param {Object} [_typeMap] a custom type map (type => method) in case you have new types you wish to use
+ * @param {Object} [customTypeMap] a custom type map (type => method) in case you have new types you wish to use
  * @returns {?string}
  */
-function getType (value /* :mixed */, _typeMap /* :Object */ = typeMap) /* :?string */ {
+function getType (value /* :mixed */, customTypeMap /* :Object */ = typeMap) /* :?string */ {
 	// Cycle through our type map
-	for ( const key in _typeMap ) {
-		if ( typeMap.hasOwnProperty(key) ) {
-			if ( typeMap[key](value) ) {
+	for ( const key in customTypeMap ) {
+		if ( customTypeMap.hasOwnProperty(key) ) {
+			if ( customTypeMap[key](value) ) {
 				return key
 			}
 		}
