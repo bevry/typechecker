@@ -1,66 +1,28 @@
-# 2016 November 5
-# https://github.com/bevry/base
-
-# Use the latest travis infrastructure
 sudo: false
-
-# https://github.com/nodejs/LTS
 language: node_js
 node_js:
-  - "0.8"   # end of life
-  - "0.10"  # end of life
-  - "0.12"  # maintenance
-  - "4"     # lts
-  - "6"     # lts
-  - "7"     # stable
+- '0.8'
+- '0.10'
+- '0.12'
+- '4'
+- '6'
+- '7'
 matrix:
   fast_finish: true
-  allow_failures:
-    - node_js: "0.8"
-    - node_js: "0.10"
 cache:
   directories:
-    - node_modules
-
-# Ensure npm is up to date
-# Ensure dependencies install with a LTS node version
-install: |
-  export CURRENT_NPM_VERSION="$(npm --version)"
-  export LATEST_NPM_VERSION="$(npm view npm version)"
-  if test "$CURRENT_NPM_VERSION" != "$LATEST_NPM_VERSION"; then
-    echo "running an old npm version, upgrading"
-    npm instal npm --global --cache-min=Infinity
-  fi
-
-  export CURRENT_NODE_VERSION="$(node --version)"
-  export LTS_NODE_VERSIONS="$(nvm ls-remote --lts)"
-  if echo "$LTS_NODE_VERSIONS" | grep "$CURRENT_NODE_VERSION"; then
-    echo "running on a LTS node version, completing setup"
-    npm run our:setup
-  else
-    echo "running on a non-LTS node version, completing setup on a LTS node version"
-    nvm install --lts
-    export LTS_NODE_VERSION="$(node --version)"
-    npm run our:setup
-    nvm use "$TRAVIS_NODE_VERSION"
-  fi
-
-# Ensure compilation and linting occur on an LTS node version
-before_script: |
-  if test "$LTS_NODE_VERSION"; then
-    echo "running on a non-LTS node version, compiling with LTS, skipping linting"
-    nvm use "$LTS_NODE_VERSION"
-    npm run our:compile
-    nvm use "$TRAVIS_NODE_VERSION"
-  else
-    echo "running on a LTS node version, compiling and linting"
-    npm run our:compile && npm run our:verify
-  fi
-
-# Custom notifications
+  - "$HOME/.npm"
+  - "$HOME/.yarn-cache"
+install:
+- eval "$(curl -s https://raw.githubusercontent.com/balupton/awesome-travis/master/scripts/node-install.bash)"
+before_script:
+- eval "$(curl -s https://raw.githubusercontent.com/balupton/awesome-travis/master/scripts/node-verify.bash)"
+after_success:
+- eval "$(curl -s https://raw.githubusercontent.com/balupton/awesome-travis/master/scripts/surge.bash)"
+- eval "$(curl -s https://raw.githubusercontent.com/balupton/awesome-travis/master/scripts/node-publish.bash)"
 notifications:
   slack:
-    secure: PqFrE+Do3k3i5yLRvuF4sW30qCZb5jc915UcxyPPfqb1Byx9k+HXOysk7edVUDvV2fSjcpIwZwE1l9OGG49n7h8CFG3e/mz880yj0hVfJdow8utLrEaPlUKMSFW5NaTeBY9E7MLh96W11NVyEvBdvGdpo5cgJdmGFGTfzM/q6+g=
+    secure: qfOQjkjB+7vJTJG0FSAWFA7wlksr6WQuVdU0PnNsDPXRwpwXuE2CncRYGBkQKtWqZUVg4bcvpSB9z2BVwPveVsFMZ/7ch0oPLd9CRnJsPFVvlLPTXQJV1fdfWFlPlkV1uN6w6ThUJ4kMVRJ677E3x7L4Ik2fMhA3ZELSbDOqSZ8=
   email:
     recipients:
-      secure: Z4SYgYp0EODcfM3iCO8XjWZItfPFOducKxDaGctCUh8ChIfh/CT4+AB5cuR/ni4nbyeO2thaLHmUYLPhhNwhtZREZO4aswc0CY2QMLIIVLFNVEZ8LL7LXsWAEmPVe6EWhmdoH1yXk6cKtYLdOem/mI+n948bxtDVtfaD73/7Np4=
+      secure: X/xr3TWCAlBLPLmTA/63zh6F23HyzQuWwhAZ2YKAKuPBxpIWgj2bZ9QJCDIzIRLAg/FJShdZY38nXuR604CsUcTSk2qtvaSuFWLCw7l5FYZBK/wCnmN7rsO/BVyzQnqjOXod1I8lF/wzPuz6M4bexlUssQiaRJ8xwVPuk0wbjcw=

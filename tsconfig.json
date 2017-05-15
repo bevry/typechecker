@@ -1,0 +1,23 @@
+{
+  "include": [
+    "source/*"
+  ],
+  "compileOnSave": true,
+  "compilerOptions": {
+    "allowJs": true,
+    "checkJs": true,
+    "strict": true,
+    "alwaysStrict": true,
+    "module": "commonjs",
+    "newLine": "LF",
+    "target": "es2015",
+    "outDir": "es2015",
+    "lib": [
+      "esnext"
+    ],
+    "rootDir": ".",
+    "rootDirs": [
+      "."
+    ]
+  }
+}

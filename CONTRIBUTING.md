@@ -1,5 +1,5 @@
 <!--
-2016 November 4
+2017 January 27
 https://github.com/bevry/base
 -->
 
@@ -12,7 +12,7 @@ We offer support through our [Official Support Channels](https://bevry.me/suppor
 
 ## Contribute
 
-Our [Contributing Guide](https://learn.bevry.me/community/contribute) contains useful tips and suggestions for how to contribute to this project, it's worth the read.
+Our [Contributing Guide](https://bevry.me/contribute) contains useful tips and suggestions for how to contribute to this project, it's worth the read.
 
 
 ## Development
@@ -122,5 +122,3 @@ To publish your changes as the project owner:
   ``` bash
   npm run our:release
   ```
-
-	> A prompt will occur asking you for a git tag annotation, enter the changelog entry that we created earlier, save and exit the prompt.
