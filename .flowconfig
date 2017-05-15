@@ -1,9 +1,10 @@
-# 2016 December 29
+# 2017 May 15
 # https://github.com/bevry/base
 [ignore]
 .*/docs/.*
 .*/es2015/.*
 .*/test/.*
+.*/node_modules/documentation/.*
 
 [options]
 module.ignore_non_literal_requires=true
