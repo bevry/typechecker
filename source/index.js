@@ -25,7 +25,7 @@ function getObjectType (value /* :mixed */) /* :string */ {
  * @param {any} value
  * @returns {boolean}
  */
-function isObject (value /* :any */ ) /* :boolean */ {
+function isObject (value /* :any */) /* :boolean */ {
 	// null is object, hence the extra check
 	return value !== null && typeof value === 'object'
 }
@@ -35,7 +35,7 @@ function isObject (value /* :any */ ) /* :boolean */ {
  * @param {any} value
  * @returns {boolean}
  */
-function isPlainObject (value /* :any */ ) /* :boolean */ {
+function isPlainObject (value /* :any */) /* :boolean */ {
 	/* eslint no-proto:0 */
 	return isObject(value) && value.__proto__ === Object.prototype
 }
@@ -45,7 +45,7 @@ function isPlainObject (value /* :any */ ) /* :boolean */ {
  * @param {any} value
  * @returns {boolean}
  */
-function isEmpty (value /* :mixed */ ) /* :boolean */ {
+function isEmpty (value /* :mixed */) /* :boolean */ {
 	return value == null
 }
 
@@ -54,10 +54,10 @@ function isEmpty (value /* :mixed */ ) /* :boolean */ {
  * @param {any} value
  * @returns {boolean}
  */
-function isEmptyObject (value /* :Object */ ) /* :boolean */ {
+function isEmptyObject (value /* :Object */) /* :boolean */ {
 	// We could use Object.keys, but this is more effecient
-	for ( const key in value ) {
-		if ( value.hasOwnProperty(key) ) {
+	for (const key in value) {
+		if (value.hasOwnProperty(key)) {
 			return false
 		}
 	}
@@ -69,7 +69,7 @@ function isEmptyObject (value /* :Object */ ) /* :boolean */ {
  * @param {any} value
  * @returns {boolean}
  */
-function isNativeClass (value /* :mixed */ ) /* :boolean */ {
+function isNativeClass (value /* :mixed */) /* :boolean */ {
 	// NOTE TO DEVELOPER: If any of this changes, isClass must also be updated
 	return typeof value === 'function' && value.toString().indexOf('class') === 0
 }
@@ -82,8 +82,8 @@ function isNativeClass (value /* :mixed */ ) /* :boolean */ {
  * @param {any} value
  * @returns {boolean}
  */
-function isConventionalClass (value /* :any */ ) /* :boolean */ {
-	if ( typeof value !== 'function' )  return false
+function isConventionalClass (value /* :any */) /* :boolean */ {
+	if (typeof value !== 'function') return false
 	const c = value.toString().charCodeAt(INDEX_OF_FUNCTION_NAME)
 	return c >= FIRST_UPPERCASE_INDEX_IN_ASCII && c <= LAST_UPPERCASE_INDEX_IN_ASCII
 }
@@ -102,11 +102,11 @@ function isConventionalClass (value /* :any */ ) /* :boolean */ {
  * @param {any} value
  * @returns {boolean}
  */
-function isClass (value /* :any */ ) /* :boolean */ {
+function isClass (value /* :any */) /* :boolean */ {
 	// NOTE TO DEVELOPER: If any of this changes, you may also need to update isNativeClass
-	if ( typeof value !== 'function' )  return false
+	if (typeof value !== 'function') return false
 	const s = value.toString()
-	if ( s.indexOf('class') === 0 )  return true
+	if (s.indexOf('class') === 0) return true
 	const c = s.charCodeAt(INDEX_OF_FUNCTION_NAME)
 	return c >= FIRST_UPPERCASE_INDEX_IN_ASCII && c <= LAST_UPPERCASE_INDEX_IN_ASCII
 }
@@ -116,7 +116,7 @@ function isClass (value /* :any */ ) /* :boolean */ {
  * @param {any} value
  * @returns {boolean}
  */
-function isError (value /* :mixed */ ) /* :boolean */ {
+function isError (value /* :mixed */) /* :boolean */ {
 	return value instanceof Error
 }
 
@@ -125,7 +125,7 @@ function isError (value /* :mixed */ ) /* :boolean */ {
  * @param {any} value
  * @returns {boolean}
  */
-function isDate (value /* :mixed */ ) /* :boolean */ {
+function isDate (value /* :mixed */) /* :boolean */ {
 	return getObjectType(value) === '[object Date]'
 }
 
@@ -134,8 +134,26 @@ function isDate (value /* :mixed */ ) /* :boolean */ {
  * @param {any} value
  * @returns {boolean}
  */
-function isArguments (value /* :mixed */ ) /* :boolean */ {
+function isArguments (value /* :mixed */) /* :boolean */ {
 	return getObjectType(value) === '[object Arguments]'
+}
+
+/**
+ * Checks to see if a value is a function but not an asynchronous function
+ * @param {any} value
+ * @returns {boolean}
+ */
+function isSyncFunction (value /* :mixed */) /* :boolean */ {
+	return getObjectType(value) === '[object Function]'
+}
+
+/**
+ * Checks to see if a value is an asynchronous function
+ * @param {any} value
+ * @returns {boolean}
+ */
+function isAsyncFunction (value /* :mixed */) /* :boolean */ {
+	return getObjectType(value) === '[object AsyncFunction]'
 }
 
 /**
@@ -143,8 +161,8 @@ function isArguments (value /* :mixed */ ) /* :boolean */ {
  * @param {any} value
  * @returns {boolean}
  */
-function isFunction (value /* :mixed */ ) /* :boolean */ {
-	return getObjectType(value) === '[object Function]'
+function isFunction (value /* :mixed */) /* :boolean */ {
+	return isSyncFunction(value) || isAsyncFunction(value)
 }
 
 /**
@@ -152,7 +170,7 @@ function isFunction (value /* :mixed */ ) /* :boolean */ {
  * @param {any} value
  * @returns {boolean}
  */
-function isRegExp (value /* :mixed */ ) /* :boolean */ {
+function isRegExp (value /* :mixed */) /* :boolean */ {
 	return getObjectType(value) === '[object RegExp]'
 }
 
@@ -161,7 +179,7 @@ function isRegExp (value /* :mixed */ ) /* :boolean */ {
  * @param {any} value
  * @returns {boolean}
  */
-function isArray (value /* :mixed */ ) /* :boolean */ {
+function isArray (value /* :mixed */) /* :boolean */ {
 	return (typeof Array.isArray === 'function' && Array.isArray(value)) || getObjectType(value) === '[object Array]'
 }
 
@@ -170,7 +188,7 @@ function isArray (value /* :mixed */ ) /* :boolean */ {
  * @param {any} value
  * @returns {boolean}
  */
-function isNumber (value /* :mixed */ ) /* :boolean */ {
+function isNumber (value /* :mixed */) /* :boolean */ {
 	return typeof value === 'number' || getObjectType(value) === '[object Number]'
 }
 
@@ -179,7 +197,7 @@ function isNumber (value /* :mixed */ ) /* :boolean */ {
  * @param {any} value
  * @returns {boolean}
  */
-function isString (value /* :mixed */ ) /* :boolean */ {
+function isString (value /* :mixed */) /* :boolean */ {
 	return typeof value === 'string' || getObjectType(value) === '[object String]'
 }
 
@@ -188,7 +206,7 @@ function isString (value /* :mixed */ ) /* :boolean */ {
  * @param {any} value
  * @returns {boolean}
  */
-function isBoolean (value /* :mixed */ ) /* :boolean */ {
+function isBoolean (value /* :mixed */) /* :boolean */ {
 	return value === true || value === false || getObjectType(value) === '[object Boolean]'
 }
 
@@ -197,7 +215,7 @@ function isBoolean (value /* :mixed */ ) /* :boolean */ {
  * @param {any} value
  * @returns {boolean}
  */
-function isNull (value /* :mixed */ ) /* :boolean */ {
+function isNull (value /* :mixed */) /* :boolean */ {
 	return value === null
 }
 
@@ -206,7 +224,7 @@ function isNull (value /* :mixed */ ) /* :boolean */ {
  * @param {any} value
  * @returns {boolean}
  */
-function isUndefined (value /* :mixed */ ) /* :boolean */ {
+function isUndefined (value /* :mixed */) /* :boolean */ {
 	return typeof value === 'undefined'
 }
 
@@ -215,7 +233,7 @@ function isUndefined (value /* :mixed */ ) /* :boolean */ {
  * @param {any} value
  * @returns {boolean}
  */
-function isMap (value /* :mixed */ ) /* :boolean */ {
+function isMap (value /* :mixed */) /* :boolean */ {
 	return getObjectType(value) === '[object Map]'
 }
 
@@ -224,7 +242,7 @@ function isMap (value /* :mixed */ ) /* :boolean */ {
  * @param {any} value
  * @returns {boolean}
  */
-function isWeakMap (value /* :mixed */ ) /* :boolean */ {
+function isWeakMap (value /* :mixed */) /* :boolean */ {
 	return getObjectType(value) === '[object WeakMap]'
 }
 
@@ -234,6 +252,7 @@ function isWeakMap (value /* :mixed */ ) /* :boolean */ {
 
 /**
  * The type mapping (type => method) to use for getType. Frozen.
+ * AsyncFunction and SyncFunction are missing, as they are more specific types that people can detect afterwards.
  */
 const typeMap = Object.freeze({
 	array: isArray,
@@ -260,9 +279,9 @@ const typeMap = Object.freeze({
  */
 function getType (value /* :mixed */, customTypeMap /* :Object */ = typeMap) /* :?string */ {
 	// Cycle through our type map
-	for ( const key in customTypeMap ) {
-		if ( customTypeMap.hasOwnProperty(key) ) {
-			if ( customTypeMap[key](value) ) {
+	for (const key in customTypeMap) {
+		if (customTypeMap.hasOwnProperty(key)) {
+			if (customTypeMap[key](value)) {
 				return key
 			}
 		}
@@ -285,6 +304,8 @@ module.exports = {
 	isError,
 	isDate,
 	isArguments,
+	isSyncFunction,
+	isAsyncFunction,
 	isFunction,
 	isRegExp,
 	isArray,
