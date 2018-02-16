@@ -41,7 +41,7 @@ Under certain circumstances `instanceof` may not return the correct results. Thi
 
 ## Usage
 
-[API Documentation.](http://rawgit.com/bevry/typechecker/master/docs/index.html)
+[API Documentation.](http://master.typechecker.bevry.surge.sh/docs/)
 
 
 <!-- INSTALL/ -->
