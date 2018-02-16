@@ -3,19 +3,27 @@
 'use strict'
 
 // Import
+const path = require('path')
 const { equal, inspect } = require('assert-helpers')
 const { suite } = require('joe')
-const conventionalFixtures = eval("require('../es2015/test-fixtures.js')")  // eval to work around flow-type
 const typeChecker = require('./index.js')
 
 // Environment
-let nativeFixtures = null
+const fixtureCompiledClasses = require(path.resolve(__dirname, '..', 'es2015', 'fixtures', 'classes.js'))
+let fixtureSourceClasses, fixtureSourceAsyncFunction
 try {
-	nativeFixtures = require('../source/test-fixtures.js')
-	console.log('native fixtures supported on this environment')
+	fixtureSourceClasses = require(path.resolve(__dirname, '..', 'source', 'fixtures', 'classes.js'))
+	console.log('native classes supported on this environment')
 }
 catch (err) {
-	console.log('native fixtures NOT supported on this environment', err.message)
+	console.log('native classes NOT supported on this environment', err.message)
+}
+try {
+	fixtureSourceAsyncFunction = require(path.resolve(__dirname, '..', 'source', 'fixtures', 'async.js'))
+	console.log('native classes supported on this environment')
+}
+catch (err) {
+	console.log('native classes NOT supported on this environment', err.message)
 }
 
 // Types
@@ -36,10 +44,10 @@ suite('typechecker', function (suite, test) {
 			equal(typeChecker.isPlainObject('a'), false, 'string should not be a plain object')
 			equal(typeChecker.isPlainObject(''), false, 'empty string should not be a plain object')
 			equal(typeChecker.isPlainObject(), false, 'undefined should not be a plain object')
-			if (nativeFixtures) {
-				equal(typeChecker.isPlainObject(new nativeFixtures.A()), false, 'native clas instantiation should not be a plain object')
+			if (fixtureSourceClasses) {
+				equal(typeChecker.isPlainObject(new fixtureSourceClasses.A()), false, 'native clas instantiation should not be a plain object')
 			}
-			equal(typeChecker.isPlainObject(new conventionalFixtures.A()), false, 'conventional class instantiation should not be a plain object')
+			equal(typeChecker.isPlainObject(new fixtureCompiledClasses.A()), false, 'conventional class instantiation should not be a plain object')
 		})
 
 		test('isEmpty', function () {
@@ -59,53 +67,53 @@ suite('typechecker', function (suite, test) {
 				equal(typeChecker.isEmptyObject({ a: 1 }), false, '{a: 1} should not be considered empty')
 			})
 			test('native classes', function () {
-				if (!nativeFixtures) {
+				if (!fixtureSourceClasses) {
 					console.log('skipping checks as native classes not supported on this environment')
 					return
 				}
-				equal(typeChecker.isEmptyObject(new nativeFixtures.A()), true, 'class A instantiation should be considered empty')
-				equal(typeChecker.isEmptyObject(new nativeFixtures.D()), true, 'class D instantiation should not be considered empty')
-				equal(typeChecker.isEmptyObject(new nativeFixtures.E()), true, 'class E instantiation should be considered empty')
-				equal(typeChecker.isEmptyObject(new nativeFixtures.F()), false, 'class F instantiation should not be considered empty')
+				equal(typeChecker.isEmptyObject(new fixtureSourceClasses.A()), true, 'class A instantiation should be considered empty')
+				equal(typeChecker.isEmptyObject(new fixtureSourceClasses.D()), true, 'class D instantiation should not be considered empty')
+				equal(typeChecker.isEmptyObject(new fixtureSourceClasses.E()), true, 'class E instantiation should be considered empty')
+				equal(typeChecker.isEmptyObject(new fixtureSourceClasses.F()), false, 'class F instantiation should not be considered empty')
 			})
 			test('conventional classes', function () {
-				equal(typeChecker.isEmptyObject(new conventionalFixtures.A()), true, 'class A instantiation should be considered empty')
-				equal(typeChecker.isEmptyObject(new conventionalFixtures.D()), true, 'class D instantiation should not be considered empty')
-				equal(typeChecker.isEmptyObject(new conventionalFixtures.E()), true, 'class E instantiation should be considered empty')
-				equal(typeChecker.isEmptyObject(new conventionalFixtures.F()), false, 'class F instantiation should not be considered empty')
+				equal(typeChecker.isEmptyObject(new fixtureCompiledClasses.A()), true, 'class A instantiation should be considered empty')
+				equal(typeChecker.isEmptyObject(new fixtureCompiledClasses.D()), true, 'class D instantiation should not be considered empty')
+				equal(typeChecker.isEmptyObject(new fixtureCompiledClasses.E()), true, 'class E instantiation should be considered empty')
+				equal(typeChecker.isEmptyObject(new fixtureCompiledClasses.F()), false, 'class F instantiation should not be considered empty')
 			})
 		})
 
 		test('isNativeClass', function () {
-			if (!nativeFixtures) {
+			if (!fixtureSourceClasses) {
 				console.log('skipping checks as native classes not supported on this environment')
 				return
 			}
-			equal(typeChecker.isNativeClass(nativeFixtures.A), true, 'class A {} should be considered native class')
-			equal(typeChecker.isNativeClass(nativeFixtures.b), true, 'class {} should be considered native class')
-			equal(typeChecker.isNativeClass(nativeFixtures.C), true, 'class C extends A {} should be considered native class')
+			equal(typeChecker.isNativeClass(fixtureSourceClasses.A), true, 'class A {} should be considered native class')
+			equal(typeChecker.isNativeClass(fixtureSourceClasses.b), true, 'class {} should be considered native class')
+			equal(typeChecker.isNativeClass(fixtureSourceClasses.C), true, 'class C extends A {} should be considered native class')
 			equal(typeChecker.isNativeClass(function () { }), false, 'function () {} should not be considered native class')
 		})
 
 		test('isConventionalClass', function () {
-			equal(typeChecker.isConventionalClass(conventionalFixtures.A), true, 'compiled class A {} should be considered conventional class')
-			equal(typeChecker.isConventionalClass(conventionalFixtures.a), false, 'compiled class a {} should not be considered conventional class')
-			equal(typeChecker.isConventionalClass(conventionalFixtures.b), false, 'compiled class {} should not be considered conventional class')
-			equal(typeChecker.isConventionalClass(conventionalFixtures.C), true, 'compiled class C extends A {} should not be considered conventional class')
+			equal(typeChecker.isConventionalClass(fixtureCompiledClasses.A), true, 'compiled class A {} should be considered conventional class')
+			equal(typeChecker.isConventionalClass(fixtureCompiledClasses.a), false, 'compiled class a {} should not be considered conventional class')
+			equal(typeChecker.isConventionalClass(fixtureCompiledClasses.b), false, 'compiled class {} should not be considered conventional class')
+			equal(typeChecker.isConventionalClass(fixtureCompiledClasses.C), true, 'compiled class C extends A {} should not be considered conventional class')
 			equal(typeChecker.isConventionalClass(function B () { }), true, 'function B () {} should be considered conventional class')
 			equal(typeChecker.isConventionalClass(function b () { }), false, 'function b () {} should not be considered conventional class')
 			equal(typeChecker.isConventionalClass(function () { }), false, 'function () {} should not be considered conventional class')
 		})
 
 		test('isAsyncFunction', function () {
-			if (!nativeFixtures) {
+			if (!fixtureSourceAsyncFunction) {
 				console.log('skipping checks as native async functions not supported on this environment')
 				return
 			}
-			equal(typeChecker.isAsyncFunction(nativeFixtures.AsyncFunction), true, 'async function AsyncFunction () {} should be considered an async function')
-			equal(typeChecker.isSyncFunction(nativeFixtures.AsyncFunction), false, 'async function AsyncFunction () {} should not be considered a sync function')
-			equal(typeChecker.isFunction(nativeFixtures.AsyncFunction), true, 'async function AsyncFunction () {} should be considered a function')
-			equal(typeChecker.getType(nativeFixtures.AsyncFunction), 'function', 'async function AsyncFunction () {} should be considered a function type')
+			equal(typeChecker.isAsyncFunction(fixtureSourceAsyncFunction), true, 'async function AsyncFunction () {} should be considered an async function')
+			equal(typeChecker.isSyncFunction(fixtureSourceAsyncFunction), false, 'async function AsyncFunction () {} should not be considered a sync function')
+			equal(typeChecker.isFunction(fixtureSourceAsyncFunction), true, 'async function AsyncFunction () {} should be considered a function')
+			equal(typeChecker.getType(fixtureSourceAsyncFunction), 'function', 'async function AsyncFunction () {} should be considered a function type')
 		})
 
 	})
@@ -119,9 +127,9 @@ suite('typechecker', function (suite, test) {
 			[{}, 'object'],
 			[new Map(), 'map'],
 			[new WeakMap(), 'weakmap'],
-			[conventionalFixtures.A, 'class'],
-			[conventionalFixtures.a, 'function'],
-			[conventionalFixtures.b, 'function'],
+			[fixtureCompiledClasses.A, 'class'],
+			[fixtureCompiledClasses.a, 'function'],
+			[fixtureCompiledClasses.b, 'function'],
 			[function FunctionClass () { }, 'class'],
 			[function functionClass () { }, 'function'],
 			[function () { }, 'function'],
@@ -135,8 +143,8 @@ suite('typechecker', function (suite, test) {
 		]
 
 		// Native
-		if (nativeFixtures) {
-			typeTestData.push([nativeFixtures.A, 'class'], [nativeFixtures.a, 'class'], [nativeFixtures.b, 'class'])
+		if (fixtureSourceClasses) {
+			typeTestData.push([fixtureSourceClasses.A, 'class'], [fixtureSourceClasses.a, 'class'], [fixtureSourceClasses.b, 'class'])
 		}
 		else {
 			console.log("didn't add native class types as native classes are not supported on this environment")

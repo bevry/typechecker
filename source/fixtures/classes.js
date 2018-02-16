@@ -19,6 +19,4 @@ class F extends E {
 	}
 }
 
-async function AsyncFunction () { }
-
-module.exports = { A, a, b, C, D, E, F, AsyncFunction }
+module.exports = { A, a, b, C, D, E, F }
