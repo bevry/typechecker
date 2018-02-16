@@ -1,18 +1,26 @@
 # History
 
+## v4.5.0 2018 February 17
+- asynchronous functions are now detected as functions, before there was no support for them
+    - `getType(async function () {})` now returns `function`
+    - `isFunction(async function () {})` returns `true`
+    - `isAsyncFunction(async function () {})` returns `true`
+    - `isSyncFunction(async function () {})` returns `false`
+    - Thanks to [David Kebler](https://github.com/dkebler) for [issue #17](https://github.com/bevry/typechecker/issues/17)
+
 ## v4.4.1 2017 January 18
 - Made custom type map argument in `getType` actually work
-  - Thanks to [David Kebler](https://github.com/dkebler) for [issue #15](https://github.com/bevry/typechecker/issues/15)
+    - Thanks to [David Kebler](https://github.com/dkebler) for [issue #15](https://github.com/bevry/typechecker/issues/15)
 
 ## v4.4.0 2016 November 11
 - Use `require` over `import`
 - More efficient `isObject` check
-  - Fixes `isObject` and `isPlainObject` not returning booleans in some cases
-    - Thanks to [athlordJojo](https://github.com/athlordJojo) for [issue #12](https://github.com/bevry/typechecker/issues/12)
+    - Fixes `isObject` and `isPlainObject` not returning booleans in some cases
+        - Thanks to [athlordJojo](https://github.com/athlordJojo) for [issue #12](https://github.com/bevry/typechecker/issues/12)
 - More comprehensive native vs conventional class tests
 - Updated base files
-  - Removes docs being contained in npm package
-    - Thanks to [Adam Demasi](https://github.com/kirb) for [issue #14](https://github.com/bevry/typechecker/issues/14)
+    - Removes docs being contained in npm package
+        - Thanks to [Adam Demasi](https://github.com/kirb) for [issue #14](https://github.com/bevry/typechecker/issues/14)
 - Updated dependencies
 
 ## v4.3.0 2016 March 21
@@ -37,15 +45,15 @@
 ## v4.0.0 2015 September 21
 - Added new `map` and `weakmap` types that the `getType` method can now return
 - Added the methods:
- 	- `isMap` (checks for Map instance)
-	- `isWeakMap` (checks for WeakMap instance)
+    - `isMap` (checks for Map instance)
+    - `isWeakMap` (checks for WeakMap instance)
 
 ## v3.0.0 2015 August 27
 - Added new `class` type that the `getType` method can now return
 - Added the methods:
- 	- `isClass` (checks for native and conventional classes)
-	- `isNativeClass` (checks for native ES6 classes)
-	- `isConventionalClass` (checks for functions that start with a capital letter)
+    - `isClass` (checks for native and conventional classes)
+    - `isNativeClass` (checks for native ES6 classes)
+    - `isConventionalClass` (checks for functions that start with a capital letter)
 - Anonymous compiled/non-native classes may be detected as functions instead of as classes. If you rely on class detection, be aware of this, and document this to your users accordingly.
 
 ## v2.1.0 2015 August 26

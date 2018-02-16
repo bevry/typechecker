@@ -41,7 +41,7 @@ Under certain circumstances `instanceof` may not return the correct results. Thi
 
 ## Usage
 
-[API Documentation.](http://master.typechecker.bevry.surge.sh/docs/)
+[API Documentation](http://master.typechecker.bevry.surge.sh/docs/)
 
 
 <!-- INSTALL/ -->
@@ -55,7 +55,7 @@ Under certain circumstances `instanceof` may not return the correct results. Thi
 <a href="http://browserify.org" title="Browserify lets you require('modules') in the browser by bundling up all of your dependencies"><h3>Browserify</h3></a><ul>
 <li>Install: <code>npm install --save typechecker</code></li>
 <li>Module: <code>require('typechecker')</code></li>
-<li>CDN URL: <code>//wzrd.in/bundle/typechecker@4.4.1</code></li></ul>
+<li>CDN URL: <code>//wzrd.in/bundle/typechecker@4.5.0</code></li></ul>
 
 <a href="http://enderjs.com" title="Ender is a full featured package manager for your browser"><h3>Ender</h3></a><ul>
 <li>Install: <code>ender add typechecker</code></li>
