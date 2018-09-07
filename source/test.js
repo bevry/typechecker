@@ -103,6 +103,7 @@ suite('typechecker', function (suite, test) {
 			equal(typeChecker.isConventionalClass(function B () { }), true, 'function B () {} should be considered conventional class')
 			equal(typeChecker.isConventionalClass(function b () { }), false, 'function b () {} should not be considered conventional class')
 			equal(typeChecker.isConventionalClass(function () { }), false, 'function () {} should not be considered conventional class')
+			equal(typeChecker.isConventionalClass(eval('(function(BasePlugin){})')), false, 'function(BasePlugin){} should not be considered conventional class')
 		})
 
 		test('isAsyncFunction', function () {

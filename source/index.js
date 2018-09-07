@@ -2,10 +2,10 @@
 /* eslint quote-props:0 */
 'use strict'
 
-// Character positions
-const INDEX_OF_FUNCTION_NAME = 9  // "function X", X is at index 9
-const FIRST_UPPERCASE_INDEX_IN_ASCII = 65  // A is at index 65 in ASCII
-const LAST_UPPERCASE_INDEX_IN_ASCII = 90   // Z is at index 90 in ASCII
+// Prepare
+const isClassRegex = /^class\s|^function\s+[A-Z]/
+const isConventionalClassRegex = /^function\s+[A-Z]/
+const isNativeClassRegex = /^class\s/
 
 
 // -----------------------------------
@@ -71,7 +71,7 @@ function isEmptyObject (value /* :Object */) /* :boolean */ {
  */
 function isNativeClass (value /* :mixed */) /* :boolean */ {
 	// NOTE TO DEVELOPER: If any of this changes, isClass must also be updated
-	return typeof value === 'function' && value.toString().indexOf('class') === 0
+	return typeof value === 'function' && isNativeClassRegex.test(value.toString())
 }
 
 /**
@@ -83,9 +83,7 @@ function isNativeClass (value /* :mixed */) /* :boolean */ {
  * @returns {boolean}
  */
 function isConventionalClass (value /* :any */) /* :boolean */ {
-	if (typeof value !== 'function') return false
-	const c = value.toString().charCodeAt(INDEX_OF_FUNCTION_NAME)
-	return c >= FIRST_UPPERCASE_INDEX_IN_ASCII && c <= LAST_UPPERCASE_INDEX_IN_ASCII
+	return typeof value === 'function' && isConventionalClassRegex.test(value.toString())
 }
 
 // There use to be code here that checked for CoffeeScript's "function _Class" at index 0 (which was sound)
@@ -103,12 +101,7 @@ function isConventionalClass (value /* :any */) /* :boolean */ {
  * @returns {boolean}
  */
 function isClass (value /* :any */) /* :boolean */ {
-	// NOTE TO DEVELOPER: If any of this changes, you may also need to update isNativeClass
-	if (typeof value !== 'function') return false
-	const s = value.toString()
-	if (s.indexOf('class') === 0) return true
-	const c = s.charCodeAt(INDEX_OF_FUNCTION_NAME)
-	return c >= FIRST_UPPERCASE_INDEX_IN_ASCII && c <= LAST_UPPERCASE_INDEX_IN_ASCII
+	return typeof value === 'function' && isClassRegex.test(value.toString())
 }
 
 /**
