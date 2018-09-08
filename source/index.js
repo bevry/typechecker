@@ -7,54 +7,53 @@ const isClassRegex = /^class\s|^function\s+[A-Z]/
 const isConventionalClassRegex = /^function\s+[A-Z]/
 const isNativeClassRegex = /^class\s/
 
-
 // -----------------------------------
 // Values
 
 /**
  * Get the object type string
- * @param {any} value
+ * @param {*} value
  * @returns {string}
  */
-function getObjectType (value /* :mixed */) /* :string */ {
+function getObjectType (value) {
 	return Object.prototype.toString.call(value)
 }
 
 /**
  * Checks to see if a value is an object
- * @param {any} value
+ * @param {*} value
  * @returns {boolean}
  */
-function isObject (value /* :any */) /* :boolean */ {
+function isObject (value) {
 	// null is object, hence the extra check
 	return value !== null && typeof value === 'object'
 }
 
 /**
  * Checks to see if a value is an object and only an object
- * @param {any} value
+ * @param {*} value
  * @returns {boolean}
  */
-function isPlainObject (value /* :any */) /* :boolean */ {
+function isPlainObject (value) {
 	/* eslint no-proto:0 */
 	return isObject(value) && value.__proto__ === Object.prototype
 }
 
 /**
  * Checks to see if a value is empty
- * @param {any} value
+ * @param {*} value
  * @returns {boolean}
  */
-function isEmpty (value /* :mixed */) /* :boolean */ {
+function isEmpty (value) {
 	return value == null
 }
 
 /**
  * Is empty object
- * @param {any} value
+ * @param {*} value
  * @returns {boolean}
  */
-function isEmptyObject (value /* :Object */) /* :boolean */ {
+function isEmptyObject (value /* :Object */) {
 	// We could use Object.keys, but this is more effecient
 	for (const key in value) {
 		if (value.hasOwnProperty(key)) {
@@ -66,10 +65,10 @@ function isEmptyObject (value /* :Object */) /* :boolean */ {
 
 /**
  * Is ES6+ class
- * @param {any} value
+ * @param {*} value
  * @returns {boolean}
  */
-function isNativeClass (value /* :mixed */) /* :boolean */ {
+function isNativeClass (value) {
 	// NOTE TO DEVELOPER: If any of this changes, isClass must also be updated
 	return typeof value === 'function' && isNativeClassRegex.test(value.toString())
 }
@@ -79,10 +78,10 @@ function isNativeClass (value /* :mixed */) /* :boolean */ {
  * Looks for function with capital first letter MyClass
  * First letter is the 9th character
  * If changed, isClass must also be updated
- * @param {any} value
+ * @param {*} value
  * @returns {boolean}
  */
-function isConventionalClass (value /* :any */) /* :boolean */ {
+function isConventionalClass (value) {
 	return typeof value === 'function' && isConventionalClassRegex.test(value.toString())
 }
 
@@ -97,155 +96,172 @@ function isConventionalClass (value /* :any */) /* :boolean */ {
 
 /**
  * Is Class
- * @param {any} value
+ * @param {*} value
  * @returns {boolean}
  */
-function isClass (value /* :any */) /* :boolean */ {
+function isClass (value) {
 	return typeof value === 'function' && isClassRegex.test(value.toString())
 }
 
 /**
  * Checks to see if a value is an error
- * @param {any} value
+ * @param {*} value
  * @returns {boolean}
  */
-function isError (value /* :mixed */) /* :boolean */ {
+function isError (value) {
 	return value instanceof Error
 }
 
 /**
  * Checks to see if a value is a date
- * @param {any} value
+ * @param {*} value
  * @returns {boolean}
  */
-function isDate (value /* :mixed */) /* :boolean */ {
+function isDate (value) {
 	return getObjectType(value) === '[object Date]'
 }
 
 /**
  * Checks to see if a value is an arguments object
- * @param {any} value
+ * @param {*} value
  * @returns {boolean}
  */
-function isArguments (value /* :mixed */) /* :boolean */ {
+function isArguments (value) {
 	return getObjectType(value) === '[object Arguments]'
 }
 
 /**
  * Checks to see if a value is a function but not an asynchronous function
- * @param {any} value
+ * @param {*} value
  * @returns {boolean}
  */
-function isSyncFunction (value /* :mixed */) /* :boolean */ {
+function isSyncFunction (value) {
 	return getObjectType(value) === '[object Function]'
 }
 
 /**
  * Checks to see if a value is an asynchronous function
- * @param {any} value
+ * @param {*} value
  * @returns {boolean}
  */
-function isAsyncFunction (value /* :mixed */) /* :boolean */ {
+function isAsyncFunction (value) {
 	return getObjectType(value) === '[object AsyncFunction]'
 }
 
 /**
  * Checks to see if a value is a function
- * @param {any} value
+ * @param {*} value
  * @returns {boolean}
  */
-function isFunction (value /* :mixed */) /* :boolean */ {
+function isFunction (value) {
 	return isSyncFunction(value) || isAsyncFunction(value)
 }
 
 /**
  * Checks to see if a value is an regex
- * @param {any} value
+ * @param {*} value
  * @returns {boolean}
  */
-function isRegExp (value /* :mixed */) /* :boolean */ {
+function isRegExp (value) {
 	return getObjectType(value) === '[object RegExp]'
 }
 
 /**
  * Checks to see if a value is an array
- * @param {any} value
+ * @param {*} value
  * @returns {boolean}
  */
-function isArray (value /* :mixed */) /* :boolean */ {
+function isArray (value) {
 	return (typeof Array.isArray === 'function' && Array.isArray(value)) || getObjectType(value) === '[object Array]'
 }
 
 /**
  * Checks to see if a valule is a number
- * @param {any} value
+ * @param {*} value
  * @returns {boolean}
  */
-function isNumber (value /* :mixed */) /* :boolean */ {
+function isNumber (value) {
 	return typeof value === 'number' || getObjectType(value) === '[object Number]'
 }
 
 /**
  * Checks to see if a value is a string
- * @param {any} value
+ * @param {*} value
  * @returns {boolean}
  */
-function isString (value /* :mixed */) /* :boolean */ {
+function isString (value) {
 	return typeof value === 'string' || getObjectType(value) === '[object String]'
 }
 
 /**
  * Checks to see if a valule is a boolean
- * @param {any} value
+ * @param {*} value
  * @returns {boolean}
  */
-function isBoolean (value /* :mixed */) /* :boolean */ {
+function isBoolean (value) {
 	return value === true || value === false || getObjectType(value) === '[object Boolean]'
 }
 
 /**
  * Checks to see if a value is null
- * @param {any} value
+ * @param {*} value
  * @returns {boolean}
  */
-function isNull (value /* :mixed */) /* :boolean */ {
+function isNull (value) {
 	return value === null
 }
 
 /**
  * Checks to see if a value is undefined
- * @param {any} value
+ * @param {*} value
  * @returns {boolean}
  */
-function isUndefined (value /* :mixed */) /* :boolean */ {
+function isUndefined (value) {
 	return typeof value === 'undefined'
 }
 
 /**
  * Checks to see if a value is a Map
- * @param {any} value
+ * @param {*} value
  * @returns {boolean}
  */
-function isMap (value /* :mixed */) /* :boolean */ {
+function isMap (value) {
 	return getObjectType(value) === '[object Map]'
 }
 
 /**
  * Checks to see if a value is a WeakMap
- * @param {any} value
+ * @param {*} value
  * @returns {boolean}
  */
-function isWeakMap (value /* :mixed */) /* :boolean */ {
+function isWeakMap (value) {
 	return getObjectType(value) === '[object WeakMap]'
 }
-
 
 // -----------------------------------
 // General
 
 /**
- * The type mapping (type => method) to use for getType. Frozen.
+ * The interface for methods that test for a particular type.
+ * @typedef {function} TypeTester
+ * @param {*} value the value that will have its type tested
+ * @returns {boolean} `true` if the value matches the type that the function tests against
+ */
+
+/**
+ * The interface for a type mapping (key => function) to use for {@link getType}.
+ * The key represents the name of the type. The function represents the {@link TypeTester test method}.
+ * The map should be ordered by testing preference, with more specific tests first.
+ * If a test returns true, it is selected, and the key is returned as the type.
+ * @typedef {Object<string, TypeTester>} TypeMap
+ */
+
+
+/**
+ * The default {@link TypeMap} for {@link getType}.
  * AsyncFunction and SyncFunction are missing, as they are more specific types that people can detect afterwards.
+ * @readonly
+ * @type {TypeMap}
  */
 const typeMap = Object.freeze({
 	array: isArray,
@@ -265,12 +281,12 @@ const typeMap = Object.freeze({
 })
 
 /**
- * Get the type of the value in lowercase
- * @param {any} value
- * @param {Object} [customTypeMap] a custom type map (type => method) in case you have new types you wish to use
- * @returns {?string}
+ * Cycle through the passed {@link TypeMap} testing the value, returning the first type that passes, otherwise `null`.
+ * @param {*} value the value to test
+ * @param {TypeMap} [customTypeMap] defaults to {@link typeMap}
+ * @returns {string|null}
  */
-function getType (value /* :mixed */, customTypeMap /* :Object */ = typeMap) /* :?string */ {
+function getType (value, customTypeMap = typeMap) {
 	// Cycle through our type map
 	for (const key in customTypeMap) {
 		if (customTypeMap.hasOwnProperty(key)) {

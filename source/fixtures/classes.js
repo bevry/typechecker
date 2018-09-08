@@ -12,7 +12,6 @@ class D {
 }
 class E extends D { }
 class F extends E {
-	/* :: greeting:?string; */
 	constructor () {
 		super()
 		this.greeting = 'hello'

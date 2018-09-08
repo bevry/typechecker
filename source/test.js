@@ -9,7 +9,7 @@ const { suite } = require('joe')
 const typeChecker = require('./index.js')
 
 // Environment
-const fixtureCompiledClasses = require(path.resolve(__dirname, '..', 'es2015', 'fixtures', 'classes.js'))
+const fixtureCompiledClasses = require(path.resolve(__dirname, '..', 'edition-node-0.8', 'fixtures', 'classes.js'))
 let fixtureSourceClasses, fixtureSourceAsyncFunction
 try {
 	fixtureSourceClasses = require(path.resolve(__dirname, '..', 'source', 'fixtures', 'classes.js'))
