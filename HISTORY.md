@@ -1,5 +1,10 @@
 # History
 
+## v4.6.0 2018 September 8
+- Fixed the false positive of `function(AnArgumentWithAnUpperCaseFirstLetter){}` being detected as a class by `isClass` and `isConventionalClass`
+- Swapped flow type annotation with typescript jsdoc annotations
+- Updated [base files](https://github.com/bevry/base) and [editions](https://github.com/bevry/editions) using [boundation](https://github.com/bevry/boundation)
+
 ## v4.5.0 2018 February 17
 - asynchronous functions are now detected as functions, before there was no support for them
     - `getType(async function () {})` now returns `function`
