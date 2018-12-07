@@ -1,10 +1,14 @@
 # History
 
+## v4.7.0 2018 December 7
+
+-   Updated [base files](https://github.com/bevry/base) and [editions](https://editions.bevry.me) using [boundation](https://github.com/bevry/boundation)
+
 ## v4.6.0 2018 September 8
 
 -   Fixed the false positive of `function(AnArgumentWithAnUpperCaseFirstLetter){}` being detected as a class by `isClass` and `isConventionalClass`
 -   Swapped flow type annotation with typescript jsdoc annotations
--   Updated [base files](https://github.com/bevry/base) and [editions](https://github.com/bevry/editions) using [boundation](https://github.com/bevry/boundation)
+-   Updated [base files](https://github.com/bevry/base) and [editions](https://editions.bevry.me) using [boundation](https://github.com/bevry/boundation)
 
 ## v4.5.0 2018 February 17
 
