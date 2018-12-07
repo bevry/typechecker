@@ -1,18 +1,18 @@
 'use strict'
 
-class A { }
-class a { }
-const b = class { }
-class C extends A { }
+class A {}
+class a {}
+const b = class {}
+class C extends A {}
 
 class D {
-	z () {
+	z() {
 		return this
 	}
 }
-class E extends D { }
+class E extends D {}
 class F extends E {
-	constructor () {
+	constructor() {
 		super()
 		this.greeting = 'hello'
 	}

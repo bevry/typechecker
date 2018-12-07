@@ -15,7 +15,7 @@ const isNativeClassRegex = /^class\s/
  * @param {*} value
  * @returns {string}
  */
-function getObjectType (value) {
+function getObjectType(value) {
 	return Object.prototype.toString.call(value)
 }
 
@@ -24,7 +24,7 @@ function getObjectType (value) {
  * @param {*} value
  * @returns {boolean}
  */
-function isObject (value) {
+function isObject(value) {
 	// null is object, hence the extra check
 	return value !== null && typeof value === 'object'
 }
@@ -34,7 +34,7 @@ function isObject (value) {
  * @param {*} value
  * @returns {boolean}
  */
-function isPlainObject (value) {
+function isPlainObject(value) {
 	/* eslint no-proto:0 */
 	return isObject(value) && value.__proto__ === Object.prototype
 }
@@ -44,7 +44,7 @@ function isPlainObject (value) {
  * @param {*} value
  * @returns {boolean}
  */
-function isEmpty (value) {
+function isEmpty(value) {
 	return value == null
 }
 
@@ -53,7 +53,7 @@ function isEmpty (value) {
  * @param {*} value
  * @returns {boolean}
  */
-function isEmptyObject (value /* :Object */) {
+function isEmptyObject(value /* :Object */) {
 	// We could use Object.keys, but this is more effecient
 	for (const key in value) {
 		if (value.hasOwnProperty(key)) {
@@ -68,9 +68,11 @@ function isEmptyObject (value /* :Object */) {
  * @param {*} value
  * @returns {boolean}
  */
-function isNativeClass (value) {
+function isNativeClass(value) {
 	// NOTE TO DEVELOPER: If any of this changes, isClass must also be updated
-	return typeof value === 'function' && isNativeClassRegex.test(value.toString())
+	return (
+		typeof value === 'function' && isNativeClassRegex.test(value.toString())
+	)
 }
 
 /**
@@ -81,15 +83,17 @@ function isNativeClass (value) {
  * @param {*} value
  * @returns {boolean}
  */
-function isConventionalClass (value) {
-	return typeof value === 'function' && isConventionalClassRegex.test(value.toString())
+function isConventionalClass(value) {
+	return (
+		typeof value === 'function' &&
+		isConventionalClassRegex.test(value.toString())
+	)
 }
 
 // There use to be code here that checked for CoffeeScript's "function _Class" at index 0 (which was sound)
 // But it would also check for Babel's __classCallCheck anywhere in the function, which wasn't sound
 // as somewhere in the function, another class could be defined, which would provide a false positive
 // So instead, proxied classes are ignored, as we can't guarantee their accuracy, would also be an ever growing set
-
 
 // -----------------------------------
 // Types
@@ -99,7 +103,7 @@ function isConventionalClass (value) {
  * @param {*} value
  * @returns {boolean}
  */
-function isClass (value) {
+function isClass(value) {
 	return typeof value === 'function' && isClassRegex.test(value.toString())
 }
 
@@ -108,7 +112,7 @@ function isClass (value) {
  * @param {*} value
  * @returns {boolean}
  */
-function isError (value) {
+function isError(value) {
 	return value instanceof Error
 }
 
@@ -117,7 +121,7 @@ function isError (value) {
  * @param {*} value
  * @returns {boolean}
  */
-function isDate (value) {
+function isDate(value) {
 	return getObjectType(value) === '[object Date]'
 }
 
@@ -126,7 +130,7 @@ function isDate (value) {
  * @param {*} value
  * @returns {boolean}
  */
-function isArguments (value) {
+function isArguments(value) {
 	return getObjectType(value) === '[object Arguments]'
 }
 
@@ -135,7 +139,7 @@ function isArguments (value) {
  * @param {*} value
  * @returns {boolean}
  */
-function isSyncFunction (value) {
+function isSyncFunction(value) {
 	return getObjectType(value) === '[object Function]'
 }
 
@@ -144,7 +148,7 @@ function isSyncFunction (value) {
  * @param {*} value
  * @returns {boolean}
  */
-function isAsyncFunction (value) {
+function isAsyncFunction(value) {
 	return getObjectType(value) === '[object AsyncFunction]'
 }
 
@@ -153,7 +157,7 @@ function isAsyncFunction (value) {
  * @param {*} value
  * @returns {boolean}
  */
-function isFunction (value) {
+function isFunction(value) {
 	return isSyncFunction(value) || isAsyncFunction(value)
 }
 
@@ -162,7 +166,7 @@ function isFunction (value) {
  * @param {*} value
  * @returns {boolean}
  */
-function isRegExp (value) {
+function isRegExp(value) {
 	return getObjectType(value) === '[object RegExp]'
 }
 
@@ -171,8 +175,11 @@ function isRegExp (value) {
  * @param {*} value
  * @returns {boolean}
  */
-function isArray (value) {
-	return (typeof Array.isArray === 'function' && Array.isArray(value)) || getObjectType(value) === '[object Array]'
+function isArray(value) {
+	return (
+		(typeof Array.isArray === 'function' && Array.isArray(value)) ||
+		getObjectType(value) === '[object Array]'
+	)
 }
 
 /**
@@ -180,7 +187,7 @@ function isArray (value) {
  * @param {*} value
  * @returns {boolean}
  */
-function isNumber (value) {
+function isNumber(value) {
 	return typeof value === 'number' || getObjectType(value) === '[object Number]'
 }
 
@@ -189,7 +196,7 @@ function isNumber (value) {
  * @param {*} value
  * @returns {boolean}
  */
-function isString (value) {
+function isString(value) {
 	return typeof value === 'string' || getObjectType(value) === '[object String]'
 }
 
@@ -198,8 +205,12 @@ function isString (value) {
  * @param {*} value
  * @returns {boolean}
  */
-function isBoolean (value) {
-	return value === true || value === false || getObjectType(value) === '[object Boolean]'
+function isBoolean(value) {
+	return (
+		value === true ||
+		value === false ||
+		getObjectType(value) === '[object Boolean]'
+	)
 }
 
 /**
@@ -207,7 +218,7 @@ function isBoolean (value) {
  * @param {*} value
  * @returns {boolean}
  */
-function isNull (value) {
+function isNull(value) {
 	return value === null
 }
 
@@ -216,7 +227,7 @@ function isNull (value) {
  * @param {*} value
  * @returns {boolean}
  */
-function isUndefined (value) {
+function isUndefined(value) {
 	return typeof value === 'undefined'
 }
 
@@ -225,7 +236,7 @@ function isUndefined (value) {
  * @param {*} value
  * @returns {boolean}
  */
-function isMap (value) {
+function isMap(value) {
 	return getObjectType(value) === '[object Map]'
 }
 
@@ -234,7 +245,7 @@ function isMap (value) {
  * @param {*} value
  * @returns {boolean}
  */
-function isWeakMap (value) {
+function isWeakMap(value) {
 	return getObjectType(value) === '[object WeakMap]'
 }
 
@@ -256,7 +267,6 @@ function isWeakMap (value) {
  * @typedef {Object<string, TypeTester>} TypeMap
  */
 
-
 /**
  * The default {@link TypeMap} for {@link getType}.
  * AsyncFunction and SyncFunction are missing, as they are more specific types that people can detect afterwards.
@@ -274,7 +284,7 @@ const typeMap = Object.freeze({
 	number: isNumber,
 	regexp: isRegExp,
 	string: isString,
-	'undefined': isUndefined,
+	undefined: isUndefined,
 	map: isMap,
 	weakmap: isWeakMap,
 	object: isObject
@@ -286,7 +296,7 @@ const typeMap = Object.freeze({
  * @param {TypeMap} [customTypeMap] defaults to {@link typeMap}
  * @returns {string|null}
  */
-function getType (value, customTypeMap = typeMap) {
+function getType(value, customTypeMap = typeMap) {
 	// Cycle through our type map
 	for (const key in customTypeMap) {
 		if (customTypeMap.hasOwnProperty(key)) {

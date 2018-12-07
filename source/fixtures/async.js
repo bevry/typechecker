@@ -1,3 +1,3 @@
 'use strict'
 
-module.exports = async function AsyncFunction () { }
+module.exports = async function AsyncFunction() {}
