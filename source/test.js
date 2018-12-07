@@ -16,7 +16,7 @@ const fixtureCompiledClasses = require(path.resolve(
 	'fixtures',
 	'classes.js'
 ))
-let fixtureSourceClasses, fixtureSourceAsyncFunction
+let fixtureSourceClasses, fixtureSourceAsyncFunction, fixtureMap, fixtureWeakMap
 try {
 	fixtureSourceClasses = require(path.resolve(
 		__dirname,
@@ -40,6 +40,30 @@ try {
 	console.log('native classes supported on this environment')
 } catch (err) {
 	console.log('native classes NOT supported on this environment', err.message)
+}
+try {
+	fixtureMap = require(path.resolve(
+		__dirname,
+		'..',
+		'source',
+		'fixtures',
+		'map.js'
+	))
+	console.log('native Map supported on this environment')
+} catch (err) {
+	console.log('native Map NOT supported on this environment', err.message)
+}
+try {
+	fixtureWeakMap = require(path.resolve(
+		__dirname,
+		'..',
+		'source',
+		'fixtures',
+		'weakmap.js'
+	))
+	console.log('native WeakMap supported on this environment')
+} catch (err) {
+	console.log('native WeakMap NOT supported on this environment', err.message)
 }
 
 // Types
@@ -111,28 +135,41 @@ suite('typechecker', function(suite, test) {
 		})
 
 		suite('isEmptyObject', function(suite, test) {
-			test('primatives', function() {
-				equal(
-					typeChecker.isEmptyObject({}),
-					true,
-					'{} should be considered empty'
-				)
-				equal(
-					typeChecker.isEmptyObject(new Map()),
-					true,
-					'new Map() should be considered empty'
-				)
-				equal(
-					typeChecker.isEmptyObject(new WeakMap()),
-					true,
-					'new WeakMap() should be considered empty'
-				)
-				equal(
-					typeChecker.isEmptyObject({ a: 1 }),
-					false,
-					'{a: 1} should not be considered empty'
-				)
+			suite('primatives', function(suite, test) {
+				test('empty object', function() {
+					equal(
+						typeChecker.isEmptyObject({}),
+						true,
+						'{} should be considered empty'
+					)
+				})
+				if (fixtureMap) {
+					test('map', function() {
+						equal(
+							typeChecker.isEmptyObject(fixtureMap),
+							true,
+							'new Map() should be considered empty'
+						)
+					})
+				}
+				if (fixtureWeakMap) {
+					test('weakmap', function() {
+						equal(
+							typeChecker.isEmptyObject(fixtureWeakMap),
+							true,
+							'new WeakMap() should be considered empty'
+						)
+					})
+				}
+				test('non-empty object', function() {
+					equal(
+						typeChecker.isEmptyObject({ a: 1 }),
+						false,
+						'{a: 1} should not be considered empty'
+					)
+				})
 			})
+
 			test('native classes', function() {
 				if (!fixtureSourceClasses) {
 					console.log(
@@ -294,8 +331,6 @@ suite('typechecker', function(suite, test) {
 			[true, 'boolean'],
 			['', 'string'],
 			[{}, 'object'],
-			[new Map(), 'map'],
-			[new WeakMap(), 'weakmap'],
 			[fixtureCompiledClasses.A, 'class'],
 			[fixtureCompiledClasses.a, 'function'],
 			[fixtureCompiledClasses.b, 'function'],
@@ -323,6 +358,12 @@ suite('typechecker', function(suite, test) {
 				"didn't add native class types as native classes are not supported on this environment"
 			)
 		}
+		if (fixtureMap) {
+			typeTestData.push([fixtureMap, 'map'])
+		}
+		if (fixtureWeakMap) {
+			typeTestData.push([fixtureWeakMap, 'weakmap'])
+		}
 
 		// Handler
 		function testType(value, typeExpected, typeActual) {
@@ -343,30 +384,23 @@ suite('typechecker', function(suite, test) {
 		})
 	})
 
-	test('custom type map', function() {
+	suite('custom type map', function(suite, test) {
 		const customTypeMap = {
-			map: typeChecker.isMap,
-			object: typeChecker.isObject
+			truthy: value => Boolean(value)
 		}
-		equal(
-			typeChecker.getType(new Map()),
-			'map',
-			'weak map came back as expected using default type map'
-		)
-		equal(
-			typeChecker.getType(new WeakMap()),
-			'weakmap',
-			'weak map came back as xpected using default type map'
-		)
-		equal(
-			typeChecker.getType(new Map(), customTypeMap),
-			'map',
-			'map came back as expected with custom type map'
-		)
-		equal(
-			typeChecker.getType(new WeakMap(), customTypeMap),
-			'object',
-			'weak map came back as object as expected as custom type map discards it'
-		)
+		test('custom match', function() {
+			equal(
+				typeChecker.getType('hello', customTypeMap),
+				'truthy',
+				'truthy came back as expected using custom type map'
+			)
+		})
+		test('custom exception', function() {
+			equal(
+				typeChecker.getType(false, customTypeMap),
+				null,
+				'null came back as expected as we had no custom type for falsey'
+			)
+		})
 	})
 })
