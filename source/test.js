@@ -1,4 +1,4 @@
-/* @flow */
+// @ts-nocheck
 /* eslint no-console:0, space-before-keywords:0, no-undefined:0, no-magic-numbers:0, new-cap:0, no-eval:0 */
 'use strict'
 

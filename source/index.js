@@ -1,4 +1,4 @@
-/* @flow */
+// @ts-check
 /* eslint quote-props:0 */
 'use strict'
 
@@ -53,7 +53,7 @@ function isEmpty(value) {
  * @param {*} value
  * @returns {boolean}
  */
-function isEmptyObject(value /* :Object */) {
+function isEmptyObject(value) {
 	// We could use Object.keys, but this is more effecient
 	for (const key in value) {
 		if (value.hasOwnProperty(key)) {
