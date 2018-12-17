@@ -123,6 +123,7 @@
       }
     }
   ],
+  "types": "source/index.d.ts",
   "main": "index.js",
   "browser": "edition-browsers/index.js",
   "dependencies": {
@@ -130,14 +131,15 @@
   },
   "devDependencies": {
     "@babel/cli": "^7.2.0",
-    "@babel/core": "^7.2.0",
+    "@babel/core": "^7.2.2",
     "@babel/plugin-proposal-object-rest-spread": "^7.2.0",
     "@babel/preset-env": "^7.2.0",
     "assert-helpers": "^4.5.1",
-    "eslint": "^5.9.0",
+    "eslint": "^5.10.0",
     "eslint-config-bevry": "^1.0.2",
     "eslint-config-prettier": "^3.3.0",
     "eslint-plugin-prettier": "^3.0.0",
+    "eslint-plugin-typescript": "^0.14.0",
     "joe-reporter-console": "^2.0.2",
     "jsdoc": "^3.5.5",
     "kava": "^3.1.0",
@@ -145,6 +147,9 @@
     "prettier": "^1.15.3",
     "projectz": "^1.5.3",
     "surge": "^0.20.1",
+    "typedoc": "TypeStrong/typedoc#fix/ignore-excluded-imports",
+    "typescript": "^3.2.2",
+    "typescript-eslint-parser": "^21.0.2",
     "valid-directory": "^1.0.0"
   },
   "scripts": {
@@ -154,7 +159,9 @@
     "our:compile:edition-node-0.8": "env BABEL_ENV=edition-node-0.8 babel --out-dir ./edition-node-0.8 ./source",
     "our:deploy": "echo no need for this project",
     "our:meta": "npm run our:meta:docs && npm run our:meta:projectz",
-    "our:meta:docs": "rm -Rf ./docs && jsdoc --recurse --pedantic --access all --destination ./docs --package ./package.json --readme ./README.md --template ./node_modules/minami ./source && mv ./docs/$npm_package_name/$npm_package_version/* ./docs/ && rm -Rf ./docs/$npm_package_name/$npm_package_version",
+    "our:meta:docs": "npm run our:meta:docs:jsdoc && npm run our:meta:docs:typedoc",
+    "our:meta:docs:jsdoc": "rm -Rf ./docs && jsdoc --recurse --pedantic --access all --destination ./docs --package ./package.json --readme ./README.md --template ./node_modules/minami ./source && mv ./docs/$npm_package_name/$npm_package_version/* ./docs/ && rm -Rf ./docs/$npm_package_name/$npm_package_version",
+    "our:meta:docs:typedoc": "typedoc --includeDeclarations --mode file --exclude '**/+(*test*|node_modules)/**' --name \"$npm_package_name\" --readme ./README.md --out ./docs ./source",
     "our:meta:projectz": "projectz compile",
     "our:release": "npm run our:release:prepare && npm run our:release:check-changelog && npm run our:release:check-dirty && npm run our:release:tag && npm run our:release:push",
     "our:release:check-changelog": "cat ./HISTORY.md | grep v$npm_package_version || (echo add a changelog entry for v$npm_package_version && exit -1)",
@@ -165,9 +172,10 @@
     "our:setup": "npm run our:setup:npm",
     "our:setup:npm": "npm install",
     "our:test": "npm run our:verify && npm test",
-    "our:verify": "npm run our:verify:directory && npm run our:verify:eslint",
+    "our:verify": "npm run our:verify:directory && npm run our:verify:eslint && npm run our:verify:typescript",
     "our:verify:directory": "npx valid-directory",
     "our:verify:eslint": "eslint --fix --ignore-pattern '**/*.d.ts' './source/**/*.*'",
+    "our:verify:typescript": "tsc --project .",
     "test": "node ./test.js"
   },
   "eslintConfig": {

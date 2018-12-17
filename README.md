@@ -101,7 +101,7 @@ Under certain circumstances `instanceof` may not return the correct results. Thi
 
 These amazing people are maintaining this project:
 
-<ul><li><a href="http://balupton.com">Benjamin Lupton</a> — <a href="https://github.com/bevry/typechecker/commits?author=balupton" title="View the GitHub contributions of Benjamin Lupton on repository bevry/typechecker">view contributions</a></li></ul>
+<ul><li><a href="http://balupton.com">Benjamin Lupton</a></li></ul>
 
 <h3>Sponsors</h3>
 
@@ -122,10 +122,10 @@ No sponsors yet! Will you be the first?
 
 These amazing people have contributed code to this project:
 
-<ul><li><a href="http://balupton.com">Benjamin Lupton</a> — <a href="https://github.com/bevry/typechecker/commits?author=balupton" title="View the GitHub contributions of Benjamin Lupton on repository bevry/typechecker">view contributions</a></li>
-<li><a href="joegesualdo.com">Joe Gesualdo</a> — <a href="https://github.com/bevry/typechecker/commits?author=joegesualdo" title="View the GitHub contributions of Joe Gesualdo on repository bevry/typechecker">view contributions</a></li>
-<li><a href="http://seanfridman.com">Sean Fridman</a> — <a href="https://github.com/bevry/typechecker/commits?author=sfrdmn" title="View the GitHub contributions of Sean Fridman on repository bevry/typechecker">view contributions</a></li>
-<li><a href="http://mattbierner.com">Matt Bierner</a> — <a href="https://github.com/bevry/typechecker/commits?author=mjbvz" title="View the GitHub contributions of Matt Bierner on repository bevry/typechecker">view contributions</a></li></ul>
+<ul><li><a href="http://balupton.com">Benjamin Lupton</a></li>
+<li><a href="joegesualdo.com">Joe Gesualdo</a></li>
+<li><a href="http://seanfridman.com">Sean Fridman</a></li>
+<li><a href="http://mattbierner.com">Matt Bierner</a></li></ul>
 
 <a href="https://github.com/bevry/typechecker/blob/master/CONTRIBUTING.md#files">Discover how you can contribute by heading on over to the <code>CONTRIBUTING.md</code> file.</a>
 

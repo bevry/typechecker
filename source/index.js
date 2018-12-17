@@ -1,5 +1,6 @@
 // @ts-check
 /* eslint quote-props:0 */
+// @ts-ignore
 'use strict'
 
 // Prepare
