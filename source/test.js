@@ -1,5 +1,5 @@
 /* @flow */
-/* eslint no-console:0, space-before-keywords:0, no-undefined:0, no-magic-numbers:0, new-cap:0, no-eval:0 */
+/* eslint no-console:0, no-undefined:0, no-magic-numbers:0, new-cap:0, no-eval:0 */
 'use strict'
 
 // Import
@@ -67,7 +67,7 @@ try {
 }
 
 // Types
-suite('typechecker', function(suite, test) {
+suite('typechecker', function(suite) {
 	suite('value', function(suite, test) {
 		test('isObject', function() {
 			equal(typeChecker.isObject({}), true, 'object {} should be a object')
