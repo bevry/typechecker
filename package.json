@@ -144,7 +144,7 @@
     "minami": "^1.2.3",
     "prettier": "^1.15.3",
     "projectz": "^1.5.3",
-    "surge": "^0.20.1",
+    "surge": "^0.21.3",
     "valid-directory": "^1.0.0"
   },
   "scripts": {
