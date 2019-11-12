@@ -1,7 +1,7 @@
 {
   "title": "TypeChecker",
   "name": "typechecker",
-  "version": "4.8.0",
+  "version": "4.9.0",
   "description": "Utilities to get and check variable types (isString, isPlainObject, isRegExp, etc)",
   "homepage": "https://github.com/bevry/typechecker",
   "license": "MIT",
@@ -56,9 +56,11 @@
       "opencollectiveUsername": "bevry",
       "patreonUsername": "bevry",
       "paypalURL": "https://bevry.me/paypal",
-      "wishlistURL": "https://bevry.me/wishlist"
+      "wishlistURL": "https://bevry.me/wishlist",
+      "travisTLD": "com"
     }
   },
+  "funding": "https://bevry.me/fund",
   "author": "2013+ Bevry Pty Ltd <us@bevry.me> (http://bevry.me), 2011-2012 Benjamin Lupton <b@lupton.cc> (http://balupton.com)",
   "maintainers": [
     "Benjamin Lupton <b@lupton.cc> (http://balupton.com)"
@@ -131,16 +133,16 @@
     "@babel/core": "^7.7.2",
     "@babel/plugin-proposal-object-rest-spread": "^7.6.2",
     "@babel/preset-env": "^7.7.1",
-    "assert-helpers": "^4.9.7",
+    "assert-helpers": "4.10.0",
     "eslint": "^6.6.0",
     "eslint-config-bevry": "^1.2.1",
     "eslint-config-prettier": "^6.5.0",
     "eslint-plugin-prettier": "^3.1.1",
     "jsdoc": "^3.6.3",
-    "kava": "^3.1.0",
+    "kava": "^3.2.0",
     "minami": "^1.2.3",
-    "prettier": "^1.18.2",
-    "projectz": "^1.7.5",
+    "prettier": "^1.19.1",
+    "projectz": "^1.9.0",
     "surge": "^0.21.3",
     "valid-directory": "^1.0.0"
   },
@@ -213,9 +215,5 @@
         ]
       }
     }
-  },
-  "funding": {
-    "type": "cooperative",
-    "url": "https://bevry.me/fund"
   }
 }

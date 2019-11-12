@@ -7,7 +7,7 @@
 
 <!-- BADGES/ -->
 
-<span class="badge-travisci"><a href="http://travis-ci.org/bevry/typechecker" title="Check this project's build status on TravisCI"><img src="https://img.shields.io/travis/bevry/typechecker/master.svg" alt="Travis CI Build Status" /></a></span>
+<span class="badge-travisci"><a href="http://travis-ci.com/bevry/typechecker" title="Check this project's build status on TravisCI"><img src="https://img.shields.io/travis/com/bevry/typechecker/master.svg" alt="Travis CI Build Status" /></a></span>
 <span class="badge-npmversion"><a href="https://npmjs.org/package/typechecker" title="View this project on NPM"><img src="https://img.shields.io/npm/v/typechecker.svg" alt="NPM version" /></a></span>
 <span class="badge-npmdownloads"><a href="https://npmjs.org/package/typechecker" title="View this project on NPM"><img src="https://img.shields.io/npm/dm/typechecker.svg" alt="NPM downloads" /></a></span>
 <span class="badge-daviddm"><a href="https://david-dm.org/bevry/typechecker" title="View the status of this project's dependencies on DavidDM"><img src="https://img.shields.io/david/bevry/typechecker.svg" alt="Dependency Status" /></a></span>
