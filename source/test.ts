@@ -1,66 +1,37 @@
-/* @flow */
 /* eslint no-console:0, no-undefined:0, no-magic-numbers:0, new-cap:0, no-eval:0 */
-'use strict'
 
 // Import
-const path = require('path')
-const { equal, inspect } = require('assert-helpers')
-const { suite } = require('kava')
-const typeChecker = require('./index.js')
+import path from 'path'
+import { equal, inspect } from 'assert-helpers'
+import { suite } from 'kava'
+import * as typeChecker from './'
 
 // Environment
-const fixtureCompiledClasses = require(path.resolve(
-	__dirname,
-	'..',
-	'edition-node-0.8',
-	'fixtures',
-	'classes.js'
-))
-let fixtureSourceClasses, fixtureSourceAsyncFunction, fixtureMap, fixtureWeakMap
+const fixtureCompiledClasses = require('../fixtures/classes-compiled.js')
+let fixtureSourceClasses: typeof import('../fixtures/classes.js'),
+	fixtureSourceAsyncFunction: typeof import('../fixtures/async.js'),
+	fixtureMap: typeof import('../fixtures/map.js'),
+	fixtureWeakMap: typeof import('../fixtures/weakmap.js')
 try {
-	fixtureSourceClasses = require(path.resolve(
-		__dirname,
-		'..',
-		'source',
-		'fixtures',
-		'classes.js'
-	))
+	fixtureSourceClasses = require('../fixtures/classes.js')
 	console.log('native classes supported on this environment')
 } catch (err) {
 	console.log('native classes NOT supported on this environment', err.message)
 }
 try {
-	fixtureSourceAsyncFunction = require(path.resolve(
-		__dirname,
-		'..',
-		'source',
-		'fixtures',
-		'async.js'
-	))
+	fixtureSourceAsyncFunction = require('../fixtures/async.js')
 	console.log('native classes supported on this environment')
 } catch (err) {
 	console.log('native classes NOT supported on this environment', err.message)
 }
 try {
-	fixtureMap = require(path.resolve(
-		__dirname,
-		'..',
-		'source',
-		'fixtures',
-		'map.js'
-	))
+	fixtureMap = require('../fixtures/map.js')
 	console.log('native Map supported on this environment')
 } catch (err) {
 	console.log('native Map NOT supported on this environment', err.message)
 }
 try {
-	fixtureWeakMap = require(path.resolve(
-		__dirname,
-		'..',
-		'source',
-		'fixtures',
-		'weakmap.js'
-	))
+	fixtureWeakMap = require('../fixtures/weakmap.js')
 	console.log('native WeakMap supported on this environment')
 } catch (err) {
 	console.log('native WeakMap NOT supported on this environment', err.message)
@@ -366,7 +337,7 @@ suite('typechecker', function(suite) {
 		}
 
 		// Handler
-		function testType(value, typeExpected, typeActual) {
+		function testType(value: any, typeExpected: any, typeActual: any) {
 			test(`should detect ${inspect(
 				value
 			)} is of type ${typeExpected}`, function() {
@@ -385,7 +356,7 @@ suite('typechecker', function(suite) {
 	})
 
 	suite('custom type map', function(suite, test) {
-		const customTypeMap = {
+		const customTypeMap: typeChecker.TypeMap = {
 			truthy: value => Boolean(value)
 		}
 		test('custom match', function() {

@@ -67,21 +67,11 @@ Under certain circumstances `instanceof` may not return the correct results. Thi
 <p>This package is published with the following editions:</p>
 
 <ul><li><code>typechecker</code> aliases <code>typechecker/index.js</code> which uses <a href="https://editions.bevry.me" title="Editions are the best way to produce and consume packages you care about.">Editions</a> to automatically select the correct edition for the consumers environment</li>
-<li><code>typechecker/source/index.js</code> is esnext source code with require for modules</li>
-<li><code>typechecker/edition-browsers/index.js</code> is esnext compiled for browsers with require for modules</li>
-<li><code>typechecker/edition-node-0.8/index.js</code> is esnext compiled for node.js 0.8 with require for modules</li></ul>
-
-<h3><a href="https://www.typescriptlang.org/" title="TypeScript is a typed superset of JavaScript that compiles to plain JavaScript. ">TypeScript</a></h3>
-
-This project provides its type information via inline <a href="http://usejsdoc.org" title="JSDoc is an API documentation generator for JavaScript, similar to Javadoc or phpDocumentor">JSDoc Comments</a>. To make use of this in <a href="https://www.typescriptlang.org/" title="TypeScript is a typed superset of JavaScript that compiles to plain JavaScript. ">TypeScript</a>, set your <code>maxNodeModuleJsDepth</code> compiler option to `5` or thereabouts. You can accomlish this via your `tsconfig.json` file like so:
-
-``` json
-{
-  "compilerOptions": {
-    "maxNodeModuleJsDepth": 5
-  }
-}
-```
+<li><code>typechecker/source/index.ts</code> is typescript source code with import for modules</li>
+<li><code>typechecker/edition-browsers/index.js</code> is typescript compiled for browsers with import for modules</li>
+<li><code>typechecker/edition-node-13/index.js</code> is typescript compiled for node.js 13 with require for modules</li>
+<li><code>typechecker/edition-node-12/index.js</code> is typescript compiled for node.js 12 with require for modules</li>
+<li><code>typechecker/edition-node-0.8/index.js</code> is typescript compiled for node.js 0.8 with require for modules</li></ul>
 
 <!-- /INSTALL -->
 
@@ -134,7 +124,8 @@ These amazing people have contributed code to this project:
 <ul><li><a href="http://balupton.com">Benjamin Lupton</a> — <a href="https://github.com/bevry/typechecker/commits?author=balupton" title="View the GitHub contributions of Benjamin Lupton on repository bevry/typechecker">view contributions</a></li>
 <li><a href="joegesualdo.com">Joe Gesualdo</a> — <a href="https://github.com/bevry/typechecker/commits?author=joegesualdo" title="View the GitHub contributions of Joe Gesualdo on repository bevry/typechecker">view contributions</a></li>
 <li><a href="http://seanfridman.com">Sean Fridman</a> — <a href="https://github.com/bevry/typechecker/commits?author=sfrdmn" title="View the GitHub contributions of Sean Fridman on repository bevry/typechecker">view contributions</a></li>
-<li><a href="http://mattbierner.com">Matt Bierner</a> — <a href="https://github.com/bevry/typechecker/commits?author=mjbvz" title="View the GitHub contributions of Matt Bierner on repository bevry/typechecker">view contributions</a></li></ul>
+<li><a href="http://mattbierner.com">Matt Bierner</a> — <a href="https://github.com/bevry/typechecker/commits?author=mjbvz" title="View the GitHub contributions of Matt Bierner on repository bevry/typechecker">view contributions</a></li>
+<li><a href="http://github.com/apps/dependabot-preview">dependabot-preview[bot]</a> — <a href="https://github.com/bevry/typechecker/commits?author=dependabot-preview[bot]" title="View the GitHub contributions of dependabot-preview[bot] on repository bevry/typechecker">view contributions</a></li></ul>
 
 <a href="https://github.com/bevry/typechecker/blob/master/CONTRIBUTING.md#files">Discover how you can contribute by heading on over to the <code>CONTRIBUTING.md</code> file.</a>
 
