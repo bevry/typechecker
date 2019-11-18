@@ -70,7 +70,6 @@ Under certain circumstances `instanceof` may not return the correct results. Thi
 <li><code>typechecker/source/index.ts</code> is typescript source code with import for modules</li>
 <li><code>typechecker/edition-browsers/index.js</code> is typescript compiled for browsers with import for modules</li>
 <li><code>typechecker/edition-node-13/index.js</code> is typescript compiled for node.js 13 with require for modules</li>
-<li><code>typechecker/edition-node-12/index.js</code> is typescript compiled for node.js 12 with require for modules</li>
 <li><code>typechecker/edition-node-0.8/index.js</code> is typescript compiled for node.js 0.8 with require for modules</li></ul>
 
 <!-- /INSTALL -->
