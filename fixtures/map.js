@@ -1,3 +1,3 @@
 'use strict'
 
-module.exports = new Map()
+module.exports = new Map([['a', 'value']])

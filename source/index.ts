@@ -38,23 +38,6 @@ export function isPlainObject(value?: any): boolean {
 	return isObject(value) && value.__proto__ === Object.prototype
 }
 
-/** Checks to see if a value is empty */
-export function isEmpty(value?: any): boolean {
-	return value == null
-}
-
-/**
- * Is empty object */
-export function isEmptyObject(value: object): boolean {
-	// We could use Object.keys, but this is more effecient
-	for (const key in value) {
-		if (value.hasOwnProperty(key)) {
-			return false
-		}
-	}
-	return true
-}
-
 /**
  * Is ES6+ class */
 export function isNativeClass(value?: any): boolean {
@@ -171,6 +154,69 @@ export function isMap(value?: any): boolean {
 /** Checks to see if a value is a WeakMap */
 export function isWeakMap(value?: any): boolean {
 	return getObjectType(value) === '[object WeakMap]'
+}
+
+// -----------------------------------
+// Empty
+
+/** Checks to see if a value is nullish */
+export function isNullish(value?: any): boolean {
+	return value == null
+}
+
+/**
+ * Is empty array
+ * Will throw if the value was not an array
+ */
+export function isEmptyArray(value: Array<any>): boolean {
+	if (!isArray(value)) throw new Error('value was not an array')
+	return value.length === 0
+}
+
+/**
+ * Is empty plain object
+ * Will throw if the value was not a plain object
+ */
+export function isEmptyPlainObject(value: object): boolean {
+	if (!isPlainObject(value)) throw new Error('value was not a plain object')
+	// We could use Object.keys, but this is more effecient
+	for (const key in value) {
+		if (value.hasOwnProperty(key)) {
+			return false
+		}
+	}
+	return true
+}
+
+/**
+ * Is empty map
+ * Will throw if the value was not a map
+ */
+export function isEmptyMap(value: any): boolean {
+	if (!isMap(value)) throw new Error('value was not a map')
+	for (const key of value) {
+		return false
+	}
+	return true
+}
+
+/**
+ * Is empty weak map
+ * Will throw if the value was not a weak map
+ */
+export function isEmptyWeakMap(value: any): boolean {
+	if (!isWeakMap(value)) throw new Error('value was not a weak map')
+	for (const key of value) {
+		return false
+	}
+	return true
+}
+
+/**
+ * Is empty keys
+ */
+export function isEmptyKeys(value: any): boolean {
+	return Object.keys(value).length === 0
 }
 
 // -----------------------------------

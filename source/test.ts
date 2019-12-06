@@ -2,7 +2,7 @@
 
 // Import
 import path from 'path'
-import { equal, inspect } from 'assert-helpers'
+import { equal, inspect, errorEqual } from 'assert-helpers'
 import { suite } from 'kava'
 import * as typeChecker from './'
 
@@ -11,7 +11,9 @@ const fixtureCompiledClasses = require('../fixtures/classes-compiled.js')
 let fixtureSourceClasses: typeof import('../fixtures/classes.js'),
 	fixtureSourceAsyncFunction: typeof import('../fixtures/async.js'),
 	fixtureMap: typeof import('../fixtures/map.js'),
-	fixtureWeakMap: typeof import('../fixtures/weakmap.js')
+	fixtureMapEmpty: typeof import('../fixtures/map.js'),
+	fixtureWeakMap: typeof import('../fixtures/weakmap.js'),
+	fixtureWeakMapEmpty: typeof import('../fixtures/weakmap-empty.js')
 try {
 	fixtureSourceClasses = require('../fixtures/classes.js')
 	console.log('native classes supported on this environment')
@@ -31,11 +33,37 @@ try {
 	console.log('native Map NOT supported on this environment', err.message)
 }
 try {
+	fixtureMapEmpty = require('../fixtures/map-empty.js')
+	console.log('native Map supported on this environment')
+} catch (err) {
+	console.log('native Map NOT supported on this environment', err.message)
+}
+try {
 	fixtureWeakMap = require('../fixtures/weakmap.js')
 	console.log('native WeakMap supported on this environment')
 } catch (err) {
 	console.log('native WeakMap NOT supported on this environment', err.message)
 }
+try {
+	fixtureWeakMapEmpty = require('../fixtures/weakmap-empty.js')
+	console.log('native WeakMap supported on this environment')
+} catch (err) {
+	console.log('native WeakMap NOT supported on this environment', err.message)
+}
+
+// Checks
+const checks: Array<[string, any, boolean | string]> = [
+	['isNullish', null, true],
+	['isNullish', '', false],
+	['isNullish', 0, false],
+	['isNullish', false, false],
+	['isEmptyPlainObject', {}, true],
+	['isEmptyPlainObject', { a: 1 }, false],
+	['isEmptyPlainObject', false, 'value was not a plain object'],
+	['isEmptyArray', [], true],
+	['isEmptyArray', [1], false],
+	['isEmptyArray', false, 'value was not an array']
+]
 
 // Types
 suite('typechecker', function(suite) {
@@ -90,107 +118,6 @@ suite('typechecker', function(suite) {
 				false,
 				'conventional class instantiation should not be a plain object'
 			)
-		})
-
-		test('isEmpty', function() {
-			equal(typeChecker.isEmpty(null), true, 'null should be considered empty')
-			equal(typeChecker.isEmpty(), true, 'undefined should be considered empty')
-			equal(
-				typeChecker.isEmpty(false),
-				false,
-				'false should not be considered empty'
-			)
-			equal(typeChecker.isEmpty(0), false, '0 should not be considered empty')
-			equal(typeChecker.isEmpty(''), false, '"" should not be considered empty')
-			equal(typeChecker.isEmpty({}), false, '{} should not be considered empty')
-		})
-
-		suite('isEmptyObject', function(suite, test) {
-			suite('primatives', function(suite, test) {
-				test('empty object', function() {
-					equal(
-						typeChecker.isEmptyObject({}),
-						true,
-						'{} should be considered empty'
-					)
-				})
-				if (fixtureMap) {
-					test('map', function() {
-						equal(
-							typeChecker.isEmptyObject(fixtureMap),
-							true,
-							'new Map() should be considered empty'
-						)
-					})
-				}
-				if (fixtureWeakMap) {
-					test('weakmap', function() {
-						equal(
-							typeChecker.isEmptyObject(fixtureWeakMap),
-							true,
-							'new WeakMap() should be considered empty'
-						)
-					})
-				}
-				test('non-empty object', function() {
-					equal(
-						typeChecker.isEmptyObject({ a: 1 }),
-						false,
-						'{a: 1} should not be considered empty'
-					)
-				})
-			})
-
-			test('native classes', function() {
-				if (!fixtureSourceClasses) {
-					console.log(
-						'skipping checks as native classes not supported on this environment'
-					)
-					return
-				}
-				equal(
-					typeChecker.isEmptyObject(new fixtureSourceClasses.A()),
-					true,
-					'class A instantiation should be considered empty'
-				)
-				equal(
-					typeChecker.isEmptyObject(new fixtureSourceClasses.D()),
-					true,
-					'class D instantiation should not be considered empty'
-				)
-				equal(
-					typeChecker.isEmptyObject(new fixtureSourceClasses.E()),
-					true,
-					'class E instantiation should be considered empty'
-				)
-				equal(
-					typeChecker.isEmptyObject(new fixtureSourceClasses.F()),
-					false,
-					'class F instantiation should not be considered empty'
-				)
-			})
-			test('conventional classes', function() {
-				equal(
-					typeChecker.isEmptyObject(new fixtureCompiledClasses.A()),
-					true,
-					'class A instantiation should be considered empty'
-				)
-				equal(
-					typeChecker.isEmptyObject(new fixtureCompiledClasses.D()),
-					true,
-					'class D instantiation should not be considered empty'
-				)
-				equal(
-					typeChecker.isEmptyObject(new fixtureCompiledClasses.E()),
-					true,
-					'class E instantiation should be considered empty'
-				)
-				equal(
-					typeChecker.isEmptyObject(new fixtureCompiledClasses.F()),
-					false,
-					'class F instantiation should not be considered empty'
-				)
-			})
 		})
 
 		test('isNativeClass', function() {
@@ -292,6 +219,71 @@ suite('typechecker', function(suite) {
 				'function',
 				'async function AsyncFunction () {} should be considered a function type'
 			)
+		})
+
+		test('isEmptyMap', function() {
+			if (!fixtureWeakMap) {
+				console.log('skipping checks as maps not supported on this environment')
+				return
+			}
+			equal(
+				typeChecker.isEmptyMap(fixtureMap),
+				false,
+				'new Map(entries) should not be considered empty'
+			)
+			equal(
+				typeChecker.isEmptyMap(fixtureMapEmpty),
+				true,
+				'new Map() should not be considered empty'
+			)
+			try {
+				typeChecker.isEmptyMap([])
+				throw new Error('isEmptyMap([]) should have failed')
+			} catch (err) {
+				errorEqual(err, 'value was not a map')
+			}
+		})
+
+		test('isEmptyWeakMap', function() {
+			if (!fixtureWeakMap) {
+				console.log(
+					'skipping checks as weak maps not supported on this environment'
+				)
+				return
+			}
+			equal(
+				typeChecker.isEmptyWeakMap(fixtureWeakMap),
+				false,
+				'new WeakMap(entries) should not be considered empty'
+			)
+			equal(
+				typeChecker.isEmptyWeakMap(fixtureWeakMapEmpty),
+				true,
+				'new WeakMap() should be considered empty'
+			)
+			try {
+				typeChecker.isEmptyWeakMap([])
+				throw new Error('isEmptyWeakMap([]) should have failed')
+			} catch (err) {
+				errorEqual(err, 'value was not a map')
+			}
+		})
+	})
+
+	suite('checks', function(suite, test) {
+		checks.forEach(function([fn, value, expected]) {
+			const call = `${fn}(${JSON.stringify(value)})`
+			test(call, function() {
+				try {
+					// @ts-ignore
+					const actual = typeChecker[fn](value)
+					equal(actual, expected, `${call} to be ${expected}`)
+				} catch (err) {
+					if (typeof expected === 'string') {
+						errorEqual(err, expected)
+					} else throw err
+				}
+			})
 		})
 	})
 

@@ -1,5 +1,12 @@
 # History
 
+## v6.0.0 2019 December 6
+
+-   Renamed `isEmpty` to `isNullish`
+-   Renamed `isEmptyObject` to `isEmptyKeys`
+-   Added `isEmptyPlainObject`, `isEmptyArray`, `isEmptyMap`, `isEmptyWeakMap` which will all throw if the passed value was not of the expected type
+-   Updated dependencies, [base files](https://github.com/bevry/base), and [editions](https://editions.bevry.me) using [boundation](https://github.com/bevry/boundation)
+
 ## v5.2.0 2019 December 1
 
 -   Updated dependencies, [base files](https://github.com/bevry/base), and [editions](https://editions.bevry.me) using [boundation](https://github.com/bevry/boundation)
