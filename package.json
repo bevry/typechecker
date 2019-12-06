@@ -142,6 +142,7 @@
     "syncFunction",
     "type",
     "types",
+    "type-checker",
     "undefined",
     "weak map",
     "weak-map",
