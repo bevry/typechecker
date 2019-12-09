@@ -1,7 +1,7 @@
 {
   "title": "TypeChecker",
   "name": "typechecker",
-  "version": "6.2.0",
+  "version": "6.3.0",
   "description": "Utilities to get and check variable types (isString, isPlainObject, isRegExp, etc)",
   "homepage": "https://github.com/bevry/typechecker",
   "license": "MIT",
@@ -264,53 +264,53 @@
       }
     },
     {
-      "description": "typescript compiled for node.js 13 with require for modules",
-      "directory": "edition-node-13",
+      "description": "typescript compiled for node.js 12 with require for modules",
+      "directory": "edition-node-12",
       "entry": "index.js",
       "tags": [
         "javascript",
         "require"
       ],
       "engines": {
-        "node": "8 || 10 || 12 || 13",
+        "node": "8 || 10 || 12",
         "browsers": false
       }
     }
   ],
   "types": "source/index.ts",
   "type": "commonjs",
-  "main": "edition-node-13/index.js",
+  "main": "edition-node-12/index.js",
   "browser": "edition-browsers/index.js",
   "module": "edition-browsers/index.js",
   "devDependencies": {
-    "@babel/cli": "^7.7.4",
-    "@babel/core": "^7.7.4",
+    "@babel/cli": "^7.7.5",
+    "@babel/core": "^7.7.5",
     "@babel/plugin-proposal-class-properties": "^7.7.4",
     "@babel/plugin-proposal-object-rest-spread": "^7.7.4",
-    "@babel/plugin-proposal-optional-chaining": "^7.7.4",
-    "@babel/preset-env": "^7.7.4",
+    "@babel/plugin-proposal-optional-chaining": "^7.7.5",
+    "@babel/preset-env": "^7.7.6",
     "@babel/preset-typescript": "^7.7.4",
-    "@typescript-eslint/eslint-plugin": "^2.10.0",
-    "@typescript-eslint/parser": "^2.10.0",
-    "assert-helpers": "^5.7.0",
+    "@typescript-eslint/eslint-plugin": "^2.11.0",
+    "@typescript-eslint/parser": "^2.11.0",
+    "assert-helpers": "^5.8.0",
     "babel-plugin-add-module-exports": "^1.0.2",
     "eslint": "^6.7.2",
-    "eslint-config-bevry": "^2.2.0",
+    "eslint-config-bevry": "^2.3.0",
     "eslint-config-prettier": "^6.7.0",
     "eslint-plugin-prettier": "^3.1.1",
-    "kava": "^4.3.0",
+    "kava": "^4.4.0",
     "prettier": "^1.19.1",
-    "projectz": "^1.15.0",
+    "projectz": "^1.16.0",
     "surge": "^0.21.3",
-    "typedoc": "^0.15.3",
+    "typedoc": "^0.15.4",
     "typescript": "^3.7.3",
     "valid-directory": "^1.5.0"
   },
   "scripts": {
     "our:clean": "rm -Rf ./docs ./edition* ./es2015 ./es5 ./out ./.next",
-    "our:compile": "npm run our:compile:edition-browsers && npm run our:compile:edition-node-13",
+    "our:compile": "npm run our:compile:edition-browsers && npm run our:compile:edition-node-12",
     "our:compile:edition-browsers": "env BABEL_ENV=edition-browsers babel --extensions \".ts,.tsx\" --out-dir ./edition-browsers ./source",
-    "our:compile:edition-node-13": "env BABEL_ENV=edition-node-13 babel --extensions \".ts,.tsx\" --out-dir ./edition-node-13 ./source",
+    "our:compile:edition-node-12": "env BABEL_ENV=edition-node-12 babel --extensions \".ts,.tsx\" --out-dir ./edition-node-12 ./source",
     "our:deploy": "echo no need for this project",
     "our:meta": "npm run our:meta:docs && npm run our:meta:projectz",
     "our:meta:docs": "npm run our:meta:docs:typedoc",
@@ -330,7 +330,7 @@
     "our:verify:eslint": "eslint --fix --ignore-pattern '**/*.d.ts' --ignore-pattern '**/vendor/' --ignore-pattern '**/node_modules/' --ext .mjs,.js,.jsx,.ts,.tsx ./source",
     "our:verify:prettier": "prettier --write ./source/**",
     "our:verify:typescript": "tsc --noEmit --project tsconfig.json",
-    "test": "node ./edition-node-13/test.js"
+    "test": "node ./edition-node-12/test.js"
   },
   "eslintConfig": {
     "extends": [
@@ -362,14 +362,14 @@
           "add-module-exports"
         ]
       },
-      "edition-node-13": {
+      "edition-node-12": {
         "sourceType": "module",
         "presets": [
           [
             "@babel/preset-env",
             {
               "targets": {
-                "node": "13"
+                "node": "12"
               },
               "modules": "commonjs"
             }
