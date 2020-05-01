@@ -1,7 +1,7 @@
 {
   "title": "TypeChecker",
   "name": "typechecker",
-  "version": "6.3.0",
+  "version": "6.4.0",
   "description": "Utilities to get and check variable types (isString, isPlainObject, isRegExp, etc)",
   "homepage": "https://github.com/bevry/typechecker",
   "license": "MIT",
@@ -9,24 +9,26 @@
     "array",
     "assert",
     "assertion",
+    "async",
     "async function",
     "async-function",
-    "async",
     "asyncFunction",
     "bool",
     "boolean",
-    "check-type",
+    "browser",
     "check",
+    "check-type",
     "checking",
+    "class",
     "class-identifier",
     "class-instance",
-    "class",
     "compare",
     "conventional class",
     "conventional-class",
     "conventionalClass",
     "date",
     "define-type",
+    "empty",
     "empty array",
     "empty keys",
     "empty map",
@@ -35,7 +37,6 @@
     "empty-keys",
     "empty-map",
     "empty-plain-object",
-    "empty",
     "emptyArray",
     "emptyKeys",
     "emptyMap",
@@ -49,10 +50,11 @@
     "getObjectType",
     "getType",
     "instanceof",
+    "is",
     "is arguments",
     "is array",
-    "is async function",
     "is async",
+    "is async function",
     "is bool",
     "is boolean",
     "is class",
@@ -74,14 +76,14 @@
     "is plain object",
     "is regexp",
     "is string",
-    "is sync function",
     "is sync",
+    "is sync function",
     "is undefined",
     "is weak map",
     "is-arguments",
     "is-array",
-    "is-async-function",
     "is-async",
+    "is-async-function",
     "is-bool",
     "is-boolean",
     "is-class",
@@ -104,11 +106,10 @@
     "is-plain-object",
     "is-regexp",
     "is-string",
-    "is-sync-function",
     "is-sync",
+    "is-sync-function",
     "is-undefined",
     "is-weak-map",
-    "is",
     "isArguments",
     "isArray",
     "isAsyncFunction",
@@ -136,26 +137,27 @@
     "isSyncFunction",
     "isUndefined",
     "isWeakMap",
-    "javascript-type",
     "javascript",
+    "javascript-type",
     "keys",
     "kind",
     "map",
+    "module",
+    "native",
     "native class",
     "native-class",
-    "native",
     "nativeClass",
     "null",
     "number",
     "object",
+    "plain",
     "plain object",
     "plain objects",
     "plain-object",
     "plain-objects",
-    "plain",
     "plainObject",
-    "primitive-types",
     "primitive",
+    "primitive-types",
     "pure",
     "regex",
     "regexp",
@@ -165,11 +167,12 @@
     "sync",
     "syncFunction",
     "test",
+    "type",
     "type-check",
     "type-checker",
     "type-checking",
-    "type",
     "typechecker",
+    "typed",
     "typeguards",
     "typeof",
     "types",
@@ -226,8 +229,7 @@
     "Benjamin Lupton <b@lupton.cc> (http://balupton.com)",
     "Joe Gesualdo <joegesualdo@gmail.com> (joegesualdo.com)",
     "Sean Fridman <mail@seanfridman.com> (http://seanfridman.com)",
-    "Matt Bierner (http://mattbierner.com)",
-    "dependabot-preview[bot] (http://github.com/apps/dependabot-preview)"
+    "Matt Bierner (http://mattbierner.com)"
   ],
   "bugs": {
     "url": "https://github.com/bevry/typechecker/issues"
@@ -241,7 +243,7 @@
   },
   "editions": [
     {
-      "description": "typescript source code with import for modules",
+      "description": "TypeScript source code with Import for modules",
       "directory": "source",
       "entry": "index.ts",
       "tags": [
@@ -251,7 +253,21 @@
       "engines": false
     },
     {
-      "description": "typescript compiled for browsers with import for modules",
+      "description": "TypeScript compiled against ESNext for Node.js with Require for modules",
+      "directory": "edition-esnext",
+      "entry": "index.js",
+      "tags": [
+        "javascript",
+        "esnext",
+        "require"
+      ],
+      "engines": {
+        "node": "8 || 10 || 12 || 13 || 14",
+        "browsers": false
+      }
+    },
+    {
+      "description": "TypeScript compiled against ES2019 for web browsers with Import for modules",
       "directory": "edition-browsers",
       "entry": "index.js",
       "tags": [
@@ -262,57 +278,39 @@
         "node": false,
         "browsers": "defaults"
       }
-    },
-    {
-      "description": "typescript compiled for node.js 12 with require for modules",
-      "directory": "edition-node-12",
-      "entry": "index.js",
-      "tags": [
-        "javascript",
-        "require"
-      ],
-      "engines": {
-        "node": "8 || 10 || 12",
-        "browsers": false
-      }
     }
   ],
   "types": "source/index.ts",
   "type": "commonjs",
-  "main": "edition-node-12/index.js",
+  "main": "edition-esnext/index.js",
   "browser": "edition-browsers/index.js",
   "module": "edition-browsers/index.js",
   "devDependencies": {
-    "@babel/cli": "^7.7.5",
-    "@babel/core": "^7.7.5",
-    "@babel/plugin-proposal-class-properties": "^7.7.4",
-    "@babel/plugin-proposal-object-rest-spread": "^7.7.4",
-    "@babel/plugin-proposal-optional-chaining": "^7.7.5",
-    "@babel/preset-env": "^7.7.6",
-    "@babel/preset-typescript": "^7.7.4",
-    "@typescript-eslint/eslint-plugin": "^2.11.0",
-    "@typescript-eslint/parser": "^2.11.0",
-    "assert-helpers": "^5.8.0",
-    "babel-plugin-add-module-exports": "^1.0.2",
-    "eslint": "^6.7.2",
-    "eslint-config-bevry": "^2.3.0",
-    "eslint-config-prettier": "^6.7.0",
-    "eslint-plugin-prettier": "^3.1.1",
+    "@bevry/update-contributors": "^1.0.1",
+    "@typescript-eslint/eslint-plugin": "^2.30.0",
+    "@typescript-eslint/parser": "^2.30.0",
+    "assert-helpers": "^6.1.0",
+    "eslint": "^6.8.0",
+    "eslint-config-bevry": "^3.3.0",
+    "eslint-config-prettier": "^6.11.0",
+    "eslint-plugin-prettier": "^3.1.3",
     "kava": "^4.4.0",
-    "prettier": "^1.19.1",
-    "projectz": "^1.16.0",
+    "prettier": "^2.0.5",
+    "projectz": "^1.19.1",
     "surge": "^0.21.3",
-    "typedoc": "^0.15.4",
-    "typescript": "^3.7.3",
-    "valid-directory": "^1.5.0"
+    "typedoc": "^0.17.6",
+    "typescript": "^3.8.3",
+    "valid-directory": "^1.6.0",
+    "valid-module": "^1.0.0"
   },
   "scripts": {
     "our:clean": "rm -Rf ./docs ./edition* ./es2015 ./es5 ./out ./.next",
-    "our:compile": "npm run our:compile:edition-browsers && npm run our:compile:edition-node-12",
-    "our:compile:edition-browsers": "env BABEL_ENV=edition-browsers babel --extensions \".ts,.tsx\" --out-dir ./edition-browsers ./source",
-    "our:compile:edition-node-12": "env BABEL_ENV=edition-node-12 babel --extensions \".ts,.tsx\" --out-dir ./edition-node-12 ./source",
+    "our:compile": "npm run our:compile:edition-browsers && npm run our:compile:edition-esnext",
+    "our:compile:edition-browsers": "tsc --module ESNext --target ES2019 --outDir ./edition-browsers --project tsconfig.json && test -d edition-browsers/source && ( mv edition-browsers/source edition-temp && rm -Rf edition-browsers && mv edition-temp edition-browsers ) || true",
+    "our:compile:edition-esnext": "tsc --module commonjs --target ESNext --outDir ./edition-esnext --project tsconfig.json && test -d edition-esnext/source && ( mv edition-esnext/source edition-temp && rm -Rf edition-esnext && mv edition-temp edition-esnext ) || true",
     "our:deploy": "echo no need for this project",
-    "our:meta": "npm run our:meta:docs && npm run our:meta:projectz",
+    "our:meta": "npm run our:meta:contributors && npm run our:meta:docs && npm run our:meta:projectz",
+    "our:meta:contributors": "update-contributors",
     "our:meta:docs": "npm run our:meta:docs:typedoc",
     "our:meta:docs:typedoc": "rm -Rf ./docs && typedoc --mode file --exclude '**/+(*test*|node_modules)' --excludeExternals --name \"$npm_package_name\" --readme ./README.md --out ./docs ./source",
     "our:meta:projectz": "projectz compile",
@@ -325,12 +323,13 @@
     "our:setup": "npm run our:setup:install",
     "our:setup:install": "npm install",
     "our:test": "npm run our:verify && npm test",
-    "our:verify": "npm run our:verify:directory && npm run our:verify:eslint && npm run our:verify:prettier && npm run our:verify:typescript",
-    "our:verify:directory": "npx valid-directory",
+    "our:verify": "npm run our:verify:directory && npm run our:verify:eslint && npm run our:verify:module && npm run our:verify:prettier && npm run our:verify:typescript",
+    "our:verify:directory": "valid-directory",
     "our:verify:eslint": "eslint --fix --ignore-pattern '**/*.d.ts' --ignore-pattern '**/vendor/' --ignore-pattern '**/node_modules/' --ext .mjs,.js,.jsx,.ts,.tsx ./source",
-    "our:verify:prettier": "prettier --write ./source/**",
+    "our:verify:module": "valid-module",
+    "our:verify:prettier": "prettier --write .",
     "our:verify:typescript": "tsc --noEmit --project tsconfig.json",
-    "test": "node ./edition-node-12/test.js"
+    "test": "node ./edition-esnext/test.js"
   },
   "eslintConfig": {
     "extends": [
@@ -340,49 +339,5 @@
   "prettier": {
     "semi": false,
     "singleQuote": true
-  },
-  "babel": {
-    "env": {
-      "edition-browsers": {
-        "sourceType": "module",
-        "presets": [
-          [
-            "@babel/preset-env",
-            {
-              "targets": "defaults",
-              "modules": "commonjs"
-            }
-          ],
-          "@babel/preset-typescript"
-        ],
-        "plugins": [
-          "@babel/proposal-object-rest-spread",
-          "@babel/plugin-proposal-optional-chaining",
-          "@babel/proposal-class-properties",
-          "add-module-exports"
-        ]
-      },
-      "edition-node-12": {
-        "sourceType": "module",
-        "presets": [
-          [
-            "@babel/preset-env",
-            {
-              "targets": {
-                "node": "12"
-              },
-              "modules": "commonjs"
-            }
-          ],
-          "@babel/preset-typescript"
-        ],
-        "plugins": [
-          "@babel/proposal-object-rest-spread",
-          "@babel/plugin-proposal-optional-chaining",
-          "@babel/proposal-class-properties",
-          "add-module-exports"
-        ]
-      }
-    }
   }
 }

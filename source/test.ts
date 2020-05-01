@@ -62,13 +62,13 @@ const checks: Array<[string, any, boolean | string]> = [
 	['isEmptyPlainObject', false, 'value was not a plain object'],
 	['isEmptyArray', [], true],
 	['isEmptyArray', [1], false],
-	['isEmptyArray', false, 'value was not an array']
+	['isEmptyArray', false, 'value was not an array'],
 ]
 
 // Types
-suite('typechecker', function(suite) {
-	suite('value', function(suite, test) {
-		test('isObject', function() {
+suite('typechecker', function (suite) {
+	suite('value', function (suite, test) {
+		test('isObject', function () {
 			equal(typeChecker.isObject({}), true, 'object {} should be a object')
 			equal(typeChecker.isObject(null), false, 'null should not be a object')
 			equal(typeChecker.isObject('a'), false, 'string should not be a object')
@@ -80,7 +80,7 @@ suite('typechecker', function(suite) {
 			equal(typeChecker.isObject(), false, 'undefined should not be a object')
 		})
 
-		test('isPlainObject', function() {
+		test('isPlainObject', function () {
 			equal(
 				typeChecker.isPlainObject({}),
 				true,
@@ -120,7 +120,7 @@ suite('typechecker', function(suite) {
 			)
 		})
 
-		test('isNativeClass', function() {
+		test('isNativeClass', function () {
 			if (!fixtureSourceClasses) {
 				console.log(
 					'skipping checks as native classes not supported on this environment'
@@ -143,13 +143,13 @@ suite('typechecker', function(suite) {
 				'class C extends A {} should be considered native class'
 			)
 			equal(
-				typeChecker.isNativeClass(function() {}),
+				typeChecker.isNativeClass(function () {}),
 				false,
 				'function () {} should not be considered native class'
 			)
 		})
 
-		test('isConventionalClass', function() {
+		test('isConventionalClass', function () {
 			equal(
 				typeChecker.isConventionalClass(fixtureCompiledClasses.A),
 				true,
@@ -181,7 +181,7 @@ suite('typechecker', function(suite) {
 				'function b () {} should not be considered conventional class'
 			)
 			equal(
-				typeChecker.isConventionalClass(function() {}),
+				typeChecker.isConventionalClass(function () {}),
 				false,
 				'function () {} should not be considered conventional class'
 			)
@@ -192,7 +192,7 @@ suite('typechecker', function(suite) {
 			)
 		})
 
-		test('isAsyncFunction', function() {
+		test('isAsyncFunction', function () {
 			if (!fixtureSourceAsyncFunction) {
 				console.log(
 					'skipping checks as native async functions not supported on this environment'
@@ -221,7 +221,7 @@ suite('typechecker', function(suite) {
 			)
 		})
 
-		test('isEmptyMap', function() {
+		test('isEmptyMap', function () {
 			if (!fixtureWeakMap) {
 				console.log('skipping checks as maps not supported on this environment')
 				return
@@ -244,7 +244,7 @@ suite('typechecker', function(suite) {
 			}
 		})
 
-		test('isEmptyWeakMap', function() {
+		test('isEmptyWeakMap', function () {
 			if (!fixtureWeakMap) {
 				console.log(
 					'skipping checks as weak maps not supported on this environment'
@@ -270,10 +270,10 @@ suite('typechecker', function(suite) {
 		})
 	})
 
-	suite('checks', function(suite, test) {
-		checks.forEach(function([fn, value, expected]) {
+	suite('checks', function (suite, test) {
+		checks.forEach(function ([fn, value, expected]) {
 			const call = `${fn}(${JSON.stringify(value)})`
-			test(call, function() {
+			test(call, function () {
 				try {
 					// @ts-ignore
 					const actual = typeChecker[fn](value)
@@ -287,7 +287,7 @@ suite('typechecker', function(suite) {
 		})
 	})
 
-	suite('types', function(suite, test) {
+	suite('types', function (suite, test) {
 		// Prepare
 		const typeTestData = [
 			[false, 'boolean'],
@@ -299,14 +299,14 @@ suite('typechecker', function(suite) {
 			[fixtureCompiledClasses.b, 'function'],
 			[function FunctionClass() {}, 'class'],
 			[function functionClass() {}, 'function'],
-			[function() {}, 'function'],
+			[function () {}, 'function'],
 			[new Date(), 'date'],
 			[new Error(), 'error'],
 			[[], 'array'],
 			[null, 'null'],
 			[undefined, 'undefined'],
 			[/a/, 'regexp'],
-			[1, 'number']
+			[1, 'number'],
 		]
 
 		// Native
@@ -332,14 +332,14 @@ suite('typechecker', function(suite) {
 		function testType(value: any, typeExpected: any, typeActual: any) {
 			test(`should detect ${inspect(
 				value
-			)} is of type ${typeExpected}`, function() {
+			)} is of type ${typeExpected}`, function () {
 				equal(typeActual, typeExpected)
 			})
 		}
 
 		// Run
 		// Do this for for...of as babel's compilation of that doesn't work with node 0.10
-		typeTestData.forEach(function(item) {
+		typeTestData.forEach(function (item) {
 			const value = item[0]
 			const typeExpected = item[1]
 			const typeActual = typeChecker.getType(value)
@@ -347,18 +347,18 @@ suite('typechecker', function(suite) {
 		})
 	})
 
-	suite('custom type map', function(suite, test) {
+	suite('custom type map', function (suite, test) {
 		const customTypeMap: typeChecker.TypeMap = {
-			truthy: value => Boolean(value)
+			truthy: (value) => Boolean(value),
 		}
-		test('custom match', function() {
+		test('custom match', function () {
 			equal(
 				typeChecker.getType('hello', customTypeMap),
 				'truthy',
 				'truthy came back as expected using custom type map'
 			)
 		})
-		test('custom exception', function() {
+		test('custom exception', function () {
 			equal(
 				typeChecker.getType(false, customTypeMap),
 				null,

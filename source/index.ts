@@ -241,7 +241,7 @@ export const typeMap: TypeMap = Object.freeze({
 	undefined: isUndefined,
 	map: isMap,
 	weakmap: isWeakMap,
-	object: isObject
+	object: isObject,
 } as TypeMap)
 
 /**
