@@ -58,7 +58,7 @@ Under certain circumstances `instanceof` may not return the correct results. Thi
 
 ``` html
 <script type="module">
-    import * as pkg from '//cdn.pika.dev/typechecker/^6.4.0'
+    import * as pkg from '//cdn.pika.dev/typechecker/^7.0.0'
 </script>
 ```
 
@@ -66,7 +66,7 @@ Under certain circumstances `instanceof` may not return the correct results. Thi
 
 ``` html
 <script type="module">
-    import * as pkg from '//unpkg.com/typechecker@^6.4.0'
+    import * as pkg from '//unpkg.com/typechecker@^7.0.0'
 </script>
 ```
 
@@ -74,7 +74,7 @@ Under certain circumstances `instanceof` may not return the correct results. Thi
 
 ``` html
 <script type="module">
-    import * as pkg from '//dev.jspm.io/typechecker@6.4.0'
+    import * as pkg from '//dev.jspm.io/typechecker@7.0.0'
 </script>
 ```
 
@@ -116,7 +116,7 @@ Under certain circumstances `instanceof` may not return the correct results. Thi
 
 These amazing people are maintaining this project:
 
-<ul><li><a href="http://balupton.com">Benjamin Lupton</a> — <a href="https://github.com/bevry/typechecker/commits?author=balupton" title="View the GitHub contributions of Benjamin Lupton on repository bevry/typechecker">view contributions</a></li></ul>
+<ul><li><a href="https://balupton.com">Benjamin Lupton</a> — <a href="https://github.com/bevry/typechecker/commits?author=balupton" title="View the GitHub contributions of Benjamin Lupton on repository bevry/typechecker">view contributions</a></li></ul>
 
 <h3>Sponsors</h3>
 
@@ -136,11 +136,10 @@ No sponsors yet! Will you be the first?
 
 These amazing people have contributed code to this project:
 
-<ul><li><a href="http://balupton.com">Benjamin Lupton</a> — <a href="https://github.com/bevry/typechecker/commits?author=balupton" title="View the GitHub contributions of Benjamin Lupton on repository bevry/typechecker">view contributions</a></li>
-<li><a href="joegesualdo.com">Joe Gesualdo</a> — <a href="https://github.com/bevry/typechecker/commits?author=joegesualdo" title="View the GitHub contributions of Joe Gesualdo on repository bevry/typechecker">view contributions</a></li>
-<li><a href="http://seanfridman.com">Sean Fridman</a> — <a href="https://github.com/bevry/typechecker/commits?author=sfrdmn" title="View the GitHub contributions of Sean Fridman on repository bevry/typechecker">view contributions</a></li>
-<li><a href="http://mattbierner.com">Matt Bierner</a> — <a href="https://github.com/bevry/typechecker/commits?author=mjbvz" title="View the GitHub contributions of Matt Bierner on repository bevry/typechecker">view contributions</a></li>
-<li><a href="http://github.com/apps/dependabot-preview">dependabot-preview[bot]</a> — <a href="https://github.com/bevry/typechecker/commits?author=dependabot-preview[bot]" title="View the GitHub contributions of dependabot-preview[bot] on repository bevry/typechecker">view contributions</a></li></ul>
+<ul><li><a href="https://balupton.com">Benjamin Lupton</a> — <a href="https://github.com/bevry/typechecker/commits?author=balupton" title="View the GitHub contributions of Benjamin Lupton on repository bevry/typechecker">view contributions</a></li>
+<li><a href="https://github.com/joegesualdo">Joe Gesualdo</a> — <a href="https://github.com/bevry/typechecker/commits?author=joegesualdo" title="View the GitHub contributions of Joe Gesualdo on repository bevry/typechecker">view contributions</a></li>
+<li><a href="https://github.com/mjbvz">Matt Bierner</a> — <a href="https://github.com/bevry/typechecker/commits?author=mjbvz" title="View the GitHub contributions of Matt Bierner on repository bevry/typechecker">view contributions</a></li>
+<li><a href="https://github.com/sfrdmn">Sean Fridman</a> — <a href="https://github.com/bevry/typechecker/commits?author=sfrdmn" title="View the GitHub contributions of Sean Fridman on repository bevry/typechecker">view contributions</a></li></ul>
 
 <a href="https://github.com/bevry/typechecker/blob/master/CONTRIBUTING.md#files">Discover how you can contribute by heading on over to the <code>CONTRIBUTING.md</code> file.</a>
 
@@ -154,7 +153,7 @@ These amazing people have contributed code to this project:
 Unless stated otherwise all works are:
 
 <ul><li>Copyright &copy; 2013+ <a href="http://bevry.me">Bevry Pty Ltd</a></li>
-<li>Copyright &copy; 2011-2012 <a href="http://balupton.com">Benjamin Lupton</a></li></ul>
+<li>Copyright &copy; 2011-2012 <a href="https://balupton.com">Benjamin Lupton</a></li></ul>
 
 and licensed under:
 
