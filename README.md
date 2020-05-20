@@ -58,7 +58,7 @@ Under certain circumstances `instanceof` may not return the correct results. Thi
 
 ``` html
 <script type="module">
-    import * as pkg from '//cdn.pika.dev/typechecker/^7.0.0'
+    import * as pkg from '//cdn.pika.dev/typechecker/^7.1.0'
 </script>
 ```
 
@@ -66,7 +66,7 @@ Under certain circumstances `instanceof` may not return the correct results. Thi
 
 ``` html
 <script type="module">
-    import * as pkg from '//unpkg.com/typechecker@^7.0.0'
+    import * as pkg from '//unpkg.com/typechecker@^7.1.0'
 </script>
 ```
 
@@ -74,7 +74,7 @@ Under certain circumstances `instanceof` may not return the correct results. Thi
 
 ``` html
 <script type="module">
-    import * as pkg from '//dev.jspm.io/typechecker@7.0.0'
+    import * as pkg from '//dev.jspm.io/typechecker@7.1.0'
 </script>
 ```
 
