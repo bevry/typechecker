@@ -1,7 +1,7 @@
 /* eslint no-console:0, no-undefined:0, no-magic-numbers:0, new-cap:0, no-eval:0 */
 
 // Import
-import path from 'path'
+import * as path from 'path'
 import { equal, inspect, errorEqual } from 'assert-helpers'
 import { suite } from 'kava'
 import * as typeChecker from './'
