@@ -956,6 +956,13 @@ get-cli-arg@^5.8.0:
   dependencies:
     normalify "2.11.0"
 
+get-cli-arg@^6.0.0:
+  version "6.0.0"
+  resolved "https://registry.yarnpkg.com/get-cli-arg/-/get-cli-arg-6.0.0.tgz#3509dfce14d48f2cc3a9fd6d6798ca4cda873b2c"
+  integrity sha512-FVb9kHF4u4GYuJeyPXeIe0QceJzJbfLClRiWA91QT90qqup8LENE0wIv2XK6FgXlhRJ9R4A4DJpLFSJKWcIQjA==
+  dependencies:
+    normalify "2.15.0"
+
 get-current-line@5.5.0:
   version "5.5.0"
   resolved "https://registry.yarnpkg.com/get-current-line/-/get-current-line-5.5.0.tgz#4db3a73152262488387c1bce69c46c5380de8cac"
@@ -1372,17 +1379,17 @@ lunr@^2.3.8:
   resolved "https://registry.yarnpkg.com/lunr/-/lunr-2.3.8.tgz#a8b89c31f30b5a044b97d2d28e2da191b6ba2072"
   integrity sha512-oxMeX/Y35PNFuZoHp+jUj5OSEmLCaIH4KTFJh7a93cHBoFmpw2IoPs22VIz7vyO2YUnx2Tn9dzIwO2P/4quIRg==
 
-make-deno-edition@^0.12.0:
-  version "0.12.0"
-  resolved "https://registry.yarnpkg.com/make-deno-edition/-/make-deno-edition-0.12.0.tgz#fc6de1af7336c8297839c5c667b7b28232547195"
-  integrity sha512-6mdEvqj/gwA3sFAKioMSnLsDVyLIHpaJvlzqSzo+VSeYqGspBaQJwwIF9iV3y5y9elATpaY2dmzwEBc8X1AGlQ==
+make-deno-edition@^0.13.0:
+  version "0.13.0"
+  resolved "https://registry.yarnpkg.com/make-deno-edition/-/make-deno-edition-0.13.0.tgz#8f49d5e5715bc371628c758d69e3f3f80eaa694f"
+  integrity sha512-I0WiX+TrUAd9eYFvlawlggj8BlbjtkbcevgS5XSm3+6plgL8bJiHLFau+ebZTOfRDY5nJgzTEYFUo99URWrC1g==
   dependencies:
     "@types/rimraf" "^3.0.0"
     await-spawn "^3.0.0"
     chalk "^4.1.0"
     errlop "3.9.0"
     fdir "^3.4.3"
-    get-cli-arg "^5.8.0"
+    get-cli-arg "^6.0.0"
     mkdirp "^1.0.4"
     rimraf "^3.0.2"
 
@@ -1491,6 +1498,11 @@ normalify@2.11.0:
   version "2.11.0"
   resolved "https://registry.yarnpkg.com/normalify/-/normalify-2.11.0.tgz#4e2de5e06e76e4346f8609c7e90781b260ad7481"
   integrity sha512-t17x+NgzhvhnaS0KuYm8yZWkVfThJHAyM5AXUSoKvbbDQXH1TFQr/EPxK0lWi+KcrrGXbsmbEjRjywvk8nUgBQ==
+
+normalify@2.15.0:
+  version "2.15.0"
+  resolved "https://registry.yarnpkg.com/normalify/-/normalify-2.15.0.tgz#5edb3a6eb9191d890338831d2d4c83d56c415f7b"
+  integrity sha512-EmwAc9sutIZwWpntbZESManDanhgyML6vskQx8OgAivguXMWjBsrUu6/JfFpyCFSaK/WXOehhQSunRG3cf0iOA==
 
 oauth-sign@~0.9.0:
   version "0.9.0"
