@@ -57,14 +57,14 @@ Under certain circumstances `instanceof` may not return the correct results. Thi
 <a href="https://deno.land" title="Deno is a secure runtime for JavaScript and TypeScript, it is an alternative for Node.js"><h3>Deno</h3></a>
 
 ``` typescript
-import * as pkg from 'https://unpkg.com/typechecker@^7.13.0/edition-deno/index.ts'
+import * as pkg from 'https://unpkg.com/typechecker@^7.14.0/edition-deno/index.ts'
 ```
 
-<a href="https://www.pika.dev/cdn" title="100% Native ES Modules CDN"><h3>pika</h3></a>
+<a href="https://www.skypack.dev" title="Skypack is a JavaScript Delivery Network for modern web apps"><h3>Skypack</h3></a>
 
 ``` html
 <script type="module">
-    import * as pkg from '//cdn.pika.dev/typechecker/^7.13.0'
+    import * as pkg from '//cdn.skypack.dev/typechecker@^7.14.0'
 </script>
 ```
 
@@ -72,7 +72,7 @@ import * as pkg from 'https://unpkg.com/typechecker@^7.13.0/edition-deno/index.t
 
 ``` html
 <script type="module">
-    import * as pkg from '//unpkg.com/typechecker@^7.13.0'
+    import * as pkg from '//unpkg.com/typechecker@^7.14.0'
 </script>
 ```
 
@@ -80,7 +80,7 @@ import * as pkg from 'https://unpkg.com/typechecker@^7.13.0/edition-deno/index.t
 
 ``` html
 <script type="module">
-    import * as pkg from '//dev.jspm.io/typechecker@7.13.0'
+    import * as pkg from '//dev.jspm.io/typechecker@7.14.0'
 </script>
 ```
 
