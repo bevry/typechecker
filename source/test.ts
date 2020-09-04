@@ -3,8 +3,8 @@
 // Import
 import * as path from 'path'
 import { equal, inspect, errorEqual } from 'assert-helpers'
-import { suite } from 'kava'
-import * as typeChecker from './'
+import kava from 'kava'
+import * as typeChecker from './index.js'
 
 // Environment
 const fixtureCompiledClasses = require('../fixtures/classes-compiled.js')
@@ -66,7 +66,7 @@ const checks: Array<[string, any, boolean | string]> = [
 ]
 
 // Types
-suite('typechecker', function (suite) {
+kava.suite('typechecker', function (suite) {
 	suite('value', function (suite, test) {
 		test('isObject', function () {
 			equal(typeChecker.isObject({}), true, 'object {} should be a object')
