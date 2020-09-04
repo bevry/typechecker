@@ -1,55 +1,10 @@
 /* eslint no-console:0, no-undefined:0, no-magic-numbers:0, new-cap:0, no-eval:0 */
 
 // Import
-import * as path from 'path'
 import { equal, inspect, errorEqual } from 'assert-helpers'
 import kava from 'kava'
 import * as typeChecker from './index.js'
-
-// Environment
-const fixtureCompiledClasses = require('../fixtures/classes-compiled.js')
-let fixtureSourceClasses: typeof import('../fixtures/classes.js'),
-	fixtureSourceAsyncFunction: typeof import('../fixtures/async.js'),
-	fixtureMap: typeof import('../fixtures/map.js'),
-	fixtureMapEmpty: typeof import('../fixtures/map.js'),
-	fixtureWeakMap: typeof import('../fixtures/weakmap.js'),
-	fixtureWeakMapEmpty: typeof import('../fixtures/weakmap-empty.js')
-try {
-	fixtureSourceClasses = require('../fixtures/classes.js')
-	console.log('native classes supported on this environment')
-} catch (err) {
-	console.log('native classes NOT supported on this environment', err.message)
-}
-try {
-	fixtureSourceAsyncFunction = require('../fixtures/async.js')
-	console.log('native classes supported on this environment')
-} catch (err) {
-	console.log('native classes NOT supported on this environment', err.message)
-}
-try {
-	fixtureMap = require('../fixtures/map.js')
-	console.log('native Map supported on this environment')
-} catch (err) {
-	console.log('native Map NOT supported on this environment', err.message)
-}
-try {
-	fixtureMapEmpty = require('../fixtures/map-empty.js')
-	console.log('native Map supported on this environment')
-} catch (err) {
-	console.log('native Map NOT supported on this environment', err.message)
-}
-try {
-	fixtureWeakMap = require('../fixtures/weakmap.js')
-	console.log('native WeakMap supported on this environment')
-} catch (err) {
-	console.log('native WeakMap NOT supported on this environment', err.message)
-}
-try {
-	fixtureWeakMapEmpty = require('../fixtures/weakmap-empty.js')
-	console.log('native WeakMap supported on this environment')
-} catch (err) {
-	console.log('native WeakMap NOT supported on this environment', err.message)
-}
+import fixtures from '../fixtures/index.js'
 
 // Checks
 const checks: Array<[string, any, boolean | string]> = [
@@ -106,39 +61,40 @@ kava.suite('typechecker', function (suite) {
 				false,
 				'undefined should not be a plain object'
 			)
-			if (fixtureSourceClasses) {
+			if (fixtures.fixtureSourceClasses) {
 				equal(
-					typeChecker.isPlainObject(new fixtureSourceClasses.A()),
+					typeChecker.isPlainObject(new fixtures.fixtureSourceClasses.A()),
 					false,
 					'native clas instantiation should not be a plain object'
 				)
 			}
 			equal(
-				typeChecker.isPlainObject(new fixtureCompiledClasses.A()),
+				// @ts-ignore
+				typeChecker.isPlainObject(new fixtures.fixtureCompiledClasses.A()),
 				false,
 				'conventional class instantiation should not be a plain object'
 			)
 		})
 
 		test('isNativeClass', function () {
-			if (!fixtureSourceClasses) {
+			if (!fixtures.fixtureSourceClasses) {
 				console.log(
 					'skipping checks as native classes not supported on this environment'
 				)
 				return
 			}
 			equal(
-				typeChecker.isNativeClass(fixtureSourceClasses.A),
+				typeChecker.isNativeClass(fixtures.fixtureSourceClasses.A),
 				true,
 				'class A {} should be considered native class'
 			)
 			equal(
-				typeChecker.isNativeClass(fixtureSourceClasses.b),
+				typeChecker.isNativeClass(fixtures.fixtureSourceClasses.b),
 				true,
 				'class {} should be considered native class'
 			)
 			equal(
-				typeChecker.isNativeClass(fixtureSourceClasses.C),
+				typeChecker.isNativeClass(fixtures.fixtureSourceClasses.C),
 				true,
 				'class C extends A {} should be considered native class'
 			)
@@ -151,22 +107,22 @@ kava.suite('typechecker', function (suite) {
 
 		test('isConventionalClass', function () {
 			equal(
-				typeChecker.isConventionalClass(fixtureCompiledClasses.A),
+				typeChecker.isConventionalClass(fixtures.fixtureCompiledClasses.A),
 				true,
 				'compiled class A {} should be considered conventional class'
 			)
 			equal(
-				typeChecker.isConventionalClass(fixtureCompiledClasses.a),
+				typeChecker.isConventionalClass(fixtures.fixtureCompiledClasses.a),
 				false,
 				'compiled class a {} should not be considered conventional class'
 			)
 			equal(
-				typeChecker.isConventionalClass(fixtureCompiledClasses.b),
+				typeChecker.isConventionalClass(fixtures.fixtureCompiledClasses.b),
 				false,
 				'compiled class {} should not be considered conventional class'
 			)
 			equal(
-				typeChecker.isConventionalClass(fixtureCompiledClasses.C),
+				typeChecker.isConventionalClass(fixtures.fixtureCompiledClasses.C),
 				true,
 				'compiled class C extends A {} should not be considered conventional class'
 			)
@@ -193,46 +149,46 @@ kava.suite('typechecker', function (suite) {
 		})
 
 		test('isAsyncFunction', function () {
-			if (!fixtureSourceAsyncFunction) {
+			if (!fixtures.fixtureSourceAsyncFunction) {
 				console.log(
 					'skipping checks as native async functions not supported on this environment'
 				)
 				return
 			}
 			equal(
-				typeChecker.isAsyncFunction(fixtureSourceAsyncFunction),
+				typeChecker.isAsyncFunction(fixtures.fixtureSourceAsyncFunction),
 				true,
 				'async function AsyncFunction () {} should be considered an async function'
 			)
 			equal(
-				typeChecker.isSyncFunction(fixtureSourceAsyncFunction),
+				typeChecker.isSyncFunction(fixtures.fixtureSourceAsyncFunction),
 				false,
 				'async function AsyncFunction () {} should not be considered a sync function'
 			)
 			equal(
-				typeChecker.isFunction(fixtureSourceAsyncFunction),
+				typeChecker.isFunction(fixtures.fixtureSourceAsyncFunction),
 				true,
 				'async function AsyncFunction () {} should be considered a function'
 			)
 			equal(
-				typeChecker.getType(fixtureSourceAsyncFunction),
+				typeChecker.getType(fixtures.fixtureSourceAsyncFunction),
 				'function',
 				'async function AsyncFunction () {} should be considered a function type'
 			)
 		})
 
 		test('isEmptyMap', function () {
-			if (!fixtureWeakMap) {
+			if (!fixtures.fixtureWeakMap) {
 				console.log('skipping checks as maps not supported on this environment')
 				return
 			}
 			equal(
-				typeChecker.isEmptyMap(fixtureMap),
+				typeChecker.isEmptyMap(fixtures.fixtureMap),
 				false,
 				'new Map(entries) should not be considered empty'
 			)
 			equal(
-				typeChecker.isEmptyMap(fixtureMapEmpty),
+				typeChecker.isEmptyMap(fixtures.fixtureMapEmpty),
 				true,
 				'new Map() should not be considered empty'
 			)
@@ -245,19 +201,19 @@ kava.suite('typechecker', function (suite) {
 		})
 
 		test('isEmptyWeakMap', function () {
-			if (!fixtureWeakMap) {
+			if (!fixtures.fixtureWeakMap) {
 				console.log(
 					'skipping checks as weak maps not supported on this environment'
 				)
 				return
 			}
 			equal(
-				typeChecker.isEmptyWeakMap(fixtureWeakMap),
+				typeChecker.isEmptyWeakMap(fixtures.fixtureWeakMap),
 				false,
 				'new WeakMap(entries) should not be considered empty'
 			)
 			equal(
-				typeChecker.isEmptyWeakMap(fixtureWeakMapEmpty),
+				typeChecker.isEmptyWeakMap(fixtures.fixtureWeakMapEmpty),
 				true,
 				'new WeakMap() should be considered empty'
 			)
@@ -294,9 +250,9 @@ kava.suite('typechecker', function (suite) {
 			[true, 'boolean'],
 			['', 'string'],
 			[{}, 'object'],
-			[fixtureCompiledClasses.A, 'class'],
-			[fixtureCompiledClasses.a, 'function'],
-			[fixtureCompiledClasses.b, 'function'],
+			[fixtures.fixtureCompiledClasses.A, 'class'],
+			[fixtures.fixtureCompiledClasses.a, 'function'],
+			[fixtures.fixtureCompiledClasses.b, 'function'],
 			[function FunctionClass() {}, 'class'],
 			[function functionClass() {}, 'function'],
 			[function () {}, 'function'],
@@ -310,22 +266,22 @@ kava.suite('typechecker', function (suite) {
 		]
 
 		// Native
-		if (fixtureSourceClasses) {
+		if (fixtures.fixtureSourceClasses) {
 			typeTestData.push(
-				[fixtureSourceClasses.A, 'class'],
-				[fixtureSourceClasses.a, 'class'],
-				[fixtureSourceClasses.b, 'class']
+				[fixtures.fixtureSourceClasses.A, 'class'],
+				[fixtures.fixtureSourceClasses.a, 'class'],
+				[fixtures.fixtureSourceClasses.b, 'class']
 			)
 		} else {
 			console.log(
 				"didn't add native class types as native classes are not supported on this environment"
 			)
 		}
-		if (fixtureMap) {
-			typeTestData.push([fixtureMap, 'map'])
+		if (fixtures.fixtureMap) {
+			typeTestData.push([fixtures.fixtureMap, 'map'])
 		}
-		if (fixtureWeakMap) {
-			typeTestData.push([fixtureWeakMap, 'weakmap'])
+		if (fixtures.fixtureWeakMap) {
+			typeTestData.push([fixtures.fixtureWeakMap, 'weakmap'])
 		}
 
 		// Handler
