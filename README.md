@@ -57,14 +57,14 @@ Under certain circumstances `instanceof` may not return the correct results. Thi
 <a href="https://deno.land" title="Deno is a secure runtime for JavaScript and TypeScript, it is an alternative for Node.js"><h3>Deno</h3></a>
 
 ``` typescript
-import * as pkg from 'https://unpkg.com/typechecker@^7.16.0/edition-deno/index.ts'
+import * as pkg from 'https://unpkg.com/typechecker@^7.17.0/edition-deno/index.ts'
 ```
 
 <a href="https://www.skypack.dev" title="Skypack is a JavaScript Delivery Network for modern web apps"><h3>Skypack</h3></a>
 
 ``` html
 <script type="module">
-    import * as pkg from '//cdn.skypack.dev/typechecker@^7.16.0'
+    import * as pkg from '//cdn.skypack.dev/typechecker@^7.17.0'
 </script>
 ```
 
@@ -72,7 +72,7 @@ import * as pkg from 'https://unpkg.com/typechecker@^7.16.0/edition-deno/index.t
 
 ``` html
 <script type="module">
-    import * as pkg from '//unpkg.com/typechecker@^7.16.0'
+    import * as pkg from '//unpkg.com/typechecker@^7.17.0'
 </script>
 ```
 
@@ -80,7 +80,7 @@ import * as pkg from 'https://unpkg.com/typechecker@^7.16.0/edition-deno/index.t
 
 ``` html
 <script type="module">
-    import * as pkg from '//dev.jspm.io/typechecker@7.16.0'
+    import * as pkg from '//dev.jspm.io/typechecker@7.17.0'
 </script>
 ```
 
@@ -91,8 +91,8 @@ import * as pkg from 'https://unpkg.com/typechecker@^7.16.0/edition-deno/index.t
 <ul><li><code>typechecker/source/index.ts</code> is <a href="https://www.typescriptlang.org/" title="TypeScript is a typed superset of JavaScript that compiles to plain JavaScript. ">TypeScript</a> source code with <a href="https://babeljs.io/docs/learn-es2015/#modules" title="ECMAScript Modules">Import</a> for modules</li>
 <li><code>typechecker/edition-browsers/index.js</code> is <a href="https://www.typescriptlang.org/" title="TypeScript is a typed superset of JavaScript that compiles to plain JavaScript. ">TypeScript</a> compiled against <a href="https://en.wikipedia.org/wiki/ECMAScript#10th_Edition_-_ECMAScript_2019" title="ECMAScript ES2019">ES2019</a> for web browsers with <a href="https://babeljs.io/docs/learn-es2015/#modules" title="ECMAScript Modules">Import</a> for modules</li>
 <li><code>typechecker</code> aliases <code>typechecker/edition-esnext/index.js</code></li>
-<li><code>typechecker/edition-esnext/index.js</code> is <a href="https://www.typescriptlang.org/" title="TypeScript is a typed superset of JavaScript that compiles to plain JavaScript. ">TypeScript</a> compiled against <a href="https://en.wikipedia.org/wiki/ECMAScript#ES.Next" title="ECMAScript Next">ESNext</a> for <a href="https://nodejs.org" title="Node.js is a JavaScript runtime built on Chrome's V8 JavaScript engine">Node.js</a> 10 || 12 || 13 || 14 with <a href="https://nodejs.org/dist/latest-v5.x/docs/api/modules.html" title="Node/CJS Modules">Require</a> for modules</li>
-<li><code>typechecker/edition-esnext-esm/index.js</code> is <a href="https://www.typescriptlang.org/" title="TypeScript is a typed superset of JavaScript that compiles to plain JavaScript. ">TypeScript</a> compiled against <a href="https://en.wikipedia.org/wiki/ECMAScript#ES.Next" title="ECMAScript Next">ESNext</a> for <a href="https://nodejs.org" title="Node.js is a JavaScript runtime built on Chrome's V8 JavaScript engine">Node.js</a> 12 || 13 || 14 with <a href="https://babeljs.io/docs/learn-es2015/#modules" title="ECMAScript Modules">Import</a> for modules</li>
+<li><code>typechecker/edition-esnext/index.js</code> is <a href="https://www.typescriptlang.org/" title="TypeScript is a typed superset of JavaScript that compiles to plain JavaScript. ">TypeScript</a> compiled against <a href="https://en.wikipedia.org/wiki/ECMAScript#ES.Next" title="ECMAScript Next">ESNext</a> for <a href="https://nodejs.org" title="Node.js is a JavaScript runtime built on Chrome's V8 JavaScript engine">Node.js</a> 10 || 12 || 14 || 15 with <a href="https://nodejs.org/dist/latest-v5.x/docs/api/modules.html" title="Node/CJS Modules">Require</a> for modules</li>
+<li><code>typechecker/edition-esnext-esm/index.js</code> is <a href="https://www.typescriptlang.org/" title="TypeScript is a typed superset of JavaScript that compiles to plain JavaScript. ">TypeScript</a> compiled against <a href="https://en.wikipedia.org/wiki/ECMAScript#ES.Next" title="ECMAScript Next">ESNext</a> for <a href="https://nodejs.org" title="Node.js is a JavaScript runtime built on Chrome's V8 JavaScript engine">Node.js</a> 12 || 14 || 15 with <a href="https://babeljs.io/docs/learn-es2015/#modules" title="ECMAScript Modules">Import</a> for modules</li>
 <li><code>typechecker/edition-deno/index.ts</code> is <a href="https://www.typescriptlang.org/" title="TypeScript is a typed superset of JavaScript that compiles to plain JavaScript. ">TypeScript</a> source code made to be compatible with <a href="https://deno.land" title="Deno is a secure runtime for JavaScript and TypeScript, it is an alternative to Node.js">Deno</a></li></ul>
 
 <!-- /INSTALL -->
