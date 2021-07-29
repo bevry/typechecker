@@ -4,7 +4,7 @@
 import { equal, inspect, errorEqual } from 'assert-helpers'
 import kava from 'kava'
 import * as typeChecker from './index.js'
-import fixtures from '../fixtures/index.js'
+import fixtures from '../test-fixtures/index.js'
 
 // Checks
 const checks: Array<[string, any, boolean | string]> = [
