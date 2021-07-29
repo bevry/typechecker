@@ -1,3 +1,4 @@
+// @ts-ignore
 'use strict'
 
 class A {}

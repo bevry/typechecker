@@ -1,3 +1,4 @@
+// @ts-ignore
 'use strict'
 
 /** @type {typeof import('./classes.js')} */

@@ -1,3 +1,4 @@
+// @ts-ignore
 'use strict'
 
 function _defineProperties(target, props) {
