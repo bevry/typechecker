@@ -7,8 +7,8 @@
     "moduleResolution": "Node",
     "strict": true,
     "target": "ES2019",
-    "module": "ESNext"
+    "module": "ESNext",
+    "outDir": "/tmp"
   },
-  "include": ["source"],
-  "exclude": ["test-fixtures", "node_modules", "source/test.ts"]
+  "include": ["source"]
 }
