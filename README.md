@@ -4,6 +4,7 @@
 
 <!-- /TITLE -->
 
+
 <!-- BADGES/ -->
 
 <span class="badge-githubworkflow"><a href="https://github.com/bevry/typechecker/actions?query=workflow%3Abevry" title="View the status of this project's GitHub Workflow: bevry"><img src="https://github.com/bevry/typechecker/workflows/bevry/badge.svg" alt="Status of the GitHub Workflow: bevry" /></a></span>
@@ -24,11 +25,13 @@
 
 <!-- /BADGES -->
 
+
 <!-- DESCRIPTION/ -->
 
 Utilities to get and check variable types (isString, isPlainObject, isRegExp, etc)
 
 <!-- /DESCRIPTION -->
+
 
 ## Why?
 
@@ -45,7 +48,6 @@ Under certain circumstances `instanceof` may not return the correct results. Thi
 <h2>Install</h2>
 
 <a href="https://npmjs.com" title="npm is a package manager for javascript"><h3>npm</h3></a>
-
 <ul>
 <li>Install: <code>npm install --save typechecker</code></li>
 <li>Import: <code>import * as pkg from ('typechecker')</code></li>
@@ -54,31 +56,31 @@ Under certain circumstances `instanceof` may not return the correct results. Thi
 
 <a href="https://deno.land" title="Deno is a secure runtime for JavaScript and TypeScript, it is an alternative for Node.js"><h3>Deno</h3></a>
 
-```typescript
-import * as pkg from 'https://unpkg.com/typechecker@^7.17.0/edition-deno/index.ts'
+``` typescript
+import * as pkg from 'https://unpkg.com/typechecker@^7.18.0/edition-deno/index.ts'
 ```
 
 <a href="https://www.skypack.dev" title="Skypack is a JavaScript Delivery Network for modern web apps"><h3>Skypack</h3></a>
 
-```html
+``` html
 <script type="module">
-    import * as pkg from '//cdn.skypack.dev/typechecker@^7.17.0'
+    import * as pkg from '//cdn.skypack.dev/typechecker@^7.18.0'
 </script>
 ```
 
 <a href="https://unpkg.com" title="unpkg is a fast, global content delivery network for everything on npm"><h3>unpkg</h3></a>
 
-```html
+``` html
 <script type="module">
-    import * as pkg from '//unpkg.com/typechecker@^7.17.0'
+    import * as pkg from '//unpkg.com/typechecker@^7.18.0'
 </script>
 ```
 
 <a href="https://jspm.io" title="Native ES Modules CDN"><h3>jspm</h3></a>
 
-```html
+``` html
 <script type="module">
-    import * as pkg from '//dev.jspm.io/typechecker@7.17.0'
+    import * as pkg from '//dev.jspm.io/typechecker@7.18.0'
 </script>
 ```
 
@@ -95,6 +97,7 @@ import * as pkg from 'https://unpkg.com/typechecker@^7.17.0/edition-deno/index.t
 
 <!-- /INSTALL -->
 
+
 <!-- HISTORY/ -->
 
 <h2>History</h2>
@@ -103,6 +106,7 @@ import * as pkg from 'https://unpkg.com/typechecker@^7.17.0/edition-deno/index.t
 
 <!-- /HISTORY -->
 
+
 <!-- CONTRIBUTE/ -->
 
 <h2>Contribute</h2>
@@ -110,6 +114,7 @@ import * as pkg from 'https://unpkg.com/typechecker@^7.17.0/edition-deno/index.t
 <a href="https://github.com/bevry/typechecker/blob/master/CONTRIBUTING.md#files">Discover how you can contribute by heading on over to the <code>CONTRIBUTING.md</code> file.</a>
 
 <!-- /CONTRIBUTE -->
+
 
 <!-- BACKERS/ -->
 
@@ -147,6 +152,7 @@ These amazing people have contributed code to this project:
 <a href="https://github.com/bevry/typechecker/blob/master/CONTRIBUTING.md#files">Discover how you can contribute by heading on over to the <code>CONTRIBUTING.md</code> file.</a>
 
 <!-- /BACKERS -->
+
 
 <!-- LICENSE/ -->
 
