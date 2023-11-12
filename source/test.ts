@@ -30,7 +30,7 @@ kava.suite('typechecker', function (suite) {
 			equal(
 				typeChecker.isObject(''),
 				false,
-				'empty string should not be a object'
+				'empty string should not be a object',
 			)
 			equal(typeChecker.isObject(), false, 'undefined should not be a object')
 		})
@@ -39,69 +39,69 @@ kava.suite('typechecker', function (suite) {
 			equal(
 				typeChecker.isPlainObject({}),
 				true,
-				'object {} should be a plain object'
+				'object {} should be a plain object',
 			)
 			equal(
 				typeChecker.isPlainObject(null),
 				false,
-				'null should not be a plain object'
+				'null should not be a plain object',
 			)
 			equal(
 				typeChecker.isPlainObject('a'),
 				false,
-				'string should not be a plain object'
+				'string should not be a plain object',
 			)
 			equal(
 				typeChecker.isPlainObject(''),
 				false,
-				'empty string should not be a plain object'
+				'empty string should not be a plain object',
 			)
 			equal(
 				typeChecker.isPlainObject(),
 				false,
-				'undefined should not be a plain object'
+				'undefined should not be a plain object',
 			)
 			if (fixtures.fixtureSourceClasses) {
 				equal(
 					typeChecker.isPlainObject(new fixtures.fixtureSourceClasses.A()),
 					false,
-					'native clas instantiation should not be a plain object'
+					'native clas instantiation should not be a plain object',
 				)
 			}
 			equal(
 				// @ts-ignore
 				typeChecker.isPlainObject(new fixtures.fixtureCompiledClasses.A()),
 				false,
-				'conventional class instantiation should not be a plain object'
+				'conventional class instantiation should not be a plain object',
 			)
 		})
 
 		test('isNativeClass', function () {
 			if (!fixtures.fixtureSourceClasses) {
 				console.log(
-					'skipping checks as native classes not supported on this environment'
+					'skipping checks as native classes not supported on this environment',
 				)
 				return
 			}
 			equal(
 				typeChecker.isNativeClass(fixtures.fixtureSourceClasses.A),
 				true,
-				'class A {} should be considered native class'
+				'class A {} should be considered native class',
 			)
 			equal(
 				typeChecker.isNativeClass(fixtures.fixtureSourceClasses.b),
 				true,
-				'class {} should be considered native class'
+				'class {} should be considered native class',
 			)
 			equal(
 				typeChecker.isNativeClass(fixtures.fixtureSourceClasses.C),
 				true,
-				'class C extends A {} should be considered native class'
+				'class C extends A {} should be considered native class',
 			)
 			equal(
 				typeChecker.isNativeClass(function () {}),
 				false,
-				'function () {} should not be considered native class'
+				'function () {} should not be considered native class',
 			)
 		})
 
@@ -109,71 +109,71 @@ kava.suite('typechecker', function (suite) {
 			equal(
 				typeChecker.isConventionalClass(fixtures.fixtureCompiledClasses.A),
 				true,
-				'compiled class A {} should be considered conventional class'
+				'compiled class A {} should be considered conventional class',
 			)
 			equal(
 				typeChecker.isConventionalClass(fixtures.fixtureCompiledClasses.a),
 				false,
-				'compiled class a {} should not be considered conventional class'
+				'compiled class a {} should not be considered conventional class',
 			)
 			equal(
 				typeChecker.isConventionalClass(fixtures.fixtureCompiledClasses.b),
 				false,
-				'compiled class {} should not be considered conventional class'
+				'compiled class {} should not be considered conventional class',
 			)
 			equal(
 				typeChecker.isConventionalClass(fixtures.fixtureCompiledClasses.C),
 				true,
-				'compiled class C extends A {} should not be considered conventional class'
+				'compiled class C extends A {} should not be considered conventional class',
 			)
 			equal(
 				typeChecker.isConventionalClass(function B() {}),
 				true,
-				'function B () {} should be considered conventional class'
+				'function B () {} should be considered conventional class',
 			)
 			equal(
 				typeChecker.isConventionalClass(function b() {}),
 				false,
-				'function b () {} should not be considered conventional class'
+				'function b () {} should not be considered conventional class',
 			)
 			equal(
 				typeChecker.isConventionalClass(function () {}),
 				false,
-				'function () {} should not be considered conventional class'
+				'function () {} should not be considered conventional class',
 			)
 			equal(
 				typeChecker.isConventionalClass(eval('(function(BasePlugin){})')),
 				false,
-				'function(BasePlugin){} should not be considered conventional class'
+				'function(BasePlugin){} should not be considered conventional class',
 			)
 		})
 
 		test('isAsyncFunction', function () {
 			if (!fixtures.fixtureSourceAsyncFunction) {
 				console.log(
-					'skipping checks as native async functions not supported on this environment'
+					'skipping checks as native async functions not supported on this environment',
 				)
 				return
 			}
 			equal(
 				typeChecker.isAsyncFunction(fixtures.fixtureSourceAsyncFunction),
 				true,
-				'async function AsyncFunction () {} should be considered an async function'
+				'async function AsyncFunction () {} should be considered an async function',
 			)
 			equal(
 				typeChecker.isSyncFunction(fixtures.fixtureSourceAsyncFunction),
 				false,
-				'async function AsyncFunction () {} should not be considered a sync function'
+				'async function AsyncFunction () {} should not be considered a sync function',
 			)
 			equal(
 				typeChecker.isFunction(fixtures.fixtureSourceAsyncFunction),
 				true,
-				'async function AsyncFunction () {} should be considered a function'
+				'async function AsyncFunction () {} should be considered a function',
 			)
 			equal(
 				typeChecker.getType(fixtures.fixtureSourceAsyncFunction),
 				'function',
-				'async function AsyncFunction () {} should be considered a function type'
+				'async function AsyncFunction () {} should be considered a function type',
 			)
 		})
 
@@ -185,12 +185,12 @@ kava.suite('typechecker', function (suite) {
 			equal(
 				typeChecker.isEmptyMap(fixtures.fixtureMap),
 				false,
-				'new Map(entries) should not be considered empty'
+				'new Map(entries) should not be considered empty',
 			)
 			equal(
 				typeChecker.isEmptyMap(fixtures.fixtureMapEmpty),
 				true,
-				'new Map() should not be considered empty'
+				'new Map() should not be considered empty',
 			)
 			try {
 				typeChecker.isEmptyMap([])
@@ -203,19 +203,19 @@ kava.suite('typechecker', function (suite) {
 		test('isEmptyWeakMap', function () {
 			if (!fixtures.fixtureWeakMap) {
 				console.log(
-					'skipping checks as weak maps not supported on this environment'
+					'skipping checks as weak maps not supported on this environment',
 				)
 				return
 			}
 			equal(
 				typeChecker.isEmptyWeakMap(fixtures.fixtureWeakMap),
 				false,
-				'new WeakMap(entries) should not be considered empty'
+				'new WeakMap(entries) should not be considered empty',
 			)
 			equal(
 				typeChecker.isEmptyWeakMap(fixtures.fixtureWeakMapEmpty),
 				true,
-				'new WeakMap() should be considered empty'
+				'new WeakMap() should be considered empty',
 			)
 			try {
 				typeChecker.isEmptyWeakMap([])
@@ -270,11 +270,11 @@ kava.suite('typechecker', function (suite) {
 			typeTestData.push(
 				[fixtures.fixtureSourceClasses.A, 'class'],
 				[fixtures.fixtureSourceClasses.a, 'class'],
-				[fixtures.fixtureSourceClasses.b, 'class']
+				[fixtures.fixtureSourceClasses.b, 'class'],
 			)
 		} else {
 			console.log(
-				"didn't add native class types as native classes are not supported on this environment"
+				"didn't add native class types as native classes are not supported on this environment",
 			)
 		}
 		if (fixtures.fixtureMap) {
@@ -287,7 +287,7 @@ kava.suite('typechecker', function (suite) {
 		// Handler
 		function testType(value: any, typeExpected: any, typeActual: any) {
 			test(`should detect ${inspect(
-				value
+				value,
 			)} is of type ${typeExpected}`, function () {
 				equal(typeActual, typeExpected)
 			})
@@ -311,14 +311,14 @@ kava.suite('typechecker', function (suite) {
 			equal(
 				typeChecker.getType('hello', customTypeMap),
 				'truthy',
-				'truthy came back as expected using custom type map'
+				'truthy came back as expected using custom type map',
 			)
 		})
 		test('custom exception', function () {
 			equal(
 				typeChecker.getType(false, customTypeMap),
 				null,
-				'null came back as expected as we had no custom type for falsey'
+				'null came back as expected as we had no custom type for falsey',
 			)
 		})
 	})
