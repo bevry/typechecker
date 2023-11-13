@@ -1,7 +1,7 @@
 {
   "title": "TypeChecker",
   "name": "typechecker",
-  "version": "8.0.0",
+  "version": "8.1.0",
   "description": "Utilities to get and check variable types (isString, isPlainObject, isRegExp, etc)",
   "homepage": "https://github.com/bevry/typechecker",
   "license": "Artistic-2.0",
@@ -355,21 +355,21 @@
   "browser": "edition-browsers/index.js",
   "module": "edition-browsers/index.js",
   "dependencies": {
-    "editions": "^6.10.0"
+    "editions": "^6.11.0"
   },
   "devDependencies": {
     "@bevry/update-contributors": "^1.23.0",
     "@types/node": "^20.9.0",
     "@typescript-eslint/eslint-plugin": "^6.10.0",
     "@typescript-eslint/parser": "^6.10.0",
-    "assert-helpers": "^11.1.0",
+    "assert-helpers": "^11.2.0",
     "eslint": "^8.53.0",
     "eslint-config-bevry": "^3.29.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-prettier": "^5.0.1",
-    "kava": "3.2.0",
+    "kava": "^7.0.0",
     "make-deno-edition": "^1.3.0",
-    "prettier": "^3.0.3",
+    "prettier": "^3.1.0",
     "projectz": "^2.23.0",
     "surge": "^0.23.1",
     "typedoc": "^0.25.3",
@@ -415,6 +415,7 @@
   },
   "prettier": {
     "semi": false,
-    "singleQuote": true
+    "singleQuote": true,
+    "trailingComma": "es5"
   }
 }
