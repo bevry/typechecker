@@ -8,6 +8,7 @@
     "strict": true,
     "target": "ES2022",
     "module": "ESNext",
+    "downlevelIteration": true,
     "outDir": "/tmp"
   },
   "include": ["source"]

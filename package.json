@@ -1,7 +1,7 @@
 {
   "title": "TypeChecker",
   "name": "typechecker",
-  "version": "8.2.0",
+  "version": "8.3.0",
   "description": "Utilities to get and check variable types (isString, isPlainObject, isRegExp, etc)",
   "homepage": "https://github.com/bevry/typechecker",
   "license": "Artistic-2.0",
@@ -205,18 +205,19 @@
       "githubsponsors",
       "thanksdev",
       "patreon",
-      "flattr",
       "liberapay",
       "buymeacoffee",
       "opencollective",
       "crypto",
       "paypal",
-      "wishlist"
+      "---",
+      "discord",
+      "twitch"
     ],
     "config": {
       "githubWorkflow": "bevry",
       "githubSponsorsUsername": "balupton",
-      "thanksdevGithubUsername": "balupton",
+      "thanksdevGithubUsername": "bevry",
       "buymeacoffeeUsername": "balupton",
       "cryptoURL": "https://bevry.me/crypto",
       "flattrUsername": "balupton",
@@ -225,6 +226,9 @@
       "patreonUsername": "bevry",
       "paypalURL": "https://bevry.me/paypal",
       "wishlistURL": "https://bevry.me/wishlist",
+      "discordServerID": "1147436445783560193",
+      "discordServerInvite": "nQuXddV7VP",
+      "twitchUsername": "balupton",
       "githubUsername": "bevry",
       "githubRepository": "typechecker",
       "githubSlug": "bevry/typechecker",
@@ -343,12 +347,17 @@
   "main": "index.cjs",
   "exports": {
     "node": {
+      "types": "./compiled-types/",
       "import": "./edition-es2022-esm/index.js",
       "default": "./index.cjs",
       "require": "./edition-es2022/index.js"
     },
     "browser": {
+      "types": "./compiled-types/",
       "import": "./edition-browsers/index.js"
+    },
+    "default": {
+      "types": "./compiled-types/"
     }
   },
   "deno": "edition-deno/index.ts",
@@ -359,23 +368,23 @@
   },
   "devDependencies": {
     "@bevry/update-contributors": "^1.23.0",
-    "@types/node": "^20.9.0",
+    "@types/node": "^20.9.2",
     "@typescript-eslint/eslint-plugin": "^6.11.0",
     "@typescript-eslint/parser": "^6.11.0",
     "assert-helpers": "^11.4.0",
-    "eslint": "^8.53.0",
-    "eslint-config-bevry": "^4.0.0",
+    "eslint": "^8.54.0",
+    "eslint-config-bevry": "^5.0.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-prettier": "^5.0.1",
-    "kava": "^7.1.0",
+    "kava": "^7.2.0",
     "make-deno-edition": "^1.3.0",
     "prettier": "^3.1.0",
-    "projectz": "^3.0.0",
+    "projectz": "^3.2.0",
     "surge": "^0.23.1",
     "typedoc": "^0.25.3",
     "typescript": "5.2.2",
-    "valid-directory": "^4.2.0",
-    "valid-module": "^2.2.0"
+    "valid-directory": "^4.4.0",
+    "valid-module": "^2.4.0"
   },
   "scripts": {
     "our:clean": "rm -rf ./docs ./edition* ./es2015 ./es5 ./out ./.next",
