@@ -1,5 +1,11 @@
 # History
 
+## v9.0.0 2023 November 25
+
+-   Type definitions now discriminate inputs and outputs, allowing TypeChecker to work natively with TypeScript narrowing
+    -   Thank you to [jcalz](https://stackoverflow.com/users/2887218/jcalz) on [StackOverflow](https://stackoverflow.com/questions/77546382/why-does-explicit-narrowing-not-work-but-implicit-narrowing-does/77546414#comment136709885_77546382) for pointing me in the right direction
+-   Updated dependencies, [base files](https://github.com/bevry/base), and [editions](https://editions.bevry.me) using [boundation](https://github.com/bevry/boundation)
+
 ## v8.6.0 2023 November 25
 
 -   Updated dependencies, [base files](https://github.com/bevry/base), and [editions](https://editions.bevry.me) using [boundation](https://github.com/bevry/boundation)
