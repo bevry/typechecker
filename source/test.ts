@@ -456,7 +456,9 @@ kava.suite('typechecker', function (suite) {
 			const f2: false = isSyncFunction(new Set())
 			const f3: false = isSyncFunction({})
 			const b1: boolean = isSyncFunction(function () {})
-			const b2: boolean = isSyncFunction(async function () {})
+			if (Boolean(fixtures.fixtureSourceAsyncFunction)) {
+				const b2: boolean = isSyncFunction(fixtures.fixtureSourceAsyncFunction)
+			}
 			const v: unknown = 'this value does not matter'
 			if (isSyncFunction(v)) {
 				const g: Function = v
@@ -470,7 +472,9 @@ kava.suite('typechecker', function (suite) {
 			const f2: false = isAsyncFunction(new Set())
 			const f3: false = isAsyncFunction({})
 			const b1: boolean = isAsyncFunction(function () {})
-			const b2: boolean = isAsyncFunction(async function () {})
+			if (Boolean(fixtures.fixtureSourceAsyncFunction)) {
+				const b2: boolean = isAsyncFunction(fixtures.fixtureSourceAsyncFunction)
+			}
 			const v: unknown = 'this value does not matter'
 			if (isAsyncFunction(v)) {
 				const g: Function = v
@@ -484,7 +488,9 @@ kava.suite('typechecker', function (suite) {
 			const f2: false = isFunction(new Set())
 			const f3: false = isFunction({})
 			const t1: true = isFunction(function () {})
-			const t2: true = isFunction(async function () {})
+			if (Boolean(fixtures.fixtureSourceAsyncFunction)) {
+				const t2: true = isFunction(fixtures.fixtureSourceAsyncFunction)
+			}
 			const v: unknown = 'this value does not matter'
 			if (isFunction(v)) {
 				const g: Function = v
@@ -498,7 +504,6 @@ kava.suite('typechecker', function (suite) {
 			const f2: false = isRegExp(new Set())
 			const f3: false = isRegExp({})
 			const f4: false = isRegExp(function () {})
-			const f5: false = isRegExp(async function () {})
 			const t1: true = isRegExp(new RegExp('a'))
 			const t2: true = isRegExp(/a/)
 			const v: unknown = 'this value does not matter'
