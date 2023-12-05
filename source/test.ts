@@ -456,7 +456,7 @@ kava.suite('typechecker', function (suite) {
 			const f2: false = isSyncFunction(new Set())
 			const f3: false = isSyncFunction({})
 			const b1: boolean = isSyncFunction(function () {})
-			if (Boolean(fixtures.fixtureSourceAsyncFunction)) {
+			if (fixtures.fixtureSourceAsyncFunction) {
 				const b2: boolean = isSyncFunction(fixtures.fixtureSourceAsyncFunction)
 			}
 			const v: unknown = 'this value does not matter'
@@ -472,7 +472,7 @@ kava.suite('typechecker', function (suite) {
 			const f2: false = isAsyncFunction(new Set())
 			const f3: false = isAsyncFunction({})
 			const b1: boolean = isAsyncFunction(function () {})
-			if (Boolean(fixtures.fixtureSourceAsyncFunction)) {
+			if (fixtures.fixtureSourceAsyncFunction) {
 				const b2: boolean = isAsyncFunction(fixtures.fixtureSourceAsyncFunction)
 			}
 			const v: unknown = 'this value does not matter'
@@ -488,7 +488,7 @@ kava.suite('typechecker', function (suite) {
 			const f2: false = isFunction(new Set())
 			const f3: false = isFunction({})
 			const t1: true = isFunction(function () {})
-			if (Boolean(fixtures.fixtureSourceAsyncFunction)) {
+			if (fixtures.fixtureSourceAsyncFunction) {
 				const t2: true = isFunction(fixtures.fixtureSourceAsyncFunction)
 			}
 			const v: unknown = 'this value does not matter'

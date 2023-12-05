@@ -1,7 +1,7 @@
 {
   "title": "TypeChecker",
   "name": "typechecker",
-  "version": "9.0.0",
+  "version": "9.1.0",
   "description": "Utilities to get and check variable types (isString, isPlainObject, isRegExp, etc)",
   "homepage": "https://github.com/bevry/typechecker",
   "license": "Artistic-2.0",
@@ -283,7 +283,7 @@
       }
     },
     {
-      "description": "TypeScript compiled against ES2022 for Node.js 6 || 8 || 10 || 12 || 14 || 16 || 18 || 20 || 21 with Require for modules",
+      "description": "TypeScript compiled against ES2022 for Node.js 21 with Require for modules",
       "directory": "edition-es2022",
       "entry": "index.js",
       "tags": [
@@ -298,7 +298,7 @@
       }
     },
     {
-      "description": "TypeScript compiled against ES5 for Node.js 4 || 6 || 8 || 10 || 12 || 14 || 16 || 18 || 20 || 21 with Require for modules",
+      "description": "TypeScript compiled against ES5 for Node.js 4 with Require for modules",
       "directory": "edition-es5",
       "entry": "index.js",
       "tags": [
@@ -313,7 +313,7 @@
       }
     },
     {
-      "description": "TypeScript compiled against ES2022 for Node.js 12 || 14 || 16 || 18 || 20 || 21 with Import for modules",
+      "description": "TypeScript compiled against ES2022 for Node.js 21 with Import for modules",
       "directory": "edition-es2022-esm",
       "entry": "index.js",
       "tags": [
@@ -372,27 +372,26 @@
   "browser": "edition-browsers/index.js",
   "module": "edition-browsers/index.js",
   "dependencies": {
-    "editions": "^6.16.0"
+    "editions": "^6.18.0"
   },
   "devDependencies": {
     "@bevry/update-contributors": "^1.23.0",
-    "@types/node": "^20.10.0",
-    "@typescript-eslint/eslint-plugin": "^6.12.0",
-    "@typescript-eslint/parser": "^6.12.0",
-    "assert-helpers": "^11.6.0",
-    "eslint": "^8.54.0",
+    "@types/node": "^20.10.3",
+    "@typescript-eslint/eslint-plugin": "^6.13.2",
+    "@typescript-eslint/parser": "^6.13.2",
+    "assert-helpers": "^11.8.0",
+    "eslint": "^8.55.0",
     "eslint-config-bevry": "^5.2.0",
-    "eslint-config-prettier": "^9.0.0",
+    "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.0.1",
     "kava": "^7.4.0",
-    "make-deno-edition": "^2.0.0",
+    "make-deno-edition": "^2.0.1",
     "prettier": "^3.1.0",
     "projectz": "^3.4.0",
-    "surge": "^0.23.1",
-    "typedoc": "^0.25.3",
-    "typescript": "5.2.2",
-    "valid-directory": "^4.5.0",
-    "valid-module": "^2.5.0"
+    "typedoc": "^0.25.4",
+    "typescript": "5.3.2",
+    "valid-directory": "^4.6.0",
+    "valid-module": "^2.6.0"
   },
   "scripts": {
     "our:clean": "rm -rf ./docs ./edition* ./es2015 ./es5 ./out ./.next",
@@ -433,6 +432,7 @@
   "prettier": {
     "semi": false,
     "singleQuote": true,
-    "trailingComma": "es5"
+    "trailingComma": "es5",
+    "endOfLine": "lf"
   }
 }

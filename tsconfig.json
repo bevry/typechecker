@@ -1,15 +1,15 @@
 {
   "compilerOptions": {
     "allowJs": true,
+    "downlevelIteration": true,
     "esModuleInterop": true,
     "isolatedModules": true,
     "maxNodeModuleJsDepth": 5,
-    "moduleResolution": "Node",
-    "strict": true,
-    "target": "ES2022",
     "module": "ESNext",
-    "downlevelIteration": true,
-    "outDir": "/tmp"
+    "moduleResolution": "Node",
+    "outDir": "/tmp",
+    "strict": true,
+    "target": "ES2022"
   },
   "include": ["source"]
 }
